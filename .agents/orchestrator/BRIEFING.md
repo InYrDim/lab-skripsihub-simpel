@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:08:03Z
+# BRIEFING - 2026-07-23T07:08:03Z
 
 ## Mission
 Orchestrate the end-to-end development, testing, frontend implementation, core business logic, PDF generation, and verification of SkripsiHub academic submission management system.
@@ -64,7 +64,7 @@ Orchestrate the end-to-end development, testing, frontend implementation, core b
 - Safety timer: none
 
 ## Artifact Index
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\PROJECT.md — Main project architecture and milestone index
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\plan.md — Detailed execution plan
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\progress.md — Liveness & status tracking
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\context.md — Context memory & specifications summary
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\PROJECT.md - Main project architecture and milestone index
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\plan.md - Detailed execution plan
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\progress.md - Liveness & status tracking
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\context.md - Context memory & specifications summary

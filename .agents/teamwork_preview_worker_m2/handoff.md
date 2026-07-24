@@ -1,4 +1,4 @@
-# Handoff Report — Milestone 2 (Backend Core Submissions & Business Logic)
+# Handoff Report - Milestone 2 (Backend Core Submissions & Business Logic)
 
 ## 1. Observation
 - Verified specifications in `API_SPECIFICATION.md`, `BUSINESS_RULES.md`, and `DATABASE_SCHEMA.md`.

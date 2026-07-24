@@ -53,8 +53,8 @@ Milestone 5 (Frontend React/Vite/Tailwind UI & Routing) implementation is fully 
 
 ## 5. Verification Method
 1. Change directory to `C:\Users\iyede\code\__lab__\skripsihub\frontend`.
-2. Execute `npm run build` — verify compilation succeeds with zero errors.
-3. Execute `npm run lint` — verify linter passes with zero errors.
+2. Execute `npm run build` - verify compilation succeeds with zero errors.
+3. Execute `npm run lint` - verify linter passes with zero errors.
 4. Launch `npm run dev` to preview the UI locally:
    - Navigate to `/login` and test quick login buttons (Student, Admin, Validator).
    - Test Student Dashboard: Create submission, verify UI blocking when submission is active, view rejection feedback, download PDF letter.

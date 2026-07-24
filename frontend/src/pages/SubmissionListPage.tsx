@@ -99,7 +99,7 @@ export const SubmissionListPage: React.FC = () => {
   ));
 
   const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return '—';
+    if (!dateStr) return '-';
     const d = new Date(dateStr);
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -271,7 +271,7 @@ export const SubmissionListPage: React.FC = () => {
                         )}
                       </div>
                       <span className="text-xs font-mono font-bold text-zinc-400 bg-zinc-50 dark:bg-zinc-900 px-2 py-1 rounded">
-                        {sub.nim || '—'}
+                        {sub.nim || '-'}
                       </span>
                     </div>
 
@@ -427,7 +427,7 @@ export const SubmissionListPage: React.FC = () => {
                     {selectedSubmission.studentName}
                   </p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
-                    NIM: {selectedSubmission.nim || '—'}
+                    NIM: {selectedSubmission.nim || '-'}
                   </p>
                 </div>
               </div>

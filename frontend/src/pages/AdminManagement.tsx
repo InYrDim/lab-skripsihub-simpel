@@ -284,8 +284,13 @@ export const AdminManagement: React.FC = () => {
   };
 
   const filteredUsers = users.filter((u) => {
-    if (roleFilter === 'ALL') return true;
-    return u.role.toUpperCase() === roleFilter.toUpperCase();
+    const matchesRole =
+      roleFilter === 'ALL' ||
+      u.role.toUpperCase() === roleFilter.toUpperCase();
+    const matchesProdi =
+      prodiFilter === 'ALL' || u.prodi === prodiFilter;
+
+    return matchesRole && matchesProdi;
   });
   const showStudentIdentityColumn = ['ALL', 'STUDENT'].includes(roleFilter);
 
@@ -382,7 +387,17 @@ export const AdminManagement: React.FC = () => {
                 User Accounts Directory
               </h3>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Select
+                  value={prodiFilter}
+                  onChange={(value) => setProdiFilter(value)}
+                  options={[
+                    { value: 'ALL', label: 'Semua Prodi' },
+                    { value: 'PTIK', label: 'PTIK' },
+                    { value: 'TEKOM', label: 'TEKOM' },
+                  ]}
+                  className="w-36"
+                />
                 <button
                   onClick={() => setShowAddUserModal(true)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 text-white font-semibold text-xs shadow-sm hover:bg-orange-700 transition-colors"
@@ -400,9 +415,14 @@ export const AdminManagement: React.FC = () => {
                   { value: 'ADMIN', label: 'Admin' },
                   { value: 'VALIDATOR', label: 'Validator' },
                 ].map((tab) => {
+                  const usersInProdi = users.filter(
+                    (user) => prodiFilter === 'ALL' || user.prodi === prodiFilter,
+                  );
                   const count = tab.value === 'ALL'
-                    ? users.length
-                    : users.filter((user) => user.role.toUpperCase() === tab.value).length;
+                    ? usersInProdi.length
+                    : usersInProdi.filter(
+                        (user) => user.role.toUpperCase() === tab.value,
+                      ).length;
 
                   return (
                     <button

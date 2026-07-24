@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:26:45Z
+# BRIEFING - 2026-07-23T07:26:45Z
 
 ## Mission
 Milestone 4: Backend Automated Test Suite & Verification for SkripsiHub. Ensure comprehensive test coverage and verified passing tests for all required acceptance criteria.
@@ -46,7 +46,7 @@ Milestone 4: Backend Automated Test Suite & Verification for SkripsiHub. Ensure 
 - None
 
 ## Artifact Index
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\progress.md — Progress tracker
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\BRIEFING.md — Working memory index
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\ORIGINAL_REQUEST.md — Initial user request
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\handoff.md — Final handoff report
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\progress.md - Progress tracker
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\BRIEFING.md - Working memory index
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\ORIGINAL_REQUEST.md - Initial user request
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_worker_m4\handoff.md - Final handoff report

@@ -1,4 +1,4 @@
-# Handoff Report — Milestone 3 (Core Business Logic & Puppeteer PDF Generation Module)
+# Handoff Report - Milestone 3 (Core Business Logic & Puppeteer PDF Generation Module)
 
 ## 1. Observation
 

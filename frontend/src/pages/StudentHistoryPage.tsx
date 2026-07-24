@@ -139,12 +139,12 @@ export const StudentHistoryPage: React.FC = () => {
                             <ul className="flex flex-col gap-4">
                               {sub.titles.map((t, i) => (
                                 <li key={i} className="text-[10px] font-bold text-zinc-500 uppercase min-h-[2.5rem] pt-0.5">
-                                  {t.topic || '—'}
+                                  {t.topic || '-'}
                                 </li>
                               ))}
                             </ul>
                           ) : (
-                            <span className="text-zinc-400 text-xs">—</span>
+                            <span className="text-zinc-400 text-xs">-</span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap align-top">{getStatusBadge(sub.status)}</td>

@@ -90,9 +90,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Login successful.
-- `401 Unauthorized` — Invalid email or password.
-- `429 Too Many Requests` — Too many failed login attempts; account temporarily locked.
+- `200 OK` - Login successful.
+- `401 Unauthorized` - Invalid email or password.
+- `429 Too Many Requests` - Too many failed login attempts; account temporarily locked.
 
 ---
 
@@ -120,8 +120,8 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Token refreshed.
-- `401 Unauthorized` — Invalid or expired refresh token.
+- `200 OK` - Token refreshed.
+- `401 Unauthorized` - Invalid or expired refresh token.
 
 ---
 
@@ -141,8 +141,8 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Logout successful.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Logout successful.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -212,10 +212,10 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `201 Created` — Submission created successfully.
-- `400 Bad Request` — Invalid input (e.g., fewer than 1 or more than 3 titles, missing required fields).
-- `409 Conflict` — Student already has an active submission in review.
-- `401 Unauthorized` — Invalid or missing token.
+- `201 Created` - Submission created successfully.
+- `400 Bad Request` - Invalid input (e.g., fewer than 1 or more than 3 titles, missing required fields).
+- `409 Conflict` - Student already has an active submission in review.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -225,9 +225,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Student
 
 **Query Parameters:**
-- `page` (optional, default: 1) — Page number for pagination.
-- `limit` (optional, default: 10) — Number of records per page.
-- `status` (optional) — Filter by status: `pending_admin_review`, `pending_validator_review`, `approved`, `rejected`.
+- `page` (optional, default: 1) - Page number for pagination.
+- `limit` (optional, default: 10) - Number of records per page.
+- `status` (optional) - Filter by status: `pending_admin_review`, `pending_validator_review`, `approved`, `rejected`.
 
 **Response Body (200 OK):**
 ```json
@@ -293,8 +293,8 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submissions retrieved successfully.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Submissions retrieved successfully.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -353,9 +353,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Current submission retrieved.
-- `204 No Content` — No active submission exists.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Current submission retrieved.
+- `204 No Content` - No active submission exists.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -365,7 +365,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Student
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Response Body (200 OK):**
 ```json
@@ -423,10 +423,10 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submission details retrieved.
-- `403 Forbidden` — Student attempting to access another student's submission.
-- `404 Not Found` — Submission does not exist.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Submission details retrieved.
+- `403 Forbidden` - Student attempting to access another student's submission.
+- `404 Not Found` - Submission does not exist.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -438,11 +438,11 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Admin
 
 **Query Parameters:**
-- `page` (optional, default: 1) — Page number for pagination.
-- `limit` (optional, default: 20) — Number of records per page.
-- `status` (optional) — Filter by status: `pending_admin_review`, `pending_validator_review`, `approved`, `rejected`.
-- `sortBy` (optional, default: `submittedAt`) — Sort field: `submittedAt`, `status`, `studentName`.
-- `sortOrder` (optional, default: `desc`) — Sort order: `asc` or `desc`.
+- `page` (optional, default: 1) - Page number for pagination.
+- `limit` (optional, default: 20) - Number of records per page.
+- `status` (optional) - Filter by status: `pending_admin_review`, `pending_validator_review`, `approved`, `rejected`.
+- `sortBy` (optional, default: `submittedAt`) - Sort field: `submittedAt`, `status`, `studentName`.
+- `sortOrder` (optional, default: `desc`) - Sort order: `asc` or `desc`.
 
 **Response Body (200 OK):**
 ```json
@@ -486,9 +486,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submissions retrieved.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - Submissions retrieved.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -498,7 +498,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Admin
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Response Body (200 OK):**
 ```json
@@ -542,10 +542,10 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submission details retrieved.
-- `404 Not Found` — Submission does not exist.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - Submission details retrieved.
+- `404 Not Found` - Submission does not exist.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -555,7 +555,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Admin
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Request Body:**
 ```json
@@ -596,12 +596,12 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submission assigned successfully.
-- `400 Bad Request` — Invalid validator ID or submission already assigned.
-- `404 Not Found` — Submission or validator does not exist.
-- `409 Conflict` — Submission is not in `pending_admin_review` status.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - Submission assigned successfully.
+- `400 Bad Request` - Invalid validator ID or submission already assigned.
+- `404 Not Found` - Submission or validator does not exist.
+- `409 Conflict` - Submission is not in `pending_admin_review` status.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -611,9 +611,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Admin
 
 **Query Parameters:**
-- `page` (optional, default: 1) — Page number for pagination.
-- `limit` (optional, default: 50) — Number of records per page.
-- `status` (optional) — Filter by status: `active`, `inactive`.
+- `page` (optional, default: 1) - Page number for pagination.
+- `limit` (optional, default: 50) - Number of records per page.
+- `status` (optional) - Filter by status: `active`, `inactive`.
 
 **Response Body (200 OK):**
 ```json
@@ -650,9 +650,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Validators retrieved.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - Validators retrieved.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -664,9 +664,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Validator
 
 **Query Parameters:**
-- `page` (optional, default: 1) — Page number for pagination.
-- `limit` (optional, default: 20) — Number of records per page.
-- `status` (optional) — Filter by status: `pending_validator_review`, `approved`, `rejected`.
+- `page` (optional, default: 1) - Page number for pagination.
+- `limit` (optional, default: 20) - Number of records per page.
+- `status` (optional) - Filter by status: `pending_validator_review`, `approved`, `rejected`.
 
 **Response Body (200 OK):**
 ```json
@@ -707,9 +707,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submissions retrieved.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not a validator.
+- `200 OK` - Submissions retrieved.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not a validator.
 
 ---
 
@@ -719,7 +719,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Validator
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Response Body (200 OK):**
 ```json
@@ -770,10 +770,10 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submission details retrieved.
-- `403 Forbidden` — Submission is not assigned to the authenticated validator.
-- `404 Not Found` — Submission does not exist.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Submission details retrieved.
+- `403 Forbidden` - Submission is not assigned to the authenticated validator.
+- `404 Not Found` - Submission does not exist.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -783,7 +783,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Validator
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Request Body:**
 ```json
@@ -831,13 +831,13 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submission approved successfully.
-- `400 Bad Request` — Invalid title ID or title does not belong to the submission.
-- `403 Forbidden` — Submission is not assigned to the authenticated validator.
-- `404 Not Found` — Submission or title does not exist.
-- `409 Conflict` — Submission is not in `pending_validator_review` status.
-- `500 Internal Server Error` — PDF generation failed.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Submission approved successfully.
+- `400 Bad Request` - Invalid title ID or title does not belong to the submission.
+- `403 Forbidden` - Submission is not assigned to the authenticated validator.
+- `404 Not Found` - Submission or title does not exist.
+- `409 Conflict` - Submission is not in `pending_validator_review` status.
+- `500 Internal Server Error` - PDF generation failed.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -847,7 +847,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Validator
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Request Body:**
 ```json
@@ -892,12 +892,12 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Submission rejected successfully.
-- `400 Bad Request` — Missing or empty rejection reason.
-- `403 Forbidden` — Submission is not assigned to the authenticated validator.
-- `404 Not Found` — Submission does not exist.
-- `409 Conflict` — Submission is not in `pending_validator_review` status.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Submission rejected successfully.
+- `400 Bad Request` - Missing or empty rejection reason.
+- `403 Forbidden` - Submission is not assigned to the authenticated validator.
+- `404 Not Found` - Submission does not exist.
+- `409 Conflict` - Submission is not in `pending_validator_review` status.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -935,11 +935,11 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `201 Created` — User created successfully.
-- `400 Bad Request` — Invalid input or missing required fields.
-- `409 Conflict` — Email already exists.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `201 Created` - User created successfully.
+- `400 Bad Request` - Invalid input or missing required fields.
+- `409 Conflict` - Email already exists.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -949,10 +949,10 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Admin
 
 **Query Parameters:**
-- `page` (optional, default: 1) — Page number for pagination.
-- `limit` (optional, default: 20) — Number of records per page.
-- `role` (optional) — Filter by role: `student`, `admin`, `validator`.
-- `status` (optional) — Filter by status: `active`, `inactive`.
+- `page` (optional, default: 1) - Page number for pagination.
+- `limit` (optional, default: 20) - Number of records per page.
+- `role` (optional) - Filter by role: `student`, `admin`, `validator`.
+- `status` (optional) - Filter by status: `active`, `inactive`.
 
 **Response Body (200 OK):**
 ```json
@@ -989,9 +989,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Users retrieved.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - Users retrieved.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -1001,7 +1001,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Admin
 
 **Path Parameters:**
-- `userId` — The unique identifier of the user.
+- `userId` - The unique identifier of the user.
 
 **Request Body:**
 ```json
@@ -1029,12 +1029,12 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — User updated successfully.
-- `400 Bad Request` — Invalid input.
-- `404 Not Found` — User does not exist.
-- `409 Conflict` — Email already exists for another user.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - User updated successfully.
+- `400 Bad Request` - Invalid input.
+- `404 Not Found` - User does not exist.
+- `409 Conflict` - Email already exists for another user.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -1044,7 +1044,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Admin
 
 **Path Parameters:**
-- `userId` — The unique identifier of the user.
+- `userId` - The unique identifier of the user.
 
 **Response Body (200 OK):**
 ```json
@@ -1060,10 +1060,10 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — User deactivated successfully.
-- `404 Not Found` — User does not exist.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - User deactivated successfully.
+- `404 Not Found` - User does not exist.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -1075,9 +1075,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Authenticated (all roles)
 
 **Query Parameters:**
-- `page` (optional, default: 1) — Page number for pagination.
-- `limit` (optional, default: 20) — Number of records per page.
-- `read` (optional) — Filter by read status: `true` or `false`.
+- `page` (optional, default: 1) - Page number for pagination.
+- `limit` (optional, default: 20) - Number of records per page.
+- `read` (optional) - Filter by read status: `true` or `false`.
 
 **Response Body (200 OK):**
 ```json
@@ -1123,8 +1123,8 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Notifications retrieved.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Notifications retrieved.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -1134,7 +1134,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Authenticated (all roles)
 
 **Path Parameters:**
-- `notificationId` — The unique identifier of the notification.
+- `notificationId` - The unique identifier of the notification.
 
 **Response Body (200 OK):**
 ```json
@@ -1150,9 +1150,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Notification marked as read.
-- `404 Not Found` — Notification does not exist.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Notification marked as read.
+- `404 Not Found` - Notification does not exist.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -1173,8 +1173,8 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — All notifications marked as read.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - All notifications marked as read.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -1186,7 +1186,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Student (own submission only) or Admin
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Response:**
 - **Content-Type:** `application/pdf`
@@ -1194,11 +1194,11 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 - **Body:** Binary PDF file
 
 **Status Codes:**
-- `200 OK` — PDF file returned.
-- `403 Forbidden` — User does not have permission to access this letter.
-- `404 Not Found` — Submission or letter does not exist.
-- `410 Gone` — Submission is not in approved status.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - PDF file returned.
+- `403 Forbidden` - User does not have permission to access this letter.
+- `404 Not Found` - Submission or letter does not exist.
+- `410 Gone` - Submission is not in approved status.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -1208,7 +1208,7 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 **Auth Level:** Student (own submission only) or Admin
 
 **Path Parameters:**
-- `submissionId` — The unique identifier of the submission.
+- `submissionId` - The unique identifier of the submission.
 
 **Response Body (200 OK):**
 ```json
@@ -1231,11 +1231,11 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Letter preview retrieved.
-- `403 Forbidden` — User does not have permission to access this letter.
-- `404 Not Found` — Submission or letter does not exist.
-- `410 Gone` — Submission is not in approved status.
-- `401 Unauthorized` — Invalid or missing token.
+- `200 OK` - Letter preview retrieved.
+- `403 Forbidden` - User does not have permission to access this letter.
+- `404 Not Found` - Submission or letter does not exist.
+- `410 Gone` - Submission is not in approved status.
+- `401 Unauthorized` - Invalid or missing token.
 
 ---
 
@@ -1280,9 +1280,9 @@ SkripsiHub uses **JWT (JSON Web Tokens)** with **Role-Based Access Control (RBAC
 ```
 
 **Status Codes:**
-- `200 OK` — Statistics retrieved.
-- `401 Unauthorized` — Invalid or missing token.
-- `403 Forbidden` — User is not an admin.
+- `200 OK` - Statistics retrieved.
+- `401 Unauthorized` - Invalid or missing token.
+- `403 Forbidden` - User is not an admin.
 
 ---
 
@@ -1315,9 +1315,9 @@ All API endpoints are subject to rate limiting to prevent abuse:
 - **Public Endpoints (Login):** 5 requests per 15 minutes per IP address.
 
 Rate limit information is included in response headers:
-- `X-RateLimit-Limit` — Maximum requests allowed in the window.
-- `X-RateLimit-Remaining` — Requests remaining in the current window.
-- `X-RateLimit-Reset` — Unix timestamp when the rate limit window resets.
+- `X-RateLimit-Limit` - Maximum requests allowed in the window.
+- `X-RateLimit-Remaining` - Requests remaining in the current window.
+- `X-RateLimit-Reset` - Unix timestamp when the rate limit window resets.
 
 When rate limit is exceeded, the API returns `429 Too Many Requests`.
 
@@ -1327,9 +1327,9 @@ When rate limit is exceeded, the API returns `429 Too Many Requests`.
 
 The following webhook events may be implemented in future versions for third-party integrations:
 
-- `submission.created` — Triggered when a student submits a new proposal.
-- `submission.assigned` — Triggered when an admin assigns a submission to a validator.
-- `submission.approved` — Triggered when a validator approves a submission.
-- `submission.rejected` — Triggered when a validator rejects a submission.
+- `submission.created` - Triggered when a student submits a new proposal.
+- `submission.assigned` - Triggered when an admin assigns a submission to a validator.
+- `submission.approved` - Triggered when a validator approves a submission.
+- `submission.rejected` - Triggered when a validator rejects a submission.
 
 See the Webhooks documentation (future) for implementation details.

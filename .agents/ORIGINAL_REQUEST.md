@@ -1,8 +1,8 @@
 # Original User Request
 
-## Initial Request — 2026-07-23T07:07:47Z
+## Initial Request - 2026-07-23T07:07:47Z
 
-# Teamwork Project Prompt — Draft
+# Teamwork Project Prompt - Draft
 
 > Status: Launched
 > Goal: Multi-agent system is now building SkripsiHub

@@ -2,7 +2,7 @@
 
 ## Brand & Visual Identity
 
-SkripsiHub is a professional, academic-focused platform that prioritizes clarity, trust, and efficiency in the thesis submission workflow. The visual identity conveys institutional credibility through a clean, modern interface with a focus on progressive disclosure—showing users only the information and actions relevant to their current task. The design language emphasizes transparency in process status and reduces cognitive load through consistent, predictable interactions.
+SkripsiHub is a professional, academic-focused platform that prioritizes clarity, trust, and efficiency in the thesis submission workflow. The visual identity conveys institutional credibility through a clean, modern interface with a focus on progressive disclosure-showing users only the information and actions relevant to their current task. The design language emphasizes transparency in process status and reduces cognitive load through consistent, predictable interactions.
 
 ## User Experience Goals
 
@@ -160,24 +160,24 @@ The design system uses an **8px base unit** for all spacing, sizing, and alignme
 
 ### Student Role (Highest Priority)
 
-1. **Student Dashboard** — Primary entry point. Displays active submission status (large status card), submission history timeline, and prominent "Submit New Proposal" CTA. Must load in < 2 seconds.
-2. **Submission Form** — Multi-step form to enter up to 3 thesis titles with real-time validation. Must be completable in < 3 minutes.
-3. **Submission Detail View** — Shows full submission details, current status, assigned validator name, and rejection feedback (if applicable). Includes download button for approval letter.
-4. **Approval Letter Download** — Instant PDF download triggered from submission detail view or dashboard.
+1. **Student Dashboard** - Primary entry point. Displays active submission status (large status card), submission history timeline, and prominent "Submit New Proposal" CTA. Must load in < 2 seconds.
+2. **Submission Form** - Multi-step form to enter up to 3 thesis titles with real-time validation. Must be completable in < 3 minutes.
+3. **Submission Detail View** - Shows full submission details, current status, assigned validator name, and rejection feedback (if applicable). Includes download button for approval letter.
+4. **Approval Letter Download** - Instant PDF download triggered from submission detail view or dashboard.
 
 ### Admin Role (High Priority)
 
-1. **Admin Dashboard** — Queue of new submissions awaiting initial review, sorted by submission date. Quick-assign action to move to validator queue.
-2. **Submission Review Queue** — Paginated list of all submissions with status filters (Pending Admin, With Validator, Approved, Rejected). Bulk actions for assignment.
-3. **Submission Detail (Admin View)** — Full submission details with validator assignment dropdown and confirmation modal.
-4. **User Management** — CRUD interface for student and validator accounts (create, update, deactivate, view list).
+1. **Admin Dashboard** - Queue of new submissions awaiting initial review, sorted by submission date. Quick-assign action to move to validator queue.
+2. **Submission Review Queue** - Paginated list of all submissions with status filters (Pending Admin, With Validator, Approved, Rejected). Bulk actions for assignment.
+3. **Submission Detail (Admin View)** - Full submission details with validator assignment dropdown and confirmation modal.
+4. **User Management** - CRUD interface for student and validator accounts (create, update, deactivate, view list).
 
 ### Validator Role (High Priority)
 
-1. **Validator Dashboard** — Queue of submissions assigned specifically to this validator, sorted by assignment date. Status indicators (Pending Review, Reviewed).
-2. **Assigned Submission Queue** — Paginated list of assigned submissions with quick-action buttons (View, Approve, Reject).
-3. **Submission Review Detail** — Full submission with all 3 proposed titles displayed clearly, approval/rejection action buttons, and rejection reason text field (mandatory if rejecting).
-4. **Approval Confirmation Modal** — Confirmation dialog when approving, showing selected title and triggering automatic letter generation.
+1. **Validator Dashboard** - Queue of submissions assigned specifically to this validator, sorted by assignment date. Status indicators (Pending Review, Reviewed).
+2. **Assigned Submission Queue** - Paginated list of assigned submissions with quick-action buttons (View, Approve, Reject).
+3. **Submission Review Detail** - Full submission with all 3 proposed titles displayed clearly, approval/rejection action buttons, and rejection reason text field (mandatory if rejecting).
+4. **Approval Confirmation Modal** - Confirmation dialog when approving, showing selected title and triggering automatic letter generation.
 
 ## Interaction & Motion
 

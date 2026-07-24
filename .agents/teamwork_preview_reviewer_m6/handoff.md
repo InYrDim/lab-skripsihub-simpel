@@ -1,4 +1,4 @@
-# Milestone 6 (System Integration & Verification) — Review & Handoff Report
+# Milestone 6 (System Integration & Verification) - Review & Handoff Report
 
 ## Executive Summary
 

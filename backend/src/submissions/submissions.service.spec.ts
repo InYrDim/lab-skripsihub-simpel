@@ -80,6 +80,7 @@ describe('SubmissionsService', () => {
     assignment: {
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
       findMany: jest.fn(),
       count: jest.fn(),
     },
@@ -404,6 +405,52 @@ describe('SubmissionsService', () => {
 
       expect(result.status).toBe('pending_validator_review');
       expect(result.assignedValidator.validatorId).toBe('validator-1');
+    });
+
+    it('should replace the pending assignment when admin reassigns a validator', async () => {
+      const existingAssignment = {
+        id: 'assign-1',
+        submissionId: 'sub-1',
+        validatorId: 'validator-old',
+        status: AssignmentStatus.PENDING,
+        assignedAt: mockDate,
+      };
+      const reassignedSubmission = {
+        ...mockSubmission,
+        status: SubmissionStatus.PENDING_VALIDATOR_REVIEW,
+        assignments: [
+          existingAssignment,
+          {
+            ...existingAssignment,
+            id: 'assign-2',
+            validatorId: mockValidator.id,
+            validator: mockValidator,
+          },
+        ],
+      };
+
+      mockPrismaService.submission.findUnique
+        .mockResolvedValueOnce({
+          ...mockSubmission,
+          status: SubmissionStatus.PENDING_VALIDATOR_REVIEW,
+          assignments: [existingAssignment],
+        })
+        .mockResolvedValueOnce(reassignedSubmission);
+      mockPrismaService.user.findUnique.mockResolvedValue(mockValidator);
+
+      const result = await service.assignValidator('sub-1', mockValidator.id);
+
+      expect(mockPrismaService.assignment.updateMany).toHaveBeenCalledWith({
+        where: {
+          submissionId: 'sub-1',
+          status: AssignmentStatus.PENDING,
+        },
+        data: {
+          status: AssignmentStatus.COMPLETED,
+          completedAt: expect.any(Date),
+        },
+      });
+      expect(result.assignedValidator.validatorId).toBe(mockValidator.id);
     });
   });
 

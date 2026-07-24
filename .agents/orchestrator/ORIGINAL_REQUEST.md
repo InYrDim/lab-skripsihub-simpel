@@ -1,6 +1,6 @@
 # Original User Request
 
-## Initial Request — 2026-07-23T07:08:03Z
+## Initial Request - 2026-07-23T07:08:03Z
 
 You are the Project Orchestrator for building SkripsiHub, an Academic Submission Management System.
 Your working directory is C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator.

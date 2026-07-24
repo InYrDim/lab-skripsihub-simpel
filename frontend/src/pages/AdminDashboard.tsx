@@ -272,33 +272,37 @@ export const AdminDashboard: React.FC = () => {
     if (s === 'PENDING_ADMIN_REVIEW') {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-          <Clock size={12} /> Pending Admin
+          <Clock size={12} /> Menunggu Admin
         </span>
       );
     }
     if (s === 'PENDING_VALIDATOR_REVIEW') {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-          <Clock size={12} /> With Validator
+          <Clock size={12} /> Dalam Validasi
         </span>
       );
     }
     if (s === 'APPROVED') {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-          <CheckCircle size={12} /> Approved
+          <CheckCircle size={12} /> Disetujui
         </span>
       );
     }
     if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
-      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
+      const label = s === 'REJECTED_BY_ADMIN' ? 'Ditolak Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Ditolak Validator' : 'Ditolak';
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
           <XCircle size={12} /> {label}
         </span>
       );
     }
-    return <span className="text-xs font-semibold">{status}</span>;
+    return (
+      <span className="text-xs font-semibold">
+        {s === 'DRAFT' ? 'Draf' : 'Status tidak dikenal'}
+      </span>
+    );
   };
 
   return (
@@ -511,17 +515,18 @@ export const AdminDashboard: React.FC = () => {
                               >
                                 <UserCheck size={14} /> Tugaskan Validator
                               </button>
-                            ) : (
+                            ) : sub.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW' ? (
                               <button
                                 onClick={() => {
                                   setAssigningSubmission(sub);
-                                  const currentValId = typeof sub.assignedValidator === 'object' ? sub.assignedValidator?.validatorId : sub.assignedValidator;
-                                  setSelectedValidatorId(currentValId || validators[0]?.validatorId || '');
+                                  setSelectedValidatorId('');
                                 }}
                                 className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                               >
-                                Re-assign
+                                Ganti Validator
                               </button>
+                            ) : (
+                              <span className="text-xs text-zinc-300 dark:text-zinc-700">-</span>
                             )}
                           </td>
                         </tr>
@@ -685,7 +690,7 @@ export const AdminDashboard: React.FC = () => {
                   placeholder="Pilih validator..."
                   options={validators.map((val) => ({
                     value: val.validatorId,
-                    label: `${val.name} (${val.department || 'Tanpa departemen'}) — ${val.assignedSubmissions || 0} pengajuan aktif`
+                    label: `${val.name} (${val.department || 'Tanpa departemen'}) - ${val.assignedSubmissions || 0} pengajuan aktif`
                   }))}
                   className="w-full"
                 />

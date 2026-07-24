@@ -1,4 +1,4 @@
-# Handoff Report — Milestone 1: Database Schema & Authentication Module
+# Handoff Report - Milestone 1: Database Schema & Authentication Module
 
 ## 1. Observation
 
@@ -84,6 +84,6 @@ Milestone 1 (Database Schema & Authentication Module) is complete, fully impleme
 To independently verify the implementation:
 
 1. Open terminal at `C:\Users\iyede\code\__lab__\skripsihub\backend`.
-2. Run `npx prisma generate` — confirms Prisma schema valid and client generated.
-3. Run `npm run build` — confirms NestJS application builds without TypeScript errors.
-4. Run `npm run test` — confirms all 6 test suites and 20 tests pass.
+2. Run `npx prisma generate` - confirms Prisma schema valid and client generated.
+3. Run `npm run build` - confirms NestJS application builds without TypeScript errors.
+4. Run `npm run test` - confirms all 6 test suites and 20 tests pass.

@@ -474,9 +474,22 @@ export class SubmissionsService {
       );
     }
 
-    if (submission.status !== SubmissionStatus.PENDING_ADMIN_REVIEW) {
+    const assignableStatuses: SubmissionStatus[] = [
+      SubmissionStatus.PENDING_ADMIN_REVIEW,
+      SubmissionStatus.PENDING_VALIDATOR_REVIEW,
+    ];
+    if (!assignableStatuses.includes(submission.status)) {
       throw new ConflictException(
-        'Submission is not in PENDING_ADMIN_REVIEW status',
+        'Submission can only be assigned while awaiting admin or validator review',
+      );
+    }
+
+    const activeAssignment = submission.assignments.find(
+      (assignment) => assignment.status === AssignmentStatus.PENDING,
+    );
+    if (activeAssignment?.validatorId === validatorId) {
+      throw new BadRequestException(
+        'Submission is already assigned to the selected validator',
       );
     }
 
@@ -500,6 +513,19 @@ export class SubmissionsService {
           status: SubmissionStatus.PENDING_VALIDATOR_REVIEW,
         },
       });
+
+      if (activeAssignment) {
+        await tx.assignment.updateMany({
+          where: {
+            submissionId,
+            status: AssignmentStatus.PENDING,
+          },
+          data: {
+            status: AssignmentStatus.COMPLETED,
+            completedAt: now,
+          },
+        });
+      }
 
       await tx.assignment.create({
         data: {

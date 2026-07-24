@@ -67,8 +67,8 @@
 | `Pending Admin Review` | Admin assigns submission to a validator | `Pending Validator Review` | Validator is notified (in-app + email); submission timestamp updated |
 | `Pending Validator Review` | Validator approves and selects one title | `Approved` | Approval letter auto-generated and stored in S3; student notified (in-app + email); letter download link provided to student |
 | `Pending Validator Review` | Validator rejects with feedback | `Rejected` | Rejection feedback stored; student notified (in-app + email); student may immediately submit a new proposal |
-| `Approved` | (Terminal state) | — | No further transitions; student may download letter; submission is archived |
-| `Rejected` | (Terminal state) | — | Student may create a new submission; old submission remains in history for audit |
+| `Approved` | (Terminal state) | - | No further transitions; student may download letter; submission is archived |
+| `Rejected` | (Terminal state) | - | Student may create a new submission; old submission remains in history for audit |
 
 ### Student Submission Eligibility
 
@@ -134,13 +134,13 @@
 |:---|:---|:---|:---|
 | Admin assigns submission to validator | Validator | In-app + Email | New submission assigned; student name; proposed titles; link to review submission |
 
-### Final Decision — Approved (Student)
+### Final Decision - Approved (Student)
 
 | Trigger | Recipient | Channel | Content |
 |:---|:---|:---|:---|
 | Validator approves submission | Student | In-app + Email | Approval confirmation; approved title; link to download approval letter |
 
-### Final Decision — Rejected (Student)
+### Final Decision - Rejected (Student)
 
 | Trigger | Recipient | Channel | Content |
 |:---|:---|:---|:---|

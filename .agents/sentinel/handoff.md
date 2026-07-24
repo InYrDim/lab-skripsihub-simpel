@@ -1,4 +1,4 @@
-# Final Handoff Report — Project Sentinel
+# Final Handoff Report - Project Sentinel
 
 ## Observation
 - SkripsiHub Academic Submission Management System implementation requested by user.

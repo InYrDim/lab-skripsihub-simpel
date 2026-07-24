@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:37:20Z
+# BRIEFING - 2026-07-23T07:37:20Z
 
 ## Mission
 Perform independent 3-phase Victory Audit for SkripsiHub project and declare VICTORY CONFIRMED or VICTORY REJECTED.
@@ -11,8 +11,8 @@ Perform independent 3-phase Victory Audit for SkripsiHub project and declare VIC
 - Target: Full project victory claim verification
 
 ## 🔒 Key Constraints
-- Audit-only — do NOT modify implementation code
-- Trust NOTHING — verify everything independently
+- Audit-only - do NOT modify implementation code
+- Trust NOTHING - verify everything independently
 - CODE_ONLY network mode
 
 ## Current Parent
@@ -28,7 +28,7 @@ Perform independent 3-phase Victory Audit for SkripsiHub project and declare VIC
 - **Phase**: completed
 - **Checks completed**: Timeline Audit, Cheating & Integrity Audit, Backend Build & Unit/Integration/E2E Tests, Submission Limits & Locks, Admin Assignment, Validator Approve/Reject & Feedback, Puppeteer PDF Letter Generation, Frontend Build & UI Route Protections
 - **Checks remaining**: none
-- **Findings so far**: CLEAN — VICTORY CONFIRMED
+- **Findings so far**: CLEAN - VICTORY CONFIRMED
 
 ## Key Decisions Made
 - Executed 3-phase victory audit independently.
@@ -37,6 +37,6 @@ Perform independent 3-phase Victory Audit for SkripsiHub project and declare VIC
 - Issued verdict: VICTORY CONFIRMED.
 
 ## Artifact Index
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\victory_auditor\ORIGINAL_REQUEST.md — Audit request
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\victory_auditor\BRIEFING.md — Working context
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\victory_auditor\handoff.md — Full Victory Audit Report
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\victory_auditor\ORIGINAL_REQUEST.md - Audit request
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\victory_auditor\BRIEFING.md - Working context
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\victory_auditor\handoff.md - Full Victory Audit Report

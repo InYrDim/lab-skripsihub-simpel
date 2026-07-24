@@ -7,9 +7,9 @@ Please read:
 2. C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\handoff.md and C:\Users\iyede\code\__lab__\skripsihub\.agents\orchestrator\progress.md (Orchestrator completion claim)
 
 Conduct your 3-phase victory audit:
-Phase 1 — Timeline Audit (Verify order of work, file modifications, git commit structure).
-Phase 2 — Cheating & Integrity Audit (Check for hardcoded test returns, mock implementations in production code, bypassed business rules).
-Phase 3 — Independent Verification Execution:
+Phase 1 - Timeline Audit (Verify order of work, file modifications, git commit structure).
+Phase 2 - Cheating & Integrity Audit (Check for hardcoded test returns, mock implementations in production code, bypassed business rules).
+Phase 3 - Independent Verification Execution:
 - Test backend build & tests (`npm run build`, `npm run test`, `npm run test:e2e` in backend/).
 - Verify student submission limits (up to 3 titles, single active submission lock).
 - Verify admin validator assignment.

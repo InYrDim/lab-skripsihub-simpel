@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:12:30+08:00
+# BRIEFING - 2026-07-23T07:12:30+08:00
 
 ## Mission
 Implement Milestone 1 (Database Schema & Authentication Module) for SkripsiHub.
@@ -51,7 +51,7 @@ Implement Milestone 1 (Database Schema & Authentication Module) for SkripsiHub.
 - None
 
 ## Artifact Index
-- `.agents/teamwork_preview_worker_m1/ORIGINAL_REQUEST.md` — Original request log
-- `.agents/teamwork_preview_worker_m1/progress.md` — Progress tracker
-- `.agents/teamwork_preview_worker_m1/BRIEFING.md` — Working context briefing
-- `.agents/teamwork_preview_worker_m1/handoff.md` — Handoff report
+- `.agents/teamwork_preview_worker_m1/ORIGINAL_REQUEST.md` - Original request log
+- `.agents/teamwork_preview_worker_m1/progress.md` - Progress tracker
+- `.agents/teamwork_preview_worker_m1/BRIEFING.md` - Working context briefing
+- `.agents/teamwork_preview_worker_m1/handoff.md` - Handoff report

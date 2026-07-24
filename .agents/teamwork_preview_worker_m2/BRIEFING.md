@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:23:10Z
+# BRIEFING - 2026-07-23T07:23:10Z
 
 ## Mission
 Implement Milestone 2: Backend Core Submissions & Business Logic for SkripsiHub including Student, Admin, and Validator controllers/services, DTOs, business rule validations, and unit tests.

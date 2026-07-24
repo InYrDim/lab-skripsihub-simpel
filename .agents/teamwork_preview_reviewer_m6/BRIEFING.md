@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:28:40Z
+# BRIEFING - 2026-07-23T07:28:40Z
 
 ## Mission
 Review and verify Milestone 6 (System Integration & Verification) of SkripsiHub across backend, frontend, specs, and test suites. Conduct adversarial integrity checks.
@@ -12,7 +12,7 @@ Review and verify Milestone 6 (System Integration & Verification) of SkripsiHub 
 - Instance: 1 of 1
 
 ## 🔒 Key Constraints
-- Review-only — do NOT modify implementation code.
+- Review-only - do NOT modify implementation code.
 - Must execute test runners in backend (`npm run test`, `npm run test:e2e`) and frontend (`npm run build`).
 - Actively check for integrity violations (hardcoded test results, facade implementations, bypassed business logic, etc.).
 
@@ -45,6 +45,6 @@ Review and verify Milestone 6 (System Integration & Verification) of SkripsiHub 
 - Issued verdict: APPROVE (with 1 minor code hygiene observation).
 
 ## Artifact Index
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_reviewer_m6\progress.md — Progress heartbeat
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_reviewer_m6\BRIEFING.md — Context memory
-- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_reviewer_m6\handoff.md — Final review & handoff report
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_reviewer_m6\progress.md - Progress heartbeat
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_reviewer_m6\BRIEFING.md - Context memory
+- C:\Users\iyede\code\__lab__\skripsihub\.agents\teamwork_preview_reviewer_m6\handoff.md - Final review & handoff report

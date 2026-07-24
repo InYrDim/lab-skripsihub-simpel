@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:23:30Z
+# BRIEFING - 2026-07-23T07:23:30Z
 
 ## Mission
 Implement Milestone 3 (Core Business Logic & Puppeteer PDF Generation Module) for SkripsiHub.
@@ -35,26 +35,26 @@ Implement Milestone 3 (Core Business Logic & Puppeteer PDF Generation Module) fo
 - Implemented complete unit tests in `pdf.service.spec.ts` and `notification.service.spec.ts`.
 
 ## Artifact Index
-- `.agents/teamwork_preview_worker_m3/progress.md` — Progress tracker log
-- `.agents/teamwork_preview_worker_m3/ORIGINAL_REQUEST.md` — Original prompt request
-- `.agents/teamwork_preview_worker_m3/handoff.md` — Final handoff report
+- `.agents/teamwork_preview_worker_m3/progress.md` - Progress tracker log
+- `.agents/teamwork_preview_worker_m3/ORIGINAL_REQUEST.md` - Original prompt request
+- `.agents/teamwork_preview_worker_m3/handoff.md` - Final handoff report
 
 ## Change Tracker
 - **Files modified**:
-  - `backend/package.json` — Added `puppeteer` dependency
-  - `backend/src/app.module.ts` — Added `PdfModule` and `NotificationModule`
-  - `backend/src/pdf/pdf.service.ts` — Implemented `PdfService`
-  - `backend/src/pdf/pdf.controller.ts` — Implemented PDF endpoints
-  - `backend/src/pdf/pdf.module.ts` — Created `PdfModule`
-  - `backend/src/pdf/pdf.service.spec.ts` — Added `PdfService` unit tests
-  - `backend/src/notification/notification.service.ts` — Implemented `NotificationService`
-  - `backend/src/notification/notification.controller.ts` — Implemented `NotificationController`
-  - `backend/src/notification/notification.module.ts` — Created `NotificationModule`
-  - `backend/src/notification/notification.service.spec.ts` — Added `NotificationService` unit tests
-  - `backend/src/submissions/submissions.service.ts` — Integrated `PdfService` and `NotificationService`
-  - `backend/src/submissions/submissions.module.ts` — Imported `PdfModule` and `NotificationModule`
-  - `backend/src/submissions/submissions.service.spec.ts` — Added test mocks for `PdfService` and `NotificationService`
-  - `backend/src/submissions/submissions.controller.ts` — Updated scaffold controller
+  - `backend/package.json` - Added `puppeteer` dependency
+  - `backend/src/app.module.ts` - Added `PdfModule` and `NotificationModule`
+  - `backend/src/pdf/pdf.service.ts` - Implemented `PdfService`
+  - `backend/src/pdf/pdf.controller.ts` - Implemented PDF endpoints
+  - `backend/src/pdf/pdf.module.ts` - Created `PdfModule`
+  - `backend/src/pdf/pdf.service.spec.ts` - Added `PdfService` unit tests
+  - `backend/src/notification/notification.service.ts` - Implemented `NotificationService`
+  - `backend/src/notification/notification.controller.ts` - Implemented `NotificationController`
+  - `backend/src/notification/notification.module.ts` - Created `NotificationModule`
+  - `backend/src/notification/notification.service.spec.ts` - Added `NotificationService` unit tests
+  - `backend/src/submissions/submissions.service.ts` - Integrated `PdfService` and `NotificationService`
+  - `backend/src/submissions/submissions.module.ts` - Imported `PdfModule` and `NotificationModule`
+  - `backend/src/submissions/submissions.service.spec.ts` - Added test mocks for `PdfService` and `NotificationService`
+  - `backend/src/submissions/submissions.controller.ts` - Updated scaffold controller
 - **Build status**: PASS (`npm run build`)
 - **Pending issues**: None
 

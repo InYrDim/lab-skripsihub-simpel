@@ -1,4 +1,4 @@
-# BRIEFING — 2026-07-23T07:31:55Z
+# BRIEFING - 2026-07-23T07:31:55Z
 
 ## Mission
 Conduct a rigorous forensic integrity audit across the SkripsiHub codebase (backend src/test & frontend src), verify genuine implementations, execute builds and tests, and issue a definitive verdict.
@@ -11,8 +11,8 @@ Conduct a rigorous forensic integrity audit across the SkripsiHub codebase (back
 - Target: Full Project Forensic Audit
 
 ## 🔒 Key Constraints
-- Audit-only — do NOT modify implementation code
-- Trust NOTHING — verify everything independently with empirical evidence
+- Audit-only - do NOT modify implementation code
+- Trust NOTHING - verify everything independently with empirical evidence
 - Must execute build and tests on both backend and frontend
 
 ## Current Parent

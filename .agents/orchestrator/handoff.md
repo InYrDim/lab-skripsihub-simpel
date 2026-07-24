@@ -36,11 +36,11 @@ All 6 milestones (M1–M6) covering requirements **R1** (Backend API Implementat
    - `ValidatorDashboard.tsx`: Assigned submissions queue, single-title selection approval modal, and mandatory rejection feedback text area.
 
 6. **Verification & Audit Reports**:
-   - **Backend Unit Tests (`npm run test`)**: PASS — 12 test suites, 73 tests passed.
-   - **Backend E2E Integration Tests (`npm run test:e2e`)**: PASS — 1 test suite, 9 integration test cases passed.
-   - **Frontend Build (`npm run build`)**: PASS — Built 1794 modules with 0 compilation errors.
-   - **System Reviewer Report**: APPROVE — All 7 Acceptance Criteria verified.
-   - **Forensic Auditor Report**: CLEAN — 0 static integrity violations, genuine implementation verified.
+   - **Backend Unit Tests (`npm run test`)**: PASS - 12 test suites, 73 tests passed.
+   - **Backend E2E Integration Tests (`npm run test:e2e`)**: PASS - 1 test suite, 9 integration test cases passed.
+   - **Frontend Build (`npm run build`)**: PASS - Built 1794 modules with 0 compilation errors.
+   - **System Reviewer Report**: APPROVE - All 7 Acceptance Criteria verified.
+   - **Forensic Auditor Report**: CLEAN - 0 static integrity violations, genuine implementation verified.
 
 ---
 
