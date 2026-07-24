@@ -1,6 +1,7 @@
-import { Bell, Menu, User as UserIcon, LogOut } from 'lucide-react';
+import { Bell, Menu, User as UserIcon, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -10,6 +11,24 @@ interface NavbarProps {
 export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
+
+  const toggleTheme = () => {
+    if (document.documentElement.classList.contains('dark')) {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      setTheme('light');
+    } else {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      setTheme('dark');
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -31,8 +50,16 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
       </div>
 
       {/* Right side: User profile & Logout */}
-      <div className="flex items-center gap-3 sm:gap-4">
-        <button className="relative p-2 rounded-full text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <button 
+          onClick={toggleTheme}
+          className="p-2 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          title="Toggle Theme"
+        >
+          {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
+        </button>
+
+        <button className="relative p-2 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <Bell size={18} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-orange-500 border-2 border-white dark:border-zinc-950"></span>
         </button>
