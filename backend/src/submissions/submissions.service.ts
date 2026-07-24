@@ -325,6 +325,93 @@ export class SubmissionsService {
   }
 
   /**
+   * Shared: Get all submissions for any authenticated role
+   */
+  async getAllSubmissions(query?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  }) {
+    const page = Number(query?.page) || 1;
+    const limit = Number(query?.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    const whereClause: any = {};
+    if (query?.status) {
+      whereClause.status = query.status.toUpperCase() as SubmissionStatus;
+    }
+
+    const sortField = query?.sortBy === 'status' ? 'status' : 'submittedAt';
+    const sortOrder =
+      query?.sortOrder?.toLowerCase() === 'asc' ? 'asc' : 'desc';
+
+    const [total, submissions] = await Promise.all([
+      this.prisma.submission.count({ where: whereClause }),
+      this.prisma.submission.findMany({
+        where: whereClause,
+        skip,
+        take: limit,
+        orderBy: { [sortField]: sortOrder },
+        include: {
+          student: true,
+          titles: true,
+          assignments: {
+            include: {
+              validator: true,
+            },
+          },
+          approvalLetter: true,
+        },
+      }),
+    ]);
+
+    const data = submissions.map((sub) => {
+      const latestAssignment = sub.assignments?.[sub.assignments.length - 1];
+      const latestFeedback = latestAssignment?.feedback;
+      return {
+        submissionId: sub.id,
+        studentId: sub.studentId,
+        nim: sub.student.universityId,
+        studentName: sub.student.fullName,
+        studentEmail: sub.student.email,
+        status: sub.status.toLowerCase(),
+        titles: sub.titles.map((t) => ({
+          titleId: t.id,
+          title: t.title,
+          description: t.description,
+          isApproved: sub.approvedTitleId === t.id,
+        })),
+        titleCount: sub.titles.length,
+        submittedAt: sub.submittedAt,
+        approvedAt: sub.approvalLetter?.generatedAt || null,
+        approvedTitle: sub.approvalLetter?.approvedTitle || null,
+        approvedByName: latestAssignment?.validator?.fullName || null,
+        rejectedAt: latestFeedback?.createdAt || null,
+        rejectionReason: latestFeedback?.feedbackText || null,
+        assignedValidator: latestAssignment
+          ? {
+              validatorId: latestAssignment.validator.id,
+              name: latestAssignment.validator.fullName,
+            }
+          : null,
+        assignedAt: latestAssignment ? latestAssignment.assignedAt : null,
+      };
+    });
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit) || 1,
+      },
+    };
+  }
+
+  /**
    * Admin: Detailed view of submission
    */
   async getAdminSubmissionById(submissionId: string) {

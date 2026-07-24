@@ -52,6 +52,7 @@ export interface ValidatorInfo {
 export interface Submission {
   submissionId: string;
   studentId: string;
+  nim?: string;
   studentName?: string;
   studentEmail?: string;
   studentPhone?: string;
@@ -66,6 +67,11 @@ export interface Submission {
   approvedTitleId?: string | null;
   approvedBy?: string | null;
   approvedByName?: string | null;
+  pembimbing1?: string | null;
+  pembimbing2?: string | null;
+  penguji1?: string | null;
+  penguji2?: string | null;
+  tanggalPenetapan?: string | null;
   rejectedAt?: string | null;
   rejectionReason?: string | null;
   rejectedBy?: string | null;

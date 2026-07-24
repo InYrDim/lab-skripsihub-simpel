@@ -21,6 +21,56 @@ const mockUsers: User[] = [
     createdAt: '2024-01-10T08:00:00Z',
   },
   {
+    id: 'usr_student_02',
+    userId: 'usr_student_02',
+    name: 'Putri Ayu Lestari',
+    email: 'putri.ayu@university.edu',
+    role: 'STUDENT',
+    department: 'Information Technology',
+    status: 'active',
+    createdAt: '2024-02-05T08:00:00Z',
+  },
+  {
+    id: 'usr_student_03',
+    userId: 'usr_student_03',
+    name: 'Muhammad Fadilah',
+    email: 'fadilah@university.edu',
+    role: 'STUDENT',
+    department: 'Computer Science',
+    status: 'active',
+    createdAt: '2024-02-12T08:00:00Z',
+  },
+  {
+    id: 'usr_student_04',
+    userId: 'usr_student_04',
+    name: 'Rina Sari',
+    email: 'rina.sari@university.edu',
+    role: 'STUDENT',
+    department: 'Information Systems',
+    status: 'active',
+    createdAt: '2024-03-01T08:00:00Z',
+  },
+  {
+    id: 'usr_student_05',
+    userId: 'usr_student_05',
+    name: 'Andi Pratama',
+    email: 'andi.pratama@university.edu',
+    role: 'STUDENT',
+    department: 'Computer Science',
+    status: 'active',
+    createdAt: '2024-03-10T08:00:00Z',
+  },
+  {
+    id: 'usr_student_06',
+    userId: 'usr_student_06',
+    name: 'Dewi Kartika Sari',
+    email: 'dewi.kartika@university.edu',
+    role: 'STUDENT',
+    department: 'Information Technology',
+    status: 'active',
+    createdAt: '2024-03-15T08:00:00Z',
+  },
+  {
     id: 'usr_admin_01',
     userId: 'usr_admin_01',
     name: 'Admin User',
@@ -139,6 +189,178 @@ let mockSubmissions: Submission[] = [
       },
     ],
     titleCount: 1,
+  },
+  {
+    submissionId: 'sub_003',
+    studentId: 'usr_student_02',
+    nim: '1729041022',
+    studentName: 'M. AULIA ARIEF',
+    studentEmail: 'putri.ayu@university.edu',
+    studentPhone: '+628134567890',
+    status: 'APPROVED',
+    titles: [
+      {
+        titleId: 'tit_005',
+        title: 'Pengembangan Sistem Informasi Beasiswa Berbasis Web Pada Jurusan Teknik Informatika dan Komputer FT UNM',
+        description: '',
+      },
+    ],
+    submittedAt: '2024-02-15T09:00:00Z',
+    approvedAt: '2024-02-28T10:00:00Z',
+    approvedTitle: 'Pengembangan Sistem Informasi Beasiswa Berbasis Web Pada Jurusan Teknik Informatika dan Komputer FT UNM',
+    approvedTitleId: 'tit_005',
+    approvedBy: 'val_001',
+    approvedByName: 'Drs. Marsud Hamid, M.Kes.',
+    pembimbing1: 'Drs. Marsud Hamid, M.Kes.',
+    pembimbing2: 'Dr. Sanatang, S.Pd., M.T.',
+    penguji1: 'Dr. Ir. Mustari Lamada, S.Pd., M.T.',
+    penguji2: 'Dr. Udin Sidik Sidin, S.Pd., M.T.',
+    tanggalPenetapan: '2020-10-20',
+    assignedValidator: {
+      validatorId: 'val_001',
+      name: 'Dr. Jane Smith',
+      email: 'validator@university.edu',
+      department: 'Computer Science',
+    },
+    assignedAt: '2024-02-16T08:00:00Z',
+    assignedBy: 'usr_admin_01',
+    letterUrl: '/api/documents/letter/sub_003',
+    letterGeneratedAt: '2024-02-28T10:05:00Z',
+    statusHistory: [
+      { status: 'PENDING_ADMIN_REVIEW', timestamp: '2024-02-15T09:00:00Z', actor: 'system' },
+      { status: 'PENDING_VALIDATOR_REVIEW', timestamp: '2024-02-16T08:00:00Z', actor: 'usr_admin_01', assignedValidator: 'val_001' },
+      { status: 'APPROVED', timestamp: '2024-02-28T10:00:00Z', actor: 'val_001', approvedTitle: 'Pengembangan Sistem Informasi Beasiswa Berbasis Web Pada Jurusan Teknik Informatika dan Komputer FT UNM' },
+    ],
+    titleCount: 1,
+  },
+  {
+    submissionId: 'sub_004',
+    studentId: 'usr_student_03',
+    studentName: 'Muhammad Fadilah',
+    studentEmail: 'fadilah@university.edu',
+    studentPhone: '+628145678901',
+    status: 'PENDING_ADMIN_REVIEW',
+    titles: [
+      {
+        titleId: 'tit_008',
+        title: 'Implementasi Zero-Knowledge Proof untuk Autentikasi Identitas Digital',
+        description: 'Rancang bangun sistem autentikasi identitas digital menggunakan protokol zero-knowledge proof yang aman dan privasi-terjaga.',
+      },
+      {
+        titleId: 'tit_009',
+        title: 'Analisis Keamanan Smart Contract pada Jaringan Blockchain Ethereum',
+        description: 'Evaluasi kerentanan keamanan smart contract menggunakan static analysis dan fuzzing technique.',
+      },
+    ],
+    submittedAt: '2024-04-01T11:30:00Z',
+    statusHistory: [
+      { status: 'PENDING_ADMIN_REVIEW', timestamp: '2024-04-01T11:30:00Z', actor: 'system' },
+    ],
+    titleCount: 2,
+  },
+  {
+    submissionId: 'sub_005',
+    studentId: 'usr_student_04',
+    studentName: 'Rina Sari',
+    studentEmail: 'rina.sari@university.edu',
+    studentPhone: '+628156789012',
+    status: 'PENDING_VALIDATOR_REVIEW',
+    titles: [
+      {
+        titleId: 'tit_010',
+        title: 'Pengembangan Dashboard Analitik Penjualan Berbasis Web untuk UMKM',
+        description: 'Perancangan dan implementasi dashboard analitik berbasis web yang membantu pelaku UMKM dalam memantau data penjualan secara real-time.',
+      },
+      {
+        titleId: 'tit_011',
+        title: 'Sistem Informasi Manajemen Inventaris Berbasis Cloud Computing',
+        description: 'Implementasi sistem manajemen inventaris berbasis cloud untuk optimasi pengelolaan stok barang.',
+      },
+      {
+        titleId: 'tit_012',
+        title: 'Optimasi Supply Chain Menggunakan Algoritma Genetic',
+        description: 'Penerapan algoritma genetic untuk optimasi rantai pasokan pada industri manufaktur.',
+      },
+    ],
+    submittedAt: '2024-03-20T08:00:00Z',
+    assignedValidator: {
+      validatorId: 'val_002',
+      name: 'Dr. Robert Johnson',
+      email: 'r.johnson@university.edu',
+      department: 'Information Technology',
+    },
+    assignedAt: '2024-03-21T09:30:00Z',
+    assignedBy: 'usr_admin_01',
+    statusHistory: [
+      { status: 'PENDING_ADMIN_REVIEW', timestamp: '2024-03-20T08:00:00Z', actor: 'system' },
+      { status: 'PENDING_VALIDATOR_REVIEW', timestamp: '2024-03-21T09:30:00Z', actor: 'usr_admin_01', assignedValidator: 'val_002' },
+    ],
+    titleCount: 3,
+  },
+  {
+    submissionId: 'sub_006',
+    studentId: 'usr_student_05',
+    studentName: 'Andi Pratama',
+    studentEmail: 'andi.pratama@university.edu',
+    studentPhone: '+628167890123',
+    status: 'REJECTED',
+    titles: [
+      {
+        titleId: 'tit_013',
+        title: 'Pembuatan Website Toko Online Sederhana Menggunakan WordPress',
+        description: 'Membangun website toko online menggunakan CMS WordPress dengan plugin WooCommerce.',
+      },
+    ],
+    submittedAt: '2024-03-05T14:00:00Z',
+    rejectedAt: '2024-03-08T16:00:00Z',
+    rejectedBy: 'val_002',
+    rejectedByName: 'Dr. Robert Johnson',
+    rejectionReason: 'Topik ini terlalu bersifat praktis dan tidak memiliki kontribusi akademik yang memadai untuk skripsi. Silakan pilih topik yang melibatkan riset atau pengembangan metode/algoritma baru.',
+    statusHistory: [
+      { status: 'PENDING_ADMIN_REVIEW', timestamp: '2024-03-05T14:00:00Z', actor: 'system' },
+      { status: 'PENDING_VALIDATOR_REVIEW', timestamp: '2024-03-06T09:00:00Z', actor: 'usr_admin_01', assignedValidator: 'val_002' },
+      { status: 'REJECTED', timestamp: '2024-03-08T16:00:00Z', actor: 'val_002', reason: 'Topik terlalu bersifat praktis, tidak ada kontribusi akademik yang memadai.' },
+    ],
+    titleCount: 1,
+  },
+  {
+    submissionId: 'sub_007',
+    studentId: 'usr_student_06',
+    studentName: 'Dewi Kartika Sari',
+    studentEmail: 'dewi.kartika@university.edu',
+    studentPhone: '+628178901234',
+    status: 'PENDING_VALIDATOR_REVIEW',
+    titles: [
+      {
+        titleId: 'tit_014',
+        title: 'Deteksi Deepfake Video Menggunakan Convolutional Neural Network',
+        description: 'Pengembangan model CNN untuk mendeteksi manipulasi video deepfake dengan akurasi tinggi.',
+      },
+      {
+        titleId: 'tit_015',
+        title: 'Sistem Pengenalan Wajah dengan ArcFace untuk Keamanan Gedung Kampus',
+        description: 'Implementasi sistem pengenalan wajah menggunakan metode ArcFace untuk akses keamanan otomatis.',
+      },
+      {
+        titleId: 'tit_016',
+        title: 'Klasifikasi Emosi Berdasarkan Ekspresi Wajah Menggunakan Transfer Learning',
+        description: 'Penerapan transfer learning pada model pre-trained untuk klasifikasi emosi manusia dari citra wajah.',
+      },
+    ],
+    submittedAt: '2024-03-25T10:00:00Z',
+    assignedValidator: {
+      validatorId: 'val_001',
+      name: 'Dr. Jane Smith',
+      email: 'validator@university.edu',
+      department: 'Computer Science',
+    },
+    assignedAt: '2024-03-26T08:30:00Z',
+    assignedBy: 'usr_admin_01',
+    statusHistory: [
+      { status: 'PENDING_ADMIN_REVIEW', timestamp: '2024-03-25T10:00:00Z', actor: 'system' },
+      { status: 'PENDING_VALIDATOR_REVIEW', timestamp: '2024-03-26T08:30:00Z', actor: 'usr_admin_01', assignedValidator: 'val_001' },
+    ],
+    titleCount: 3,
   },
 ];
 
@@ -483,6 +705,18 @@ class ApiClient {
       }
     }
 
+    // Shared GET All Submissions (public, only APPROVED)
+    if (endpoint.startsWith('/submissions/all') && method === 'GET') {
+      const approved = mockSubmissions.filter(s =>
+        ['APPROVED', 'approved'].includes(s.status)
+      );
+      return {
+        success: true,
+        data: approved as T,
+        pagination: { page: 1, limit: 50, total: approved.length, totalPages: 1 },
+      };
+    }
+
     return {
       success: true,
       data: {} as T,
@@ -603,6 +837,12 @@ STATUS: OFFICIAL APPROVAL GRANTED
 
   getAdminStats(): Promise<ApiResponse<AdminStats>> {
     return this.request<AdminStats>('/admin/dashboard/stats');
+  }
+
+  // Shared Methods (all roles)
+  getAllSubmissions(status?: string): Promise<ApiResponse<Submission[]>> {
+    const endpoint = status ? `/submissions/all?status=${status}` : '/submissions/all';
+    return this.request<Submission[]>(endpoint);
   }
 
   // Validator Methods

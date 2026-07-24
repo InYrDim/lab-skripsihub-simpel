@@ -3,8 +3,10 @@ import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute, RoleBasedRedirect } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { StudentDashboard } from './pages/StudentDashboard';
+import { StudentHistoryPage } from './pages/StudentHistoryPage';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ValidatorDashboard } from './pages/ValidatorDashboard';
+import { SubmissionListPage } from './pages/SubmissionListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 
 function App() {
@@ -18,12 +20,23 @@ function App() {
           {/* Root Redirect based on user role */}
           <Route path="/" element={<RoleBasedRedirect />} />
 
+          {/* Submission List - Public page, only shows approved */}
+          <Route path="/submissions" element={<SubmissionListPage />} />
+
           {/* Student Dashboard */}
           <Route
             path="/student"
             element={
               <ProtectedRoute allowedRoles={['STUDENT', 'student']}>
                 <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/history"
+            element={
+              <ProtectedRoute allowedRoles={['STUDENT', 'student']}>
+                <StudentHistoryPage />
               </ProtectedRoute>
             }
           />

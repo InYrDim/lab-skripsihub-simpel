@@ -3,6 +3,7 @@ import { SubmissionsService } from './submissions.service';
 import { StudentSubmissionsController } from './student-submissions.controller';
 import { AdminSubmissionsController } from './admin-submissions.controller';
 import { ValidatorSubmissionsController } from './validator-submissions.controller';
+import { SharedSubmissionsController } from './shared-submissions.controller';
 import { PrismaModule } from '../prisma/prisma.module';
 import { PdfModule } from '../pdf/pdf.module';
 import { NotificationModule } from '../notification/notification.module';
@@ -13,6 +14,7 @@ import { NotificationModule } from '../notification/notification.module';
     StudentSubmissionsController,
     AdminSubmissionsController,
     ValidatorSubmissionsController,
+    SharedSubmissionsController,
   ],
   providers: [SubmissionsService],
   exports: [SubmissionsService],
