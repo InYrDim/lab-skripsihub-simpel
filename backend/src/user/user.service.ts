@@ -40,6 +40,11 @@ export class UserService {
         fullName: createUserDto.fullName,
         role: createUserDto.role,
         universityId: createUserDto.universityId,
+        department:
+          createUserDto.department || 'Teknik Informatika dan Komputer',
+        ...(createUserDto.prodi !== undefined && {
+          prodi: createUserDto.prodi,
+        }),
       },
     });
   }
@@ -58,11 +63,23 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
     await this.findOne(id);
-    const data: any = { ...updateUserDto };
-    if (updateUserDto.password) {
-      data.passwordHash = await bcrypt.hash(updateUserDto.password, 10);
-      delete data.password;
-    }
+    const data = {
+      ...(updateUserDto.email !== undefined && { email: updateUserDto.email }),
+      ...(updateUserDto.fullName !== undefined && {
+        fullName: updateUserDto.fullName,
+      }),
+      ...(updateUserDto.role !== undefined && { role: updateUserDto.role }),
+      ...(updateUserDto.universityId !== undefined && {
+        universityId: updateUserDto.universityId,
+      }),
+      ...(updateUserDto.department !== undefined && {
+        department: updateUserDto.department,
+      }),
+      ...(updateUserDto.prodi !== undefined && { prodi: updateUserDto.prodi }),
+      ...(updateUserDto.password && {
+        passwordHash: await bcrypt.hash(updateUserDto.password, 10),
+      }),
+    };
     return this.prisma.user.update({
       where: { id },
       data,

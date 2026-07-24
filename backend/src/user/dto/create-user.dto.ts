@@ -1,4 +1,4 @@
-import { UserRole } from '@prisma/client';
+import { ProgramStudi, UserRole } from '@prisma/client';
 
 export class CreateUserDto {
   email: string;
@@ -6,4 +6,6 @@ export class CreateUserDto {
   fullName: string;
   role: UserRole;
   universityId: string;
+  department?: string;
+  prodi?: ProgramStudi;
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { 
@@ -11,6 +12,7 @@ import {
   History,
   User as UserIcon
 } from 'lucide-react';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,11 +31,14 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       title: 'Menu Utama',
       items: userRole === 'STUDENT'
         ? [
-            { name: 'Dashboard', path: '/student', icon: FileText },
+            { name: 'Dasbor', path: '/student', icon: FileText },
             { name: 'Riwayat Pengajuan', path: '/student/history', icon: History }
           ]
         : userRole === 'ADMIN'
-        ? [{ name: 'Dashboard Admin', path: '/admin', icon: Users }]
+        ? [
+            { name: 'Dasbor Admin', path: '/admin', icon: Users },
+            { name: 'Manajemen Data', path: '/admin/management', icon: FileText }
+          ]
         : [{ name: 'Antrean Validasi', path: '/validator', icon: CheckSquare }]
     },
     {
@@ -43,6 +48,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       ]
     }
   ];
+
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -140,8 +147,8 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         </button>
 
         <button
-          onClick={handleLogout}
-          title={!isOpen ? "Log out" : undefined}
+          onClick={() => setShowLogoutModal(true)}
+          title={!isOpen ? "Keluar" : undefined}
           className={`
             w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-200 group
             text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 text-sm font-semibold
@@ -149,10 +156,21 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         >
           <LogOut size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-200" />
           <span className={`whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
-            Log out
+            Keluar
           </span>
         </button>
       </div>
+
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        title="Konfirmasi Logout"
+        message="Apakah Anda yakin ingin keluar dari aplikasi?"
+        confirmText="Ya, Logout"
+        cancelText="Batal"
+        type="warning"
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </aside>
   );
 }

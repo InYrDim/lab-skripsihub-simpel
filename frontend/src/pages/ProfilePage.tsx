@@ -14,9 +14,12 @@ import {
   BookOpen,
   AlertCircle
 } from 'lucide-react';
+import { ConfirmationModal } from '../components/ui/ConfirmationModal';
+import { useToast } from '../context/ToastContext';
 
 export const ProfilePage: React.FC = () => {
   const { user, updateUser } = useAuth();
+  const { showToast } = useToast();
 
   // Form state
   const [paInput, setPaInput] = useState('');
@@ -29,9 +32,10 @@ export const ProfilePage: React.FC = () => {
   // Cropper state
   const [rawImageUrl, setRawImageUrl] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [showPhotoSuccessModal, setShowPhotoSuccessModal] = useState(false);
 
   // Feedback
-  const [successMsg, setSuccessMsg] = useState('');
   const [photoError, setPhotoError] = useState('');
 
   useEffect(() => {
@@ -76,6 +80,7 @@ export const ProfilePage: React.FC = () => {
     setShowCropper(false);
     if (rawImageUrl) URL.revokeObjectURL(rawImageUrl);
     setRawImageUrl(null);
+    setShowPhotoSuccessModal(true);
   };
 
   const handleCropCancel = () => {
@@ -87,8 +92,7 @@ export const ProfilePage: React.FC = () => {
   const handleSave = () => {
     if (user?.role?.toUpperCase() === 'STUDENT') {
       if (!paInput.trim() || !nipInput.trim()) {
-        setSuccessMsg('error:Nama Dosen PA dan NIP wajib diisi.');
-        setTimeout(() => setSuccessMsg(''), 3000);
+        showToast('Nama Dosen PA dan NIP wajib diisi.', 'error');
         return;
       }
     }
@@ -98,12 +102,8 @@ export const ProfilePage: React.FC = () => {
       noHP: noHP.trim(),
       alamat: alamat.trim(),
     });
-    setSuccessMsg('success:Profil berhasil diperbarui!');
-    setTimeout(() => setSuccessMsg(''), 3000);
+    showToast('Profil berhasil diperbarui!', 'success');
   };
-
-  const isError = successMsg.startsWith('error:');
-  const msgText = successMsg.replace(/^(error:|success:)/, '');
 
   return (
     <DashboardLayout>
@@ -116,13 +116,6 @@ export const ProfilePage: React.FC = () => {
             Kelola informasi akun dan data akademik Anda.
           </p>
         </div>
-
-        {/* Feedback Banner */}
-        {msgText && (
-          <div className={`p-3 rounded text-sm border ${isError ? 'bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border-rose-200 dark:border-rose-500/20' : 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'}`}>
-            {msgText}
-          </div>
-        )}
 
         {/* Photo + Identity Card */}
         <div className="bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
@@ -304,13 +297,34 @@ export const ProfilePage: React.FC = () => {
         {/* Save Button */}
         <div className="flex justify-end">
           <button
-            onClick={handleSave}
+            onClick={() => setShowSaveModal(true)}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm font-semibold transition-colors shadow-sm"
           >
             <Save size={16} /> Simpan Profil
           </button>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={showSaveModal}
+        title="Simpan Perubahan"
+        message="Apakah Anda yakin ingin menyimpan perubahan pada profil Anda?"
+        confirmText="Ya, Simpan"
+        cancelText="Batal"
+        type="info"
+        onConfirm={handleSave}
+        onCancel={() => setShowSaveModal(false)}
+      />
+      <ConfirmationModal
+        isOpen={showPhotoSuccessModal}
+        title="Berhasil"
+        message="Foto profil Anda berhasil diperbarui."
+        confirmText="OK"
+        type="success"
+        hideCancel={true}
+        onConfirm={() => setShowPhotoSuccessModal(false)}
+        onCancel={() => setShowPhotoSuccessModal(false)}
+      />
     </DashboardLayout>
   );
 };

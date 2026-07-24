@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Topic {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?  @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("topic")
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -14,6 +25,7 @@ model User {
   fullName      String   @map("full_name")
   role          UserRole
   universityId  String   @unique @map("university_id")
+  department    String?  @default("Teknik Informatika dan Komputer")
   prodi         ProgramStudi @default(PTIK)
   isActive      Boolean  @default(true) @map("is_active")
   createdAt     DateTime @default(now()) @map("created_at")
@@ -175,4 +187,14 @@ enum NotificationType {
   ASSIGNED_TO_VALIDATOR
   FINAL_DECISION
   NEW_ASSIGNMENT
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_setting")
 }

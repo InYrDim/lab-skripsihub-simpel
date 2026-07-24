@@ -5,14 +5,17 @@ import { LoginPage } from './pages/LoginPage';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { StudentHistoryPage } from './pages/StudentHistoryPage';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { AdminManagement } from './pages/AdminManagement';
 import { ValidatorDashboard } from './pages/ValidatorDashboard';
 import { SubmissionListPage } from './pages/SubmissionListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { ToastProvider } from './context/ToastContext';
 
 function App() {
   return (
-    <AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
       <BrowserRouter>
         <Routes>
           {/* Public Login Route */}
@@ -51,6 +54,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/management"
+            element={
+              <ProtectedRoute allowedRoles={['ADMIN', 'admin']}>
+                <AdminManagement />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Validator Dashboard */}
           <Route
@@ -80,6 +91,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ToastProvider>
   );
 }
 

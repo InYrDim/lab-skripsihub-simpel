@@ -360,6 +360,7 @@ export class SubmissionsService {
           assignments: {
             include: {
               validator: true,
+              feedback: true,
             },
           },
           approvalLetter: true,
@@ -539,6 +540,71 @@ export class SubmissionsService {
       assignedAt: latestAssignment ? latestAssignment.assignedAt : now,
       statusHistory: this.buildStatusHistory(updated),
     };
+  }
+
+  async getAdminDashboardStats() {
+    const [
+      totalSubmissions,
+      pendingAdminReview,
+      pendingValidatorReview,
+      approved,
+      rejected,
+      totalStudents,
+      totalValidators,
+    ] = await Promise.all([
+      this.prisma.submission.count(),
+      this.prisma.submission.count({
+        where: { status: SubmissionStatus.PENDING_ADMIN_REVIEW },
+      }),
+      this.prisma.submission.count({
+        where: { status: SubmissionStatus.PENDING_VALIDATOR_REVIEW },
+      }),
+      this.prisma.submission.count({
+        where: { status: SubmissionStatus.APPROVED },
+      }),
+      this.prisma.submission.count({
+        where: { status: SubmissionStatus.REJECTED },
+      }),
+      this.prisma.user.count({ where: { role: UserRole.STUDENT } }),
+      this.prisma.user.count({ where: { role: UserRole.VALIDATOR } }),
+    ]);
+
+    const rejectionRate = totalSubmissions
+      ? `${((rejected / totalSubmissions) * 100).toFixed(1)}%`
+      : '0%';
+
+    return {
+      totalSubmissions,
+      pendingAdminReview,
+      pendingValidatorReview,
+      approved,
+      rejected,
+      totalStudents,
+      totalValidators,
+      averageTimeToApproval: '0 days',
+      rejectionRate,
+    };
+  }
+
+  async getAllTitles() {
+    const titles = await this.prisma.submissionTitle.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        submission: {
+          include: { student: true },
+        },
+      },
+    });
+
+    return titles.map((title) => ({
+      titleId: title.id,
+      title: title.title,
+      topic: title.topic,
+      studentName: title.submission.student.fullName,
+      studentNIM: title.submission.student.universityId,
+      studentProdi: title.submission.student.prodi,
+      submissionStatus: title.submission.status.toLowerCase(),
+    }));
   }
 
   /**

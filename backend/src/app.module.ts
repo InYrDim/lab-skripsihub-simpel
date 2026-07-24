@@ -7,6 +7,8 @@ import { AuthModule } from './auth/auth.module';
 import { SubmissionsModule } from './submissions/submissions.module';
 import { PdfModule } from './pdf/pdf.module';
 import { NotificationModule } from './notification/notification.module';
+import { AdminSettingsModule } from './admin-settings/admin-settings.module';
+import { TopicsModule } from './topics/topics.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { NotificationModule } from './notification/notification.module';
     SubmissionsModule,
     PdfModule,
     NotificationModule,
+    AdminSettingsModule,
+    TopicsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

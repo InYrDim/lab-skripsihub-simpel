@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check } from 'lucide-react';
 
 export interface SelectOption {
@@ -17,23 +18,45 @@ export interface SelectProps {
 export function Select({ options, value, onChange, placeholder, className = '' }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({});
 
-  // Find the label for the currently selected value
   const selectedOption = options.find((opt) => opt.value === value);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      // Close if clicking outside the container and not on a dropdown item
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(event.target as Node) &&
+        !(event.target as Element).closest('.select-portal-dropdown')
+      ) {
         setIsOpen(false);
+      }
+    };
+
+    const updatePosition = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setDropdownStyle({
+          position: 'fixed',
+          top: rect.bottom + 4,
+          left: rect.left,
+          width: rect.width,
+          zIndex: 9999, // very high to be above modal
+        });
       }
     };
 
     if (isOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
+      window.addEventListener('scroll', updatePosition, true); // true for capture phase to catch modal scroll
+      window.addEventListener('resize', updatePosition);
+      updatePosition();
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
     };
   }, [isOpen]);
 
@@ -55,8 +78,11 @@ export function Select({ options, value, onChange, placeholder, className = '' }
         <ChevronDown size={14} className={`text-zinc-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
-      {isOpen && (
-        <div className="absolute z-50 w-full min-w-[140px] mt-1 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+      {isOpen && createPortal(
+        <div 
+          className="select-portal-dropdown bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-lg overflow-hidden animate-in fade-in zoom-in-95 duration-100"
+          style={dropdownStyle}
+        >
           <ul className="max-h-60 overflow-auto py-1 custom-scrollbar">
             {options.map((opt) => {
               const isSelected = opt.value === value;
@@ -76,7 +102,8 @@ export function Select({ options, value, onChange, placeholder, className = '' }
               );
             })}
           </ul>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

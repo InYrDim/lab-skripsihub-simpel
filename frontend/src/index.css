@@ -7,9 +7,28 @@
 }
 
 @layer utilities {
-  .custom-scrollbar::-webkit-scrollbar {
+  /* Global Scrollbar */
+  ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-zinc-300 dark:bg-zinc-800 rounded-full transition-colors;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-orange-500 dark:bg-orange-600;
+  }
+
+  /* Specific element custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
   }
   
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -17,10 +36,10 @@
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-zinc-200 dark:bg-zinc-800 rounded-full;
+    @apply bg-zinc-300 dark:bg-zinc-700 rounded-full;
   }
   
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-zinc-300 dark:bg-zinc-700;
+    @apply bg-orange-500;
   }
 }

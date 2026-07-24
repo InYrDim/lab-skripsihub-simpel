@@ -67,4 +67,33 @@ describe('UserService', () => {
       });
     });
   });
+
+  describe('update', () => {
+    it('only sends writable user fields to Prisma', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockPrismaService.user.update.mockResolvedValue(mockUser);
+
+      await service.update('usr-1', {
+        email: 'updated@university.edu',
+        fullName: 'Updated Student',
+        role: UserRole.STUDENT,
+        universityId: 'STD002',
+        department: 'Teknik Informatika dan Komputer',
+        name: 'UI-only name',
+        id: 'usr-1',
+        createdAt: '2026-07-24T10:01:54.709Z',
+      } as any);
+
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith({
+        where: { id: 'usr-1' },
+        data: {
+          email: 'updated@university.edu',
+          fullName: 'Updated Student',
+          role: UserRole.STUDENT,
+          universityId: 'STD002',
+          department: 'Teknik Informatika dan Komputer',
+        },
+      });
+    });
+  });
 });

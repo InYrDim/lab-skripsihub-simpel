@@ -73,6 +73,24 @@ export class AdminSubmissionsController {
     };
   }
 
+  @Get('dashboard/stats')
+  @Roles('ADMIN')
+  async getDashboardStats() {
+    return {
+      success: true,
+      data: await this.submissionsService.getAdminDashboardStats(),
+    };
+  }
+
+  @Get('all-titles')
+  @Roles('ADMIN')
+  async getAllTitles() {
+    return {
+      success: true,
+      data: await this.submissionsService.getAllTitles(),
+    };
+  }
+
   @Get('validators')
   @Roles('ADMIN')
   async getValidators(@Query() query: ValidatorQuery) {

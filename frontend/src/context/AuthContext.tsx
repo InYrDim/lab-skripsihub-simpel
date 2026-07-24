@@ -48,6 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.login(email, password);
       if (response.success && response.data) {
+        localStorage.setItem('auth_user', JSON.stringify(response.data.user));
+        localStorage.setItem('auth_token', response.data.accessToken);
         setUser(response.data.user);
         setToken(response.data.accessToken);
       } else {
@@ -62,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const emailMap = {
       STUDENT: 'student@university.edu',
       ADMIN: 'admin@university.edu',
-      VALIDATOR: 'validator@university.edu',
+      VALIDATOR: 'validator1@university.edu',
     };
     await login(emailMap[role], 'password123');
   };
@@ -82,7 +84,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUser = (updates: Partial<User>) => {
     if (user) {
-      setUser({ ...user, ...updates });
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      // Persist to backend mock so it survives relogin
+      api.updateUser(user.id, updates).catch((err) => {
+        console.error('Failed to update user profile in backend:', err);
+      });
     }
   };
 

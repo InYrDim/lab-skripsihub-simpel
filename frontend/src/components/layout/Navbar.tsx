@@ -2,6 +2,7 @@ import { Bell, Menu, User as UserIcon, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -12,6 +13,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark');
@@ -54,7 +56,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
         <button 
           onClick={toggleTheme}
           className="p-2 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          title="Toggle Theme"
+          title="Ganti Tema"
         >
           {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
         </button>
@@ -69,24 +71,28 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex flex-col items-end">
             <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
-              {user?.name || 'User'}
+              {user?.name || 'Pengguna'}
             </span>
             <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-              {user?.role || 'STUDENT'}
+              {user?.role === 'STUDENT' ? 'MAHASISWA' : user?.role || 'MAHASISWA'}
             </span>
           </div>
 
           <div 
             onClick={() => navigate('/profile')}
-            className={`h-9 w-9 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-800 transition-colors`}
+            className={`h-9 w-9 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-800 transition-colors overflow-hidden shrink-0`}
             title="Profil Saya"
           >
-            <UserIcon size={18} />
+            {user?.photoUrl ? (
+              <img src={user.photoUrl} alt="Foto Profil" className="h-full w-full object-cover" />
+            ) : (
+              <UserIcon size={18} />
+            )}
           </div>
 
           <button
-            onClick={handleLogout}
-            title="Log out"
+            onClick={() => setShowLogoutModal(true)}
+            title="Keluar"
             className="p-2 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
           >
             <LogOut size={18} />
@@ -94,6 +100,16 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
         </div>
       </div>
 
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        title="Konfirmasi Logout"
+        message="Apakah Anda yakin ingin keluar dari aplikasi?"
+        confirmText="Ya, Logout"
+        cancelText="Batal"
+        type="warning"
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </header>
   );
 }

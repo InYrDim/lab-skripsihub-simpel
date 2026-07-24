@@ -7,119 +7,144 @@ async function main() {
   const passwordHash = await bcrypt.hash('password123', 10);
 
   // --- Users ---
+  const DEFAULT_DEPARTMENT = 'Teknik Informatika dan Komputer';
+
   const student1 = await prisma.user.upsert({
     where: { email: 'student@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'student@university.edu',
       passwordHash,
       fullName: 'Alex Student',
       role: UserRole.STUDENT,
       universityId: 'STD001',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const student2 = await prisma.user.upsert({
     where: { email: 'aulia@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'aulia@university.edu',
       passwordHash,
       fullName: 'M. AULIA ARIEF',
       role: UserRole.STUDENT,
       universityId: '1729041022',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const student3 = await prisma.user.upsert({
     where: { email: 'fadilah@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'fadilah@university.edu',
       passwordHash,
       fullName: 'MUHAMMAD FADILAH',
       role: UserRole.STUDENT,
       universityId: '1729041023',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const student4 = await prisma.user.upsert({
     where: { email: 'rina.sari@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'rina.sari@university.edu',
       passwordHash,
       fullName: 'RINA SARI',
       role: UserRole.STUDENT,
       universityId: '1729041024',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const student5 = await prisma.user.upsert({
     where: { email: 'andi.pratama@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'andi.pratama@university.edu',
       passwordHash,
       fullName: 'ANDI PRATAMA',
       role: UserRole.STUDENT,
       universityId: '1729041025',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const student6 = await prisma.user.upsert({
     where: { email: 'dewi.kartika@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'dewi.kartika@university.edu',
       passwordHash,
       fullName: 'DEWI KARTIKA SARI',
       role: UserRole.STUDENT,
       universityId: '1729041026',
+      department: DEFAULT_DEPARTMENT,
+      isActive: true,
+    },
+  });
+
+  const student7 = await prisma.user.upsert({
+    where: { email: 'budi.santoso@university.edu' },
+    update: { department: DEFAULT_DEPARTMENT },
+    create: {
+      email: 'budi.santoso@university.edu',
+      passwordHash,
+      fullName: 'BUDI SANTOSO',
+      role: UserRole.STUDENT,
+      universityId: '1729041027',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'admin@university.edu',
       passwordHash,
       fullName: 'Admin User',
       role: UserRole.ADMIN,
       universityId: 'ADM001',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const validator1 = await prisma.user.upsert({
     where: { email: 'validator1@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'validator1@university.edu',
       passwordHash,
       fullName: 'Drs. Marsud Hamid, M.Kes.',
       role: UserRole.VALIDATOR,
       universityId: 'VAL001',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });
 
   const validator2 = await prisma.user.upsert({
     where: { email: 'validator2@university.edu' },
-    update: {},
+    update: { department: DEFAULT_DEPARTMENT },
     create: {
       email: 'validator2@university.edu',
       passwordHash,
       fullName: 'Dr. Sanatang, S.Pd., M.T.',
       role: UserRole.VALIDATOR,
       universityId: 'VAL002',
+      department: DEFAULT_DEPARTMENT,
       isActive: true,
     },
   });

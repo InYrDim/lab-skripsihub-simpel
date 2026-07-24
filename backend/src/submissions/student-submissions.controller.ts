@@ -6,10 +6,7 @@ import {
   Param,
   Query,
   UseGuards,
-  Res,
-  HttpStatus,
 } from '@nestjs/common';
-import type { Response } from 'express';
 import { SubmissionsService } from './submissions.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -69,21 +66,16 @@ export class StudentSubmissionsController {
 
   @Get('me/current')
   @Roles('STUDENT')
-  async getCurrentSubmission(
-    @CurrentUser() user: RequestUser,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async getCurrentSubmission(@CurrentUser() user: RequestUser) {
     const current = await this.submissionsService.getStudentCurrentSubmission(
       user.id,
     );
-    if (!current) {
-      res.status(HttpStatus.NO_CONTENT);
-      return;
-    }
     return {
       success: true,
       data: current,
-      message: 'Current submission retrieved successfully',
+      message: current
+        ? 'Current submission retrieved successfully'
+        : 'No active submission found',
     };
   }
 

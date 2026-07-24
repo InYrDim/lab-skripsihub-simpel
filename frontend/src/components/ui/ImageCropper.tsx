@@ -169,16 +169,8 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
       0, 0, outputSize, outputSize
     );
 
-    outCanvas.toBlob(
-      (blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          onCrop(url);
-        }
-      },
-      'image/png',
-      1
-    );
+    const dataUrl = outCanvas.toDataURL('image/jpeg', 0.9);
+    onCrop(dataUrl);
   };
 
   return (

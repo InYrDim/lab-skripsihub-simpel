@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import type { Submission, SubmissionStatus, Topic } from '../types';
 import { Select } from '../components/ui/select';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import {
   FilePlus,
   AlertTriangle,
@@ -11,7 +12,6 @@ import {
   Clock,
   XCircle,
   Download,
-  Eye,
   Plus,
   X,
   FileText,
@@ -23,6 +23,7 @@ import {
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [currentSubmission, setCurrentSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -35,9 +36,6 @@ export const StudentDashboard: React.FC = () => {
     { title: '', topic: '', description: '' },
     { title: '', topic: '', description: '' },
   ]);
-  const [pembimbing1, setPembimbing1] = useState('');
-  const [pembimbing2, setPembimbing2] = useState('');
-  const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   
   // Multi-step state
@@ -84,10 +82,7 @@ export const StudentDashboard: React.FC = () => {
       { title: '', topic: '', description: '' },
       { title: '', topic: '', description: '' },
     ]);
-    setPembimbing1('');
-    setPembimbing2('');
     setProposalFile(null);
-    setFormError(null);
   };
 
   const handleTitleChange = (index: number, field: 'title' | 'topic' | 'description', value: string) => {
@@ -98,12 +93,19 @@ export const StudentDashboard: React.FC = () => {
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
 
-    // Validation exactly 3 titles
+    // Validation exactly 3 titles, topics, and descriptions
     for (let i = 0; i < titles.length; i++) {
       if (titles[i].title.trim().length < 10) {
-        setFormError(`Title ${i + 1} must be at least 10 characters long.`);
+        showToast(`Usulan Judul #${i + 1} harus minimal 10 karakter.`, 'error');
+        return;
+      }
+      if (!titles[i].topic.trim()) {
+        showToast(`Topik Skripsi pada Usulan Judul #${i + 1} wajib dipilih.`, 'error');
+        return;
+      }
+      if (titles[i].description.trim().length < 10) {
+        showToast(`Deskripsi pada Usulan Judul #${i + 1} wajib diisi (minimal 10 karakter).`, 'error');
         return;
       }
     }
@@ -112,12 +114,7 @@ export const StudentDashboard: React.FC = () => {
     const titleStrings = titles.map(t => t.title.trim().toLowerCase());
     const uniqueStrings = new Set(titleStrings);
     if (uniqueStrings.size !== titleStrings.length) {
-      setFormError('All proposed titles must be distinct.');
-      return;
-    }
-
-    if (!pembimbing1.trim()) {
-      setFormError('Please input Pembimbing 1.');
+      showToast('Setiap usulan judul harus berbeda.', 'error');
       return;
     }
 
@@ -126,9 +123,8 @@ export const StudentDashboard: React.FC = () => {
 
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFormError(null);
     if (!proposalFile) {
-      setFormError('Please upload your proposal document.');
+      showToast('Mohon unggah dokumen proposal Anda.', 'error');
       return;
     }
 
@@ -137,8 +133,6 @@ export const StudentDashboard: React.FC = () => {
       // In a real app, upload file to storage, get URL, include in payload
       const res = await api.createSubmission({ 
         titles,
-        pembimbing1,
-        pembimbing2,
         documentUrl: URL.createObjectURL(proposalFile) // mocked URL
       } as any); // using any for extra payload fields in mock
 
@@ -146,14 +140,15 @@ export const StudentDashboard: React.FC = () => {
         setShowCreateModal(false);
         resetForm();
         await fetchData();
+        showToast('Berhasil mengajukan judul skripsi baru.', 'success');
       } else {
-        setFormError(res.message || 'Failed to submit thesis titles.');
+        showToast(res.message || 'Gagal mengajukan judul skripsi.', 'error');
       }
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setFormError(err.message);
+        showToast(err.message, 'error');
       } else {
-        setFormError('An unexpected error occurred.');
+        showToast('Terjadi kesalahan yang tidak terduga.', 'error');
       }
     } finally {
       setSubmitting(false);
@@ -165,26 +160,26 @@ export const StudentDashboard: React.FC = () => {
     if (s === 'PENDING_ADMIN_REVIEW') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-          <Clock size={14} /> Pending Admin Review
+          <Clock size={14} /> Menunggu Tinjauan Admin
         </span>
       );
     }
     if (s === 'PENDING_VALIDATOR_REVIEW') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-          <Clock size={14} /> Pending Validator Review
+          <Clock size={14} /> Menunggu Tinjauan Validator
         </span>
       );
     }
     if (s === 'APPROVED') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-          <CheckCircle size={14} /> Approved
+          <CheckCircle size={14} /> Disetujui
         </span>
       );
     }
     if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
-      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
+      const label = s === 'REJECTED_BY_ADMIN' ? 'Ditolak oleh Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Ditolak oleh Validator' : 'Ditolak';
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
           <XCircle size={14} /> {label}
@@ -205,25 +200,25 @@ export const StudentDashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-              Student Dashboard
+              Dasbor Mahasiswa
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Submit and manage your bachelor thesis title proposals.
+              Ajukan dan kelola usulan judul skripsi Anda.
             </p>
           </div>
 
           <button
             onClick={() => setShowCreateModal(true)}
-            disabled={hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip}
-            title={hasActiveSubmission ? 'Active submission under review' : (!user?.dosenPA || !user?.dosenPANip) ? 'Please set your Dosen PA first' : 'Submit New Thesis Title'}
+            disabled={loading || hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip}
+            title={loading ? 'Memuat status...' : hasActiveSubmission ? 'Pengajuan aktif sedang ditinjau' : (!user?.dosenPA || !user?.dosenPANip) ? 'Mohon atur Dosen PA Anda terlebih dahulu' : 'Ajukan Judul Skripsi Baru'}
             className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded font-semibold text-sm transition-all ${
-              (hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip)
+              (loading || hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip)
                 ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
                 : 'bg-orange-600 hover:bg-orange-700 text-white shadow-md'
             }`}
           >
             <FilePlus size={18} />
-            Create New Submission
+            Buat Pengajuan Baru
           </button>
         </div>
 
@@ -246,10 +241,10 @@ export const StudentDashboard: React.FC = () => {
           <div className="p-4 bg-amber-50 dark:bg-amber-500/10 border-l-4 border-amber-500 rounded-r text-amber-800 dark:text-amber-300 flex items-start gap-3 shadow-sm">
             <AlertTriangle size={22} className="shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-sm">Active Submission Under Review</h3>
+              <h3 className="font-semibold text-sm">Pengajuan Aktif Sedang Ditinjau</h3>
               <p className="text-xs mt-1 text-amber-700 dark:text-amber-400/90 leading-relaxed">
-                You currently have an active thesis submission in progress ({currentSubmission?.status?.replaceAll('_', ' ') || 'UNDER REVIEW'}).
-                You are blocked from creating a new submission until a final decision (Approved or Rejected) is reached by the academic validator.
+                Anda saat ini memiliki pengajuan skripsi yang sedang diproses ({currentSubmission?.status?.replaceAll('_', ' ') || 'SEDANG DITINJAU'}).
+                Anda tidak dapat membuat pengajuan baru hingga keputusan akhir (Disetujui atau Ditolak) diberikan oleh validator akademik.
               </p>
             </div>
           </div>
@@ -258,7 +253,7 @@ export const StudentDashboard: React.FC = () => {
         {/* Active Submission Card */}
         {loading ? (
           <div className="p-5 text-center text-zinc-500 bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800">
-            Loading submission status...
+            Memuat status pengajuan...
           </div>
         ) : currentSubmission ? (
           <div className="bg-white dark:bg-zinc-950 rounded p-5 border border-zinc-200 dark:border-zinc-800 shadow-sm space-y-4">
@@ -266,7 +261,7 @@ export const StudentDashboard: React.FC = () => {
               <div>
                 <span className="text-xs font-mono text-zinc-400">ID: {currentSubmission.submissionId}</span>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">
-                  Current Thesis Proposal
+                  Usulan Skripsi Saat Ini
                 </h2>
               </div>
               <div>{getStatusBadge(currentSubmission.status)}</div>
@@ -274,7 +269,7 @@ export const StudentDashboard: React.FC = () => {
 
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Proposed Titles ({currentSubmission.titles.length})
+                Judul yang Diajukan ({currentSubmission.titles.length})
               </h3>
               <div className="grid gap-3">
                 {currentSubmission.titles.map((t, idx) => (
@@ -292,7 +287,7 @@ export const StudentDashboard: React.FC = () => {
                       </h4>
                       {t.title === currentSubmission.approvedTitle && (
                         <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase bg-emerald-600 text-white">
-                          APPROVED TITLE
+                          JUDUL DISETUJUI
                         </span>
                       )}
                     </div>
@@ -310,28 +305,45 @@ export const StudentDashboard: React.FC = () => {
             {currentSubmission.status.toUpperCase() === 'APPROVED' && (
               <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
                 <div className="text-xs text-zinc-500">
-                  Approved by <span className="font-medium text-zinc-700 dark:text-zinc-300">{currentSubmission.approvedByName || 'Validator'}</span>
+                  Disetujui oleh <span className="font-medium text-zinc-700 dark:text-zinc-300">{currentSubmission.approvedByName || 'Validator'}</span>
                 </div>
                 <button
                   onClick={() => api.downloadLetter(currentSubmission.submissionId)}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors shadow-sm"
                 >
-                  <Download size={16} /> Download Approval Letter (PDF)
+                  <Download size={16} /> Unduh Surat Persetujuan (PDF)
                 </button>
               </div>
             )}
 
-            {currentSubmission.status.toUpperCase() === 'REJECTED' && (
-              <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                <div className="text-xs text-rose-600 dark:text-rose-400 font-medium">
-                  Proposal Rejected by Validator
+            {currentSubmission.status.toUpperCase().includes('REJECTED') && (
+              <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs text-rose-600 dark:text-rose-400 font-medium">
+                    Proposal Ditolak oleh {currentSubmission.rejectedByName || 'Admin/Validator'}
+                  </div>
+                  <button
+                    onClick={() => setShowCreateModal(true)}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition-colors shadow-sm"
+                  >
+                    <FilePlus size={14} /> Buat Pengajuan Baru
+                  </button>
                 </div>
-                <button
-                  onClick={() => setShowFeedbackModal(currentSubmission)}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-100 text-xs font-semibold transition-colors"
-                >
-                  <Eye size={16} /> View Rejection Feedback
-                </button>
+
+                {currentSubmission.rejectionReason ? (
+                  <div className="p-4 bg-rose-50/50 dark:bg-rose-500/10 rounded border border-rose-100 dark:border-rose-500/20">
+                    <h4 className="text-xs font-bold text-rose-800 dark:text-rose-300 mb-1.5 flex items-center gap-1.5">
+                      <AlertTriangle size={14} /> Catatan Penolakan:
+                    </h4>
+                    <p className="text-sm text-rose-700 dark:text-rose-400/90 whitespace-pre-wrap leading-relaxed">
+                      {currentSubmission.rejectionReason}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 bg-rose-50/50 dark:bg-rose-500/10 rounded border border-rose-100 dark:border-rose-500/20 text-sm text-rose-700 dark:text-rose-400">
+                    <p>Tidak ada catatan penolakan yang dilampirkan.</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -339,10 +351,10 @@ export const StudentDashboard: React.FC = () => {
           <div className="bg-white dark:bg-zinc-950 rounded p-6 border border-zinc-200 dark:border-zinc-800 text-center space-y-3">
             <FileText size={40} className="mx-auto text-zinc-400" />
             <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-200">
-              No Active Thesis Proposal
+              Tidak Ada Usulan Skripsi Aktif
             </h3>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
-              You do not have any thesis proposal currently under review. Click below to submit up to 3 proposed thesis titles.
+              Anda tidak memiliki usulan skripsi yang sedang ditinjau. Klik di bawah untuk mengajukan hingga 3 usulan judul skripsi.
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
@@ -353,7 +365,7 @@ export const StudentDashboard: React.FC = () => {
                   : 'bg-orange-600 text-white hover:bg-orange-700'
               }`}
             >
-              <Plus size={16} /> Submit Proposal
+              <Plus size={16} /> Ajukan Proposal
             </button>
           </div>
         )}
@@ -367,7 +379,7 @@ export const StudentDashboard: React.FC = () => {
               <div>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                   <FilePlus className="text-orange-600" size={20} />
-                  Submit Thesis Titles Proposal
+                  Ajukan Usulan Judul Skripsi
                 </h2>
                 <div className="flex items-center gap-2 mt-2">
                   <div className={`flex items-center gap-1.5 text-[11px] font-semibold ${step === 1 ? 'text-orange-600' : 'text-zinc-400'}`}>
@@ -389,19 +401,13 @@ export const StudentDashboard: React.FC = () => {
               </button>
             </div>
 
-            {formError && (
-              <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs rounded">
-                {formError}
-              </div>
-            )}
-
             <form onSubmit={step === 1 ? handleNextStep : handleFinalSubmit} className="space-y-4">
               {step === 1 && (
                 <>
                   <div className="p-3 bg-orange-50/50 dark:bg-orange-500/10 rounded text-xs text-orange-700 dark:text-orange-300 flex items-start gap-2">
                     <Info size={16} className="shrink-0 mt-0.5" />
                     <span>
-                      Anda harus mengusulkan tepat 3 judul skripsi beserta calon Dosen Pembimbing.
+                      Anda harus mengusulkan tepat 3 judul skripsi.
                     </span>
                   </div>
 
@@ -440,7 +446,8 @@ export const StudentDashboard: React.FC = () => {
                       <div>
                         <textarea
                           rows={2}
-                          placeholder="Deskripsi singkat atau metodologi..."
+                          required
+                          placeholder="Deskripsi singkat atau metodologi (Wajib, min. 10 karakter)..."
                           value={t.description}
                           onChange={(e) => handleTitleChange(idx, 'description', e.target.value)}
                           className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
@@ -449,32 +456,6 @@ export const StudentDashboard: React.FC = () => {
                     </div>
                   ))}
 
-                  <div className="p-4 rounded bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-3">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Usulan Dosen Pembimbing</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Pembimbing 1 *</label>
-                        <input
-                          type="text"
-                          required
-                          placeholder="Nama Pembimbing 1"
-                          value={pembimbing1}
-                          onChange={(e) => setPembimbing1(e.target.value)}
-                          className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Pembimbing 2 (Opsional)</label>
-                        <input
-                          type="text"
-                          placeholder="Nama Pembimbing 2"
-                          value={pembimbing2}
-                          onChange={(e) => setPembimbing2(e.target.value)}
-                          className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
-                        />
-                      </div>
-                    </div>
-                  </div>
                 </>
               )}
 
@@ -531,7 +512,7 @@ export const StudentDashboard: React.FC = () => {
                       onClick={() => setShowCreateModal(false)}
                       className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                     >
-                      Cancel
+                      Batal
                     </button>
                     <button
                       type="submit"
@@ -554,7 +535,7 @@ export const StudentDashboard: React.FC = () => {
                       disabled={submitting}
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 transition-colors"
                     >
-                      {submitting ? 'Mengirim...' : 'Submit Proposal'}
+                      {submitting ? 'Mengirim...' : 'Ajukan Proposal'}
                     </button>
                   </>
                 )}
@@ -571,7 +552,7 @@ export const StudentDashboard: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
                 <XCircle size={20} />
-                Validator Rejection Feedback
+                Umpan Balik Penolakan Validator
               </h2>
               <button
                 onClick={() => setShowFeedbackModal(null)}
@@ -583,20 +564,20 @@ export const StudentDashboard: React.FC = () => {
 
             <div className="space-y-3">
               <div className="text-xs text-zinc-500">
-                Submission ID: <span className="font-mono text-zinc-700 dark:text-zinc-300">{showFeedbackModal.submissionId}</span>
+                ID Pengajuan: <span className="font-mono text-zinc-700 dark:text-zinc-300">{showFeedbackModal.submissionId}</span>
               </div>
 
               <div className="p-4 bg-rose-50/50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded space-y-2">
                 <h4 className="text-xs font-bold text-rose-800 dark:text-rose-300 uppercase tracking-wider">
-                  Feedback from {showFeedbackModal.rejectedByName || 'Validator'}
+                  Umpan Balik dari {showFeedbackModal.rejectedByName || 'Validator'}
                 </h4>
                 <p className="text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed font-sans whitespace-pre-wrap">
-                  {showFeedbackModal.rejectionReason || 'No detailed reason provided.'}
+                  {showFeedbackModal.rejectionReason || 'Tidak ada alasan rinci yang diberikan.'}
                 </p>
               </div>
 
               <p className="text-xs text-zinc-500">
-                You are now eligible to prepare and submit a new set of thesis title proposals addressing the validator feedback.
+                Anda sekarang dapat menyiapkan dan mengajukan usulan judul skripsi baru sesuai dengan umpan balik validator.
               </p>
             </div>
 
@@ -605,7 +586,7 @@ export const StudentDashboard: React.FC = () => {
                 onClick={() => setShowFeedbackModal(null)}
                 className="px-4 py-2 rounded text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
               >
-                Close
+                Tutup
               </button>
             </div>
           </div>

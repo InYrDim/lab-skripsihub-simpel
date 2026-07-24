@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StudentSubmissionsController } from './student-submissions.controller';
 import { SubmissionsService } from './submissions.service';
-import { Response } from 'express';
 
 describe('StudentSubmissionsController', () => {
   let controller: StudentSubmissionsController;
@@ -74,13 +73,12 @@ describe('StudentSubmissionsController', () => {
 
   describe('getCurrentSubmission', () => {
     it('should return active submission when found', async () => {
-      const mockRes = { status: jest.fn() } as unknown as Response;
       const current = { submissionId: 'sub-1', status: 'pending_admin_review' };
       mockSubmissionsService.getStudentCurrentSubmission.mockResolvedValue(
         current,
       );
 
-      const response = await controller.getCurrentSubmission(mockUser, mockRes);
+      const response = await controller.getCurrentSubmission(mockUser);
 
       expect(response).toEqual({
         success: true,
@@ -89,16 +87,18 @@ describe('StudentSubmissionsController', () => {
       });
     });
 
-    it('should set 204 status when active submission not found', async () => {
-      const mockRes = { status: jest.fn() } as unknown as Response;
+    it('should return null when active submission is not found', async () => {
       mockSubmissionsService.getStudentCurrentSubmission.mockResolvedValue(
         null,
       );
 
-      const response = await controller.getCurrentSubmission(mockUser, mockRes);
+      const response = await controller.getCurrentSubmission(mockUser);
 
-      expect(mockRes.status).toHaveBeenCalledWith(204);
-      expect(response).toBeUndefined();
+      expect(response).toEqual({
+        success: true,
+        data: null,
+        message: 'No active submission found',
+      });
     });
   });
 

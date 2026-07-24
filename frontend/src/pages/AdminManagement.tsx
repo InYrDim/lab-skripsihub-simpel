@@ -13,14 +13,15 @@ import {
   XCircle, 
   UserCheck,
   X,
-  Filter,
   Tag,
   Plus,
-  BookOpen
+  BookOpen,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 
-export const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'submissions' | 'users' | 'topics' | 'all_titles'>('submissions');
+export const AdminManagement: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'settings'>('users');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [validators, setValidators] = useState<ValidatorInfo[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -84,6 +85,11 @@ export const AdminDashboard: React.FC = () => {
   const [newTopicName, setNewTopicName] = useState('');
   const [addingTopic, setAddingTopic] = useState(false);
 
+  // Settings
+  const [defaultDepartment, setDefaultDepartment] = useState('Teknik Informatika dan Komputer');
+  const [editingDepartment, setEditingDepartment] = useState('');
+  const [savingDepartment, setSavingDepartment] = useState(false);
+
   const fetchInitialData = async () => {
     try {
       const [valRes, usrRes, statsRes, topRes, allTitlesRes] = await Promise.all([
@@ -128,7 +134,7 @@ export const AdminDashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (activeTab === 'submissions') fetchSubmissions();
+    if (false) fetchSubmissions();
   }, [page, limit, statusFilter, prodiFilter, topicFilter, activeTab]);
 
   const handleAssignValidator = async (e: React.FormEvent) => {
@@ -257,6 +263,21 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleSaveDefaultDepartment = async () => {
+    if (!editingDepartment.trim()) return;
+    setSavingDepartment(true);
+    try {
+      const res = await api.setDefaultDepartment(editingDepartment.trim());
+      if (res.success) {
+        setDefaultDepartment(editingDepartment.trim());
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSavingDepartment(false);
+    }
+  };
+
   const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
     setter(value);
     setPage(1); // Reset to page 1 on filter change
@@ -266,6 +287,7 @@ export const AdminDashboard: React.FC = () => {
     if (roleFilter === 'ALL') return true;
     return u.role.toUpperCase() === roleFilter.toUpperCase();
   });
+  const showStudentIdentityColumn = ['ALL', 'STUDENT'].includes(roleFilter);
 
   const getStatusBadge = (status: SubmissionStatus) => {
     const s = status.toUpperCase();
@@ -308,108 +330,104 @@ export const AdminDashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-              Admin Management Portal
+              Data Management Portal
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Review thesis proposals, assign validators, and manage user accounts.
+              Manage user accounts, topics, and system settings.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
+            
             <button
-              onClick={() => setActiveTab('submissions')}
+              onClick={() => setActiveTab('users')}
               className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
-                activeTab === 'submissions'
+                activeTab === 'users'
                   ? 'bg-orange-600 text-white shadow-md'
                   : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
               }`}
             >
-              Submissions Queue
+              User Management
             </button>
-            
-            
             <button
-              onClick={() => setActiveTab('all_titles')}
+              onClick={() => setActiveTab('topics')}
               className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
-                activeTab === 'all_titles'
+                activeTab === 'topics'
                   ? 'bg-orange-600 text-white shadow-md'
                   : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
               }`}
             >
-              All Titles
+              Topic Management
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
+                activeTab === 'settings'
+                  ? 'bg-orange-600 text-white shadow-md'
+                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
+              }`}
+            >
+              Settings
             </button>
           </div>
         </div>
 
-        {/* Overview Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-zinc-500">Total Proposals</span>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-white">{stats?.totalSubmissions || submissions.length}</p>
-          </div>
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">Pending Admin</span>
-            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {submissions.filter(s => s.status.toUpperCase() === 'PENDING_ADMIN_REVIEW').length}
-            </p>
-          </div>
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">With Validator</span>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {submissions.filter(s => s.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW').length}
-            </p>
-          </div>
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Approved</span>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              {submissions.filter(s => s.status.toUpperCase() === 'APPROVED').length}
-            </p>
-          </div>
-        </div>
-
-        {/* TAB 1: SUBMISSIONS QUEUE */}
-        {activeTab === 'submissions' && (
-          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
+        {/* TAB 2: USER MANAGEMENT */}
+        {activeTab === 'users' && (
+          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden space-y-4">
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
-                <FileText size={18} className="text-orange-600" />
-                All Student Proposals
+                <Users size={18} className="text-orange-600" />
+                User Accounts Directory
               </h3>
 
-              {/* Filters */}
-              <div className="flex flex-wrap items-center gap-2">
-                <Filter size={16} className="text-zinc-400" />
-                <Select
-                  value={statusFilter}
-                  onChange={(val) => handleFilterChange(setStatusFilter, val)}
-                  options={[
-                    { value: 'ALL', label: 'Semua Status' },
-                    { value: 'PENDING_ADMIN_REVIEW', label: 'Pending Admin' },
-                    { value: 'PENDING_VALIDATOR_REVIEW', label: 'With Validator' },
-                    { value: 'APPROVED', label: 'Approved' },
-                    { value: 'REJECTED', label: 'Rejected' },
-                    { value: 'REJECTED_BY_ADMIN', label: 'Rejected by Admin' },
-                    { value: 'REJECTED_BY_VALIDATOR', label: 'Rejected by Validator' }
-                  ]}
-                  className="w-full sm:w-48"
-                />
-                <Select
-                  value={prodiFilter}
-                  onChange={(val) => handleFilterChange(setProdiFilter, val)}
-                  options={[
-                    { value: 'ALL', label: 'Semua Prodi' },
-                    { value: 'PTIK', label: 'PTIK' },
-                    { value: 'TEKOM', label: 'TEKOM' }
-                  ]}
-                  className="w-full sm:w-40"
-                />
-                <input
-                  type="text"
-                  value={topicFilter === 'ALL' ? '' : topicFilter}
-                  onChange={(e) => handleFilterChange(setTopicFilter, e.target.value || 'ALL')}
-                  placeholder="Filter Topik..."
-                  className="px-3 py-1.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 outline-none w-32 sm:w-40"
-                />
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowAddUserModal(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 text-white font-semibold text-xs shadow-sm hover:bg-orange-700 transition-colors"
+                >
+                  <UserPlus size={14} /> Add User
+                </button>
+              </div>
+            </div>
+
+            <div className="px-5 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex gap-1 overflow-x-auto" role="tablist" aria-label="Filter users by role">
+                {[
+                  { value: 'ALL', label: 'Semua' },
+                  { value: 'STUDENT', label: 'Mahasiswa' },
+                  { value: 'ADMIN', label: 'Admin' },
+                  { value: 'VALIDATOR', label: 'Validator' },
+                ].map((tab) => {
+                  const count = tab.value === 'ALL'
+                    ? users.length
+                    : users.filter((user) => user.role.toUpperCase() === tab.value).length;
+
+                  return (
+                    <button
+                      key={tab.value}
+                      type="button"
+                      role="tab"
+                      aria-selected={roleFilter === tab.value}
+                      onClick={() => setRoleFilter(tab.value)}
+                      className={`flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
+                        roleFilter === tab.value
+                          ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+                          : 'border-transparent text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:hover:border-zinc-700 dark:hover:text-zinc-100'
+                      }`}
+                    >
+                      {tab.label}
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] ${
+                        roleFilter === tab.value
+                          ? 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300'
+                          : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
+                      }`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -417,118 +435,121 @@ export const AdminDashboard: React.FC = () => {
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                   <tr>
-                    <th className="px-6 py-3.5 font-medium">Submission ID</th>
-                    <th className="px-6 py-3.5 font-medium">Student</th>
-                    <th className="px-6 py-3.5 font-medium">Titles Count</th>
-                    <th className="px-6 py-3.5 font-medium">Assigned Validator</th>
+                    {showStudentIdentityColumn && (
+                      <th className="px-6 py-3.5 font-medium">NIM / Prodi</th>
+                    )}
+                    <th className="px-6 py-3.5 font-medium">User Details</th>
                     <th className="px-6 py-3.5 font-medium">Status</th>
                     <th className="px-6 py-3.5 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
-                  {loading ? (
+                  {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-zinc-400 text-xs">
-                        Loading submissions queue...
+                      <td colSpan={showStudentIdentityColumn ? 4 : 3} className="px-6 py-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                        Tidak ada user pada role ini.
                       </td>
                     </tr>
-                  ) : submissions.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-zinc-400 text-xs">
-                        No submissions match the selected filters.
-                      </td>
-                    </tr>
-                  ) : (
-                    submissions.map((sub) => {
-                      const validatorName = 
-                        typeof sub.assignedValidator === 'object' && sub.assignedValidator !== null
-                          ? sub.assignedValidator.name
-                          : validators.find(v => v.validatorId === sub.assignedValidator)?.name || null;
-
-                      return (
-                        <tr key={sub.submissionId} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
-                          <td className="px-6 py-4 font-mono text-xs text-zinc-500">{sub.submissionId}</td>
-                          <td className="px-6 py-4">
-                            <div className="font-medium text-xs text-zinc-900 dark:text-zinc-100">{sub.studentName || 'Student'}</div>
-                            <div className="text-[11px] text-zinc-400 mt-0.5 space-x-2 flex items-center">
-                              <span>{sub.nim || 'N/A'}</span>
-                              {sub.studentProdi && (
-                                <span className="px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 rounded uppercase font-bold tracking-wider">{sub.studentProdi}</span>
+                  ) : filteredUsers.map((u) => (
+                    <tr key={u.id || u.userId} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
+                      {showStudentIdentityColumn && (
+                        <td className="px-6 py-4">
+                          {u.role.toUpperCase() === 'STUDENT' ? (
+                            <>
+                              <div className="font-mono text-xs font-semibold text-zinc-900 dark:text-zinc-100">
+                                {u.userId || '-'}
+                              </div>
+                              {u.prodi && (
+                                <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+                                  {u.prodi}
+                                </div>
                               )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-xs font-semibold">
-                            {sub.titles ? `${sub.titles.length} proposed` : `${sub.titleCount || 1} proposed`}
-                          </td>
-                          <td className="px-6 py-4 text-xs">
-                            {validatorName ? (
-                              <span className="font-medium text-orange-600 dark:text-orange-400">{validatorName}</span>
-                            ) : (
-                              <span className="text-zinc-400 italic">Unassigned</span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(sub.status)}</td>
-                          <td className="px-6 py-4 text-right">
-                            {sub.status.toUpperCase() === 'PENDING_ADMIN_REVIEW' ? (
-                              <button
-                                onClick={() => {
-                                  setAssigningSubmission(sub);
-                                  setSelectedValidatorId(validators[0]?.validatorId || '');
-                                }}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
-                              >
-                                <UserCheck size={14} /> Assign Validator
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => {
-                                  setAssigningSubmission(sub);
-                                  const currentValId = typeof sub.assignedValidator === 'object' ? sub.assignedValidator?.validatorId : sub.assignedValidator;
-                                  setSelectedValidatorId(currentValId || validators[0]?.validatorId || '');
-                                }}
-                                className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
-                              >
-                                Re-assign
-                              </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
+                            </>
+                          ) : (
+                            <span className="text-xs text-zinc-400">Tidak berlaku</span>
+                          )}
+                        </td>
+                      )}
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-sm text-zinc-900 dark:text-zinc-100">{u.name}</div>
+                        <div className="text-[11px] text-zinc-500 mt-1 flex flex-col gap-y-0.5">
+                          <span>{u.email}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-xs">
+                        <span className="text-emerald-600 font-semibold">Active</span>
+                      </td>
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            setEditingUser(u);
+                            setShowEditUserModal(true);
+                          }}
+                          className="mr-2 inline-flex items-center gap-1.5 rounded border border-orange-200 px-2.5 py-1.5 text-xs font-semibold text-orange-600 transition-colors hover:bg-orange-50 hover:text-orange-700 dark:border-orange-500/30 dark:hover:bg-orange-500/10"
+                        >
+                          <Pencil size={13} aria-hidden="true" />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setUserToDelete(u)}
+                          className="inline-flex items-center gap-1.5 rounded border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700 dark:border-rose-500/30 dark:hover:bg-rose-500/10"
+                        >
+                          <Trash2 size={13} aria-hidden="true" />
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
-
-            {/* Server-Side Pagination Controls */}
-            {!loading && totalPages > 1 && (
-              <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs">
-                <span className="text-zinc-500">
-                  Showing page <span className="font-semibold text-zinc-900 dark:text-zinc-100">{page}</span> of <span className="font-semibold text-zinc-900 dark:text-zinc-100">{totalPages}</span> ({totalSubmissions} total items)
-                </span>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => setPage(Math.max(1, page - 1))}
-                    disabled={page === 1}
-                    className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setPage(Math.min(totalPages, page + 1))}
-                    disabled={page === totalPages}
-                    className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
+        {/* TAB 3: TOPICS MANAGEMENT */}
+        {activeTab === 'topics' && (
+          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden space-y-4">
+            <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <Tag size={18} className="text-orange-600" />
+                Topics Directory
+              </h3>
+              <button
+                onClick={() => setShowAddTopicModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 text-white font-semibold text-xs shadow-sm hover:bg-orange-700 transition-colors"
+              >
+                <Plus size={14} /> Add Topic
+              </button>
+            </div>
+            <div className="overflow-x-auto p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {topics.map(topic => (
+                  <div key={topic.id} className="p-4 rounded border border-zinc-200 dark:border-zinc-800 flex items-start justify-between bg-zinc-50 dark:bg-zinc-900/50">
+                    <div>
+                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{topic.name}</h4>
+                      {topic.description && (
+                        <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{topic.description}</p>
+                      )}
+                      <div className="mt-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${topic.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
+                          {topic.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleToggleTopic(topic.id)}
+                      className={`text-xs px-2 py-1 rounded border font-medium ${topic.isActive ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-900/30' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-900/30'}`}
+                    >
+                      {topic.isActive ? 'Disable' : 'Enable'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         {/* TAB 4: ALL TITLES */}
-        {activeTab === 'all_titles' && (
+        {false && (
           <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -613,72 +634,57 @@ export const AdminDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* ASSIGN VALIDATOR MODAL */}
-      {assigningSubmission && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
-          <div className="bg-white dark:bg-zinc-950 rounded max-w-md w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                <UserCheck size={20} className="text-orange-600" />
-                Assign Submission to Validator
-              </h2>
-              <button
-                onClick={() => setAssigningSubmission(null)}
-                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-              >
-                <X size={20} />
-              </button>
+        {activeTab === 'settings' && (
+          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div className="p-5 border-b border-zinc-200 dark:border-zinc-800">
+              <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <Tag size={18} className="text-orange-600" />
+                Pengaturan Sistem
+              </h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                Kelola pengaturan default untuk sistem.
+              </p>
             </div>
-
-            {assignError && (
-              <div className="p-3 bg-rose-50 dark:bg-rose-500/10 text-rose-600 text-xs rounded">
-                {assignError}
-              </div>
-            )}
-
-            <form onSubmit={handleAssignValidator} className="space-y-4">
-              <div className="p-3 bg-white dark:bg-zinc-950 rounded space-y-1 text-xs">
-                <div className="text-zinc-400">Submission ID: <span className="font-mono text-zinc-700 dark:text-zinc-300">{assigningSubmission.submissionId}</span></div>
-                <div className="text-zinc-900 dark:text-zinc-100 font-medium">Student: {assigningSubmission.studentName}</div>
-                <div className="text-zinc-500">Proposed Titles: {assigningSubmission.titles?.length || 1}</div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2">
-                  Select Active Validator
+            <div className="p-5 space-y-6">
+              <div className="max-w-md space-y-3">
+                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                  Default Jurusan
                 </label>
-                <Select
-                  value={selectedValidatorId}
-                  onChange={(val) => setSelectedValidatorId(val)}
-                  placeholder="Select validator..."
-                  options={validators.map((val) => ({
-                    value: val.validatorId,
-                    label: `${val.name} (${val.department || 'CS'}) — ${val.assignedSubmissions || 0} assigned`
-                  }))}
-                  className="w-full"
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                  Jurusan yang akan otomatis diisi untuk pengguna baru (terutama mahasiswa).
+                </p>
+                <input
+                  type="text"
+                  value={editingDepartment}
+                  onChange={(e) => setEditingDepartment(e.target.value)}
+                  className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-orange-500/40"
+                  placeholder="Teknik Informatika dan Komputer"
                 />
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleSaveDefaultDepartment}
+                    disabled={savingDepartment || editingDepartment.trim() === defaultDepartment}
+                    className="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 text-white text-xs font-semibold rounded transition-all"
+                  >
+                    {savingDepartment ? 'Menyimpan...' : 'Simpan'}
+                  </button>
+                  {editingDepartment.trim() !== defaultDepartment && (
+                    <button
+                      onClick={() => setEditingDepartment(defaultDepartment)}
+                      className="px-4 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-semibold rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                    >
+                      Batal
+                    </button>
+                  )}
+                </div>
+                <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded border border-zinc-200 dark:border-zinc-800">
+                  <span className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Default Saat Ini</span>
+                  <p className="text-sm font-bold text-zinc-900 dark:text-white mt-1">{defaultDepartment}</p>
+                </div>
               </div>
-
-              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setAssigningSubmission(null)}
-                  className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={assigning}
-                  className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
-                >
-                  {assigning ? 'Assigning...' : 'Confirm Assignment'}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       {/* ADD USER MODAL */}
       {showAddUserModal && (
