@@ -64,7 +64,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           onClick={() => navigate('/')}
           className={`flex items-center gap-3 overflow-hidden transition-all duration-300 cursor-pointer ${isOpen ? 'opacity-100 w-full' : 'opacity-0 w-0'}`}
         >
-          <div className="bg-orange-600 p-1.5 rounded-lg shadow-sm">
+          <div className="bg-orange-600 p-1.5 rounded shadow-sm">
             <GraduationCap className="text-white w-6 h-6" />
           </div>
           <span className="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-blue-600 whitespace-nowrap">
@@ -76,7 +76,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         <button 
           onClick={() => setIsOpen(!isOpen)}
           className={`
-            p-1.5 rounded-md text-zinc-500 hover:text-zinc-900 dark:hover:text-white
+            p-1.5 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white
             hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors
             ${!isOpen ? 'mx-auto' : ''}
           `}
@@ -101,7 +101,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     title={!isOpen ? item.name : undefined}
                     onClick={() => navigate(item.path)}
                     className={`
-                      w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
+                      w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-200 group relative
                       ${isActive 
                         ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-semibold' 
                         : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-200'}
@@ -128,7 +128,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           onClick={handleLogout}
           title={!isOpen ? "Log out" : undefined}
           className={`
-            w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group
+            w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-200 group
             text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 text-sm font-semibold
           `}
         >

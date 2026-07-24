@@ -6,15 +6,24 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  prodi?: 'PTIK' | 'TEKOM';
   department?: string;
   status?: string;
   createdAt?: string;
   lastLogin?: string;
 }
 
+export interface Topic {
+  id: string;
+  name: string;
+  description?: string;
+  isActive: boolean;
+}
+
 export interface ProposedTitle {
   titleId: string;
   title: string;
+  topic?: string;
   description?: string;
   isApproved?: boolean;
 }
@@ -56,6 +65,7 @@ export interface Submission {
   studentName?: string;
   studentEmail?: string;
   studentPhone?: string;
+  studentProdi?: 'PTIK' | 'TEKOM';
   status: SubmissionStatus;
   titles: ProposedTitle[];
   submittedAt: string;

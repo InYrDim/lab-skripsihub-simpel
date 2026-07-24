@@ -14,13 +14,18 @@ model User {
   fullName      String   @map("full_name")
   role          UserRole
   universityId  String   @unique @map("university_id")
+  prodi         ProgramStudi @default(PTIK)
   isActive      Boolean  @default(true) @map("is_active")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
   // Relations
-  submissions   Submission[]
-  assignments   Assignment[]
+  submissions           Submission[] @relation("StudentSubmissions")
+  bimbingan1            Submission[] @relation("Pembimbing1Submissions")
+  bimbingan2            Submission[] @relation("Pembimbing2Submissions")
+  ujian1                Submission[] @relation("Penguji1Submissions")
+  ujian2                Submission[] @relation("Penguji2Submissions")
+  assignments           Assignment[]
   notifications Notification[]
 
   @@map("user")
@@ -30,6 +35,11 @@ enum UserRole {
   STUDENT
   ADMIN
   VALIDATOR
+}
+
+enum ProgramStudi {
+  PTIK
+  TEKOM
 }
 
 model Submission {
@@ -42,7 +52,18 @@ model Submission {
   updatedAt        DateTime @updatedAt @map("updated_at")
 
   // Relations
-  student          User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student          User     @relation("StudentSubmissions", fields: [studentId], references: [id], onDelete: Cascade)
+  
+  pembimbing1Id    String?  @map("pembimbing_1_id")
+  pembimbing2Id    String?  @map("pembimbing_2_id")
+  penguji1Id       String?  @map("penguji_1_id")
+  penguji2Id       String?  @map("penguji_2_id")
+
+  pembimbing1      User?    @relation("Pembimbing1Submissions", fields: [pembimbing1Id], references: [id])
+  pembimbing2      User?    @relation("Pembimbing2Submissions", fields: [pembimbing2Id], references: [id])
+  penguji1         User?    @relation("Penguji1Submissions", fields: [penguji1Id], references: [id])
+  penguji2         User?    @relation("Penguji2Submissions", fields: [penguji2Id], references: [id])
+
   titles           SubmissionTitle[]
   assignments      Assignment[]
   feedback         ValidatorFeedback[]
@@ -64,6 +85,7 @@ model SubmissionTitle {
   id               String   @id @default(cuid())
   submissionId     String   @map("submission_id")
   title            String   @db.VarChar(500)
+  topic            String?  @db.VarChar(255)
   description      String?  @db.Text
   sequenceNumber   Int      @map("sequence_number")
   createdAt        DateTime @default(now()) @map("created_at")

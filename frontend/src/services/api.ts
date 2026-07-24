@@ -3,12 +3,23 @@ import type {
   User, 
   Submission, 
   ValidatorInfo, 
-  AdminStats 
+  AdminStats,
+  Topic
 } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Initial Mock Storage State for fallback / demo mode
+let mockTopics: Topic[] = [
+  { id: 'top_001', name: 'Software Engineering', isActive: true },
+  { id: 'top_002', name: 'Data Science & Machine Learning', isActive: true },
+  { id: 'top_003', name: 'Cybersecurity', isActive: true },
+  { id: 'top_004', name: 'Internet of Things (IoT)', isActive: true },
+  { id: 'top_005', name: 'Information Systems', isActive: true },
+  { id: 'top_006', name: 'Artificial Intelligence', isActive: true },
+  { id: 'top_007', name: 'Computer Networks', isActive: true },
+];
+
 const mockUsers: User[] = [
   {
     id: 'usr_student_01',
@@ -16,6 +27,7 @@ const mockUsers: User[] = [
     name: 'Alex Student',
     email: 'student@university.edu',
     role: 'STUDENT',
+    prodi: 'PTIK',
     department: 'Computer Science',
     status: 'active',
     createdAt: '2024-01-10T08:00:00Z',
@@ -26,6 +38,7 @@ const mockUsers: User[] = [
     name: 'Putri Ayu Lestari',
     email: 'putri.ayu@university.edu',
     role: 'STUDENT',
+    prodi: 'PTIK',
     department: 'Information Technology',
     status: 'active',
     createdAt: '2024-02-05T08:00:00Z',
@@ -36,6 +49,7 @@ const mockUsers: User[] = [
     name: 'Muhammad Fadilah',
     email: 'fadilah@university.edu',
     role: 'STUDENT',
+    prodi: 'PTIK',
     department: 'Computer Science',
     status: 'active',
     createdAt: '2024-02-12T08:00:00Z',
@@ -46,6 +60,7 @@ const mockUsers: User[] = [
     name: 'Rina Sari',
     email: 'rina.sari@university.edu',
     role: 'STUDENT',
+    prodi: 'PTIK',
     department: 'Information Systems',
     status: 'active',
     createdAt: '2024-03-01T08:00:00Z',
@@ -56,6 +71,7 @@ const mockUsers: User[] = [
     name: 'Andi Pratama',
     email: 'andi.pratama@university.edu',
     role: 'STUDENT',
+    prodi: 'PTIK',
     department: 'Computer Science',
     status: 'active',
     createdAt: '2024-03-10T08:00:00Z',
@@ -108,6 +124,7 @@ let mockSubmissions: Submission[] = [
     studentId: 'usr_student_01',
     studentName: 'Alex Student',
     studentEmail: 'student@university.edu',
+    studentProdi: 'PTIK',
     studentPhone: '+62812345678',
     status: 'PENDING_VALIDATOR_REVIEW',
     titles: [
@@ -156,6 +173,7 @@ let mockSubmissions: Submission[] = [
     studentId: 'usr_student_01',
     studentName: 'Alex Student',
     studentEmail: 'student@university.edu',
+    studentProdi: 'PTIK',
     status: 'REJECTED',
     titles: [
       {
@@ -196,6 +214,7 @@ let mockSubmissions: Submission[] = [
     nim: '1729041022',
     studentName: 'M. AULIA ARIEF',
     studentEmail: 'putri.ayu@university.edu',
+    studentProdi: 'TEKOM',
     studentPhone: '+628134567890',
     status: 'APPROVED',
     titles: [
@@ -238,6 +257,7 @@ let mockSubmissions: Submission[] = [
     studentId: 'usr_student_03',
     studentName: 'Muhammad Fadilah',
     studentEmail: 'fadilah@university.edu',
+    studentProdi: 'PTIK',
     studentPhone: '+628145678901',
     status: 'PENDING_ADMIN_REVIEW',
     titles: [
@@ -502,16 +522,37 @@ class ApiClient {
     }
 
     // Admin GET Submissions
-    if (endpoint.startsWith('/admin/submissions') && method === 'GET') {
-      const match = endpoint.match(/\/admin\/submissions\/(sub_[a-zA-Z0-9_-]+)/);
+    if (endpoint.startsWith('/admin/submissions') && method === 'GET' && !endpoint.includes('/assign')) {
+      const match = endpoint.match(/\/admin\/submissions\/(sub_[a-zA-Z0-9_-]+)$/);
       if (match) {
         const sub = mockSubmissions.find(s => s.submissionId === match[1]);
         return { success: true, data: (sub || mockSubmissions[0]) as T };
       }
+
+      const searchParams = new URLSearchParams(endpoint.split('?')[1] || '');
+      const page = parseInt(searchParams.get('page') || '1');
+      const limit = parseInt(searchParams.get('limit') || '10');
+      const status = searchParams.get('status');
+      const prodi = searchParams.get('prodi');
+      const topic = searchParams.get('topic');
+
+      let filtered = [...mockSubmissions];
+      if (status) filtered = filtered.filter(s => s.status.toUpperCase() === status.toUpperCase());
+      if (prodi) filtered = filtered.filter(s => s.studentProdi === prodi);
+      if (topic) filtered = filtered.filter(s => {
+        const tObj = s.titles?.find(t => t.title === (s.approvedTitle || s.titles?.[0]?.title));
+        return tObj?.topic === topic;
+      });
+
+      const total = filtered.length;
+      const totalPages = Math.ceil(total / limit);
+      const start = (page - 1) * limit;
+      const paginated = filtered.slice(start, start + limit);
+
       return {
         success: true,
-        data: mockSubmissions as T,
-        pagination: { page: 1, limit: 20, total: mockSubmissions.length, totalPages: 1 },
+        data: paginated as T,
+        pagination: { page, limit, total, totalPages },
       };
     }
 
@@ -575,6 +616,14 @@ class ApiClient {
         success: true,
         data: validators as T,
         pagination: { page: 1, limit: 50, total: validators.length, totalPages: 1 },
+      };
+    }
+
+    // Topics
+    if (endpoint.startsWith('/topics') && method === 'GET') {
+      return {
+        success: true,
+        data: mockTopics as T,
       };
     }
 
@@ -791,8 +840,21 @@ STATUS: OFFICIAL APPROVAL GRANTED
   }
 
   // Admin Methods
-  getAdminSubmissions(status?: string): Promise<ApiResponse<Submission[]>> {
-    const endpoint = status ? `/admin/submissions?status=${status}` : '/admin/submissions';
+  getAdminSubmissions(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    prodi?: string;
+    topic?: string;
+  }): Promise<ApiResponse<Submission[]>> {
+    const p = new URLSearchParams();
+    if (params?.page) p.append('page', params.page.toString());
+    if (params?.limit) p.append('limit', params.limit.toString());
+    if (params?.status && params.status !== 'ALL') p.append('status', params.status);
+    if (params?.prodi && params.prodi !== 'ALL') p.append('prodi', params.prodi);
+    if (params?.topic && params.topic !== 'ALL') p.append('topic', params.topic);
+    
+    const endpoint = `/admin/submissions${p.toString() ? `?${p.toString()}` : ''}`;
     return this.request<Submission[]>(endpoint);
   }
 
@@ -867,6 +929,11 @@ STATUS: OFFICIAL APPROVAL GRANTED
       method: 'POST',
       body: JSON.stringify({ rejectionReason }),
     });
+  }
+
+  // Topics Methods
+  getTopics(): Promise<ApiResponse<Topic[]>> {
+    return this.request<Topic[]>('/topics');
   }
 }
 
