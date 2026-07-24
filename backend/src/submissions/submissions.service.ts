@@ -266,8 +266,16 @@ export class SubmissionsService {
     const skip = (page - 1) * limit;
 
     const whereClause: any = {};
-    if (query?.status) {
-      whereClause.status = query.status.toUpperCase() as SubmissionStatus;
+    const requestedStatus = query?.status?.toUpperCase();
+    if (requestedStatus === 'REJECTED_BY_ADMIN') {
+      whereClause.id = '__unsupported_rejected_by_admin_status__';
+    } else if (
+      requestedStatus &&
+      Object.values(SubmissionStatus).includes(
+        requestedStatus as SubmissionStatus,
+      )
+    ) {
+      whereClause.status = requestedStatus as SubmissionStatus;
     }
 
     const sortField = query?.sortBy === 'status' ? 'status' : 'submittedAt';
@@ -287,6 +295,7 @@ export class SubmissionsService {
           assignments: {
             include: {
               validator: true,
+              feedback: true,
             },
           },
         },
@@ -301,7 +310,11 @@ export class SubmissionsService {
         studentName: sub.student.fullName,
         studentEmail: sub.student.email,
         status: sub.status.toLowerCase(),
-        titleCount: sub.titles.length,
+        titles: sub.titles.map((title) => ({
+          titleId: title.id,
+          title: title.title,
+          description: title.description,
+        })),
         submittedAt: sub.submittedAt,
         assignedValidator: latestAssignment
           ? {
@@ -563,7 +576,7 @@ export class SubmissionsService {
         where: { status: SubmissionStatus.APPROVED },
       }),
       this.prisma.submission.count({
-        where: { status: SubmissionStatus.REJECTED },
+        where: { status: SubmissionStatus.REJECTED_BY_VALIDATOR },
       }),
       this.prisma.user.count({ where: { role: UserRole.STUDENT } }),
       this.prisma.user.count({ where: { role: UserRole.VALIDATOR } }),
@@ -980,7 +993,7 @@ export class SubmissionsService {
       await tx.submission.update({
         where: { id: submissionId },
         data: {
-          status: SubmissionStatus.REJECTED,
+          status: SubmissionStatus.REJECTED_BY_VALIDATOR,
         },
       });
 
@@ -1160,7 +1173,7 @@ export class SubmissionsService {
         latestAssignment?.validator?.fullName || latestAssignment?.validatorId;
       result.letterUrl = submission.approvalLetter?.pdfUrl;
     } else if (
-      submission.status === SubmissionStatus.REJECTED &&
+      submission.status === SubmissionStatus.REJECTED_BY_VALIDATOR &&
       latestFeedback
     ) {
       result.rejectedAt = latestFeedback.createdAt;

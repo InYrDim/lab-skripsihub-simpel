@@ -327,7 +327,7 @@ describe('SkripsiHub Backend End-to-End Tests (e2e)', () => {
     it('POST /validator/submissions/:id/reject - should reject submission when feedback is >= 10 chars', async () => {
       const rejectedSub = {
         ...pendingValSubmission,
-        status: SubmissionStatus.REJECTED,
+        status: SubmissionStatus.REJECTED_BY_VALIDATOR,
       };
 
       mockPrismaService.submission.findUnique.mockResolvedValueOnce(pendingValSubmission);

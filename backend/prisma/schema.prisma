@@ -90,7 +90,7 @@ enum SubmissionStatus {
   PENDING_ADMIN_REVIEW
   PENDING_VALIDATOR_REVIEW
   APPROVED
-  REJECTED
+  REJECTED_BY_VALIDATOR
 }
 
 model SubmissionTitle {

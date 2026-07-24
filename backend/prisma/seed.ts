@@ -303,7 +303,7 @@ async function main() {
     create: {
       id: 'seed_sub_004',
       studentId: student4.id,
-      status: SubmissionStatus.REJECTED,
+      status: SubmissionStatus.REJECTED_BY_VALIDATOR,
       submittedAt: new Date('2024-03-05T14:00:00Z'),
     },
   });

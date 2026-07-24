@@ -52,11 +52,22 @@ class ApiClient {
   }
 
   // Auth Methods
-  login(email: string, password: string): Promise<ApiResponse<{ accessToken: string; user: User }>> {
-    return this.request<{ accessToken: string; user: User }>('/auth/login', {
+  async login(email: string, password: string): Promise<ApiResponse<{ accessToken: string; user: User }>> {
+    const response = await this.request<{
+      accessToken: string;
+      user: ApiUser;
+    }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+
+    return {
+      ...response,
+      data: {
+        ...response.data,
+        user: toUser(response.data.user),
+      },
+    };
   }
 
   logout(): Promise<ApiResponse<unknown>> {

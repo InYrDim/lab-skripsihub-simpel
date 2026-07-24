@@ -294,6 +294,44 @@ describe('SubmissionsService', () => {
 
       expect(result.data.length).toBe(1);
       expect(result.data[0].studentName).toBe('John Doe');
+      expect(result.data[0].titles).toEqual([
+        expect.objectContaining({
+          titleId: 'title-1',
+          title: 'Machine Learning in Healthcare Applications',
+        }),
+        expect.objectContaining({
+          titleId: 'title-2',
+          title: 'Blockchain Security in Financial Systems',
+        }),
+      ]);
+    });
+
+    it('maps validator rejection filter to a valid Prisma query', async () => {
+      mockPrismaService.submission.count.mockResolvedValue(1);
+      mockPrismaService.submission.findMany.mockResolvedValue([
+        {
+          ...mockSubmission,
+          status: SubmissionStatus.REJECTED_BY_VALIDATOR,
+          assignments: [
+            {
+              validator: mockValidator,
+              assignedAt: mockDate,
+              feedback: { decision: 'REJECTED' },
+            },
+          ],
+        },
+      ]);
+
+      const result = await service.getAdminSubmissions({
+        status: 'REJECTED_BY_VALIDATOR',
+      });
+
+      expect(mockPrismaService.submission.count).toHaveBeenCalledWith({
+        where: {
+          status: SubmissionStatus.REJECTED_BY_VALIDATOR,
+        },
+      });
+      expect(result.data[0].status).toBe('rejected_by_validator');
     });
   });
 
@@ -476,7 +514,7 @@ describe('SubmissionsService', () => {
     it('Acceptance Criteria 4: should reject submission successfully when feedback is >= 10 characters', async () => {
       const rejectedSub = {
         ...pendingValSubmission,
-        status: SubmissionStatus.REJECTED,
+        status: SubmissionStatus.REJECTED_BY_VALIDATOR,
       };
 
       mockPrismaService.submission.findUnique.mockResolvedValueOnce(
@@ -493,7 +531,7 @@ describe('SubmissionsService', () => {
         'Rejection reason is long enough and clear.',
       );
 
-      expect(result.status).toBe('rejected');
+      expect(result.status).toBe('rejected_by_validator');
       expect(result.rejectionReason).toBe(
         'Rejection reason is long enough and clear.',
       );

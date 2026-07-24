@@ -15,10 +15,24 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+type StoredUser = User & {
+  fullName?: string;
+  universityId?: string;
+  isActive?: boolean;
+};
+
+const normalizeStoredUser = (user: StoredUser): User => ({
+  ...user,
+  name: user.name || user.fullName || 'Pengguna',
+  userId: user.userId || user.universityId,
+  status:
+    user.status || (user.isActive === undefined ? undefined : user.isActive ? 'active' : 'inactive'),
+});
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem('auth_user');
-    return savedUser ? JSON.parse(savedUser) : null;
+    return savedUser ? normalizeStoredUser(JSON.parse(savedUser)) : null;
   });
   
   const [token, setToken] = useState<string | null>(() => {

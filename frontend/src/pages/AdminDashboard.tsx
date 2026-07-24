@@ -4,13 +4,13 @@ import { api } from '../services/api';
 import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole, Topic } from '../types';
 import { Select } from '../components/ui/select';
 import { Dialog } from '../components/ui/dialog';
-import { 
-  Users, 
-  FileText, 
-  UserPlus, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  FileText,
+  UserPlus,
+  Clock,
+  CheckCircle,
+  XCircle,
   UserCheck,
   X,
   Filter,
@@ -134,7 +134,7 @@ export const AdminDashboard: React.FC = () => {
   const handleAssignValidator = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!assigningSubmission || !selectedValidatorId) {
-      setAssignError('Please select a validator from the list.');
+      setAssignError('Silakan pilih validator dari daftar.');
       return;
     }
     setAssigning(true);
@@ -303,9 +303,9 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
               Admin Management Portal
@@ -326,8 +326,8 @@ export const AdminDashboard: React.FC = () => {
             >
               Submissions Queue
             </button>
-            
-            
+
+
             <button
               onClick={() => setActiveTab('all_titles')}
               className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
@@ -342,35 +342,35 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-zinc-500">Total Proposals</span>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-white">{stats?.totalSubmissions || submissions.length}</p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="space-y-0.5 rounded border border-zinc-300 bg-linear-to-br from-white via-zinc-50 to-zinc-200/80 p-3 shadow-sm shadow-zinc-200/60 dark:border-zinc-600 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 dark:shadow-black/20">
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">Total Batch Proposals</span>
+            <p className="text-2xl font-bold text-zinc-950 dark:text-white">{stats?.totalSubmissions ?? 0}</p>
           </div>
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-amber-600 dark:text-amber-400">Pending Admin</span>
-            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">
-              {submissions.filter(s => s.status.toUpperCase() === 'PENDING_ADMIN_REVIEW').length}
+          <div className="space-y-0.5 rounded border border-amber-300 bg-linear-to-br from-white via-amber-50 to-amber-100/90 p-3 shadow-sm shadow-amber-200/60 dark:border-amber-700 dark:from-zinc-900 dark:via-amber-950/50 dark:to-amber-900/40 dark:shadow-black/20">
+            <span className="text-xs font-semibold text-amber-800 dark:text-amber-300">Pending Admin</span>
+            <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+              {stats?.pendingAdminReview ?? 0}
             </p>
           </div>
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-blue-600 dark:text-blue-400">With Validator</span>
-            <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-              {submissions.filter(s => s.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW').length}
+          <div className="space-y-0.5 rounded border border-sky-300 bg-linear-to-br from-white via-sky-50 to-sky-100/90 p-3 shadow-sm shadow-sky-200/60 dark:border-sky-700 dark:from-zinc-900 dark:via-sky-950/50 dark:to-sky-900/40 dark:shadow-black/20">
+            <span className="text-xs font-semibold text-sky-800 dark:text-sky-300">With Validator</span>
+            <p className="text-2xl font-bold text-sky-700 dark:text-sky-300">
+              {stats?.pendingValidatorReview ?? 0}
             </p>
           </div>
-          <div className="bg-white dark:bg-zinc-950 p-4 rounded border border-zinc-200 dark:border-zinc-800 space-y-1">
-            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">Approved</span>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-              {submissions.filter(s => s.status.toUpperCase() === 'APPROVED').length}
+          <div className="space-y-0.5 rounded border border-emerald-300 bg-linear-to-br from-white via-emerald-50 to-emerald-100/90 p-3 shadow-sm shadow-emerald-200/60 dark:border-emerald-700 dark:from-zinc-900 dark:via-emerald-950/50 dark:to-emerald-900/40 dark:shadow-black/20">
+            <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300">Approved</span>
+            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+              {stats?.approved ?? 0}
             </p>
           </div>
         </div>
 
         {/* TAB 1: SUBMISSIONS QUEUE */}
         {activeTab === 'submissions' && (
-          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
-            <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="overflow-hidden rounded border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="flex flex-col justify-between gap-3 border-b border-zinc-200 p-4 dark:border-zinc-800 sm:flex-row sm:items-center">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
                 <FileText size={18} className="text-orange-600" />
                 All Student Proposals
@@ -379,20 +379,6 @@ export const AdminDashboard: React.FC = () => {
               {/* Filters */}
               <div className="flex flex-wrap items-center gap-2">
                 <Filter size={16} className="text-zinc-400" />
-                <Select
-                  value={statusFilter}
-                  onChange={(val) => handleFilterChange(setStatusFilter, val)}
-                  options={[
-                    { value: 'ALL', label: 'Semua Status' },
-                    { value: 'PENDING_ADMIN_REVIEW', label: 'Pending Admin' },
-                    { value: 'PENDING_VALIDATOR_REVIEW', label: 'With Validator' },
-                    { value: 'APPROVED', label: 'Approved' },
-                    { value: 'REJECTED', label: 'Rejected' },
-                    { value: 'REJECTED_BY_ADMIN', label: 'Rejected by Admin' },
-                    { value: 'REJECTED_BY_VALIDATOR', label: 'Rejected by Validator' }
-                  ]}
-                  className="w-full sm:w-48"
-                />
                 <Select
                   value={prodiFilter}
                   onChange={(val) => handleFilterChange(setProdiFilter, val)}
@@ -413,16 +399,47 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
 
+            <div className="border-b border-zinc-200 px-4 dark:border-zinc-800">
+              <div
+                className="flex gap-1 overflow-x-auto"
+                role="tablist"
+                aria-label="Filter proposal berdasarkan status"
+              >
+                {[
+                  { value: 'ALL', label: 'Semua' },
+                  { value: 'PENDING_ADMIN_REVIEW', label: 'Menunggu Admin' },
+                  { value: 'PENDING_VALIDATOR_REVIEW', label: 'Dalam Validasi' },
+                  { value: 'APPROVED', label: 'Disetujui' },
+                  { value: 'REJECTED_BY_VALIDATOR', label: 'Ditolak Validator' },
+                ].map((tab) => (
+                  <button
+                    key={tab.value}
+                    type="button"
+                    role="tab"
+                    aria-selected={statusFilter === tab.value}
+                    onClick={() => handleFilterChange(setStatusFilter, tab.value)}
+                    className={`shrink-0 border-b-2 px-3 py-2.5 text-xs font-semibold transition-colors ${
+                      statusFilter === tab.value
+                        ? 'border-orange-600 text-orange-600 dark:text-orange-400'
+                        : 'border-transparent text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:hover:border-zinc-700 dark:hover:text-zinc-100'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                   <tr>
-                    <th className="px-6 py-3.5 font-medium">Submission ID</th>
-                    <th className="px-6 py-3.5 font-medium">Student</th>
-                    <th className="px-6 py-3.5 font-medium">Titles Count</th>
-                    <th className="px-6 py-3.5 font-medium">Assigned Validator</th>
-                    <th className="px-6 py-3.5 font-medium">Status</th>
-                    <th className="px-6 py-3.5 font-medium text-right">Actions</th>
+                    <th className="px-4 py-2.5 font-medium">ID</th>
+                    <th className="px-4 py-2.5 font-medium">Student</th>
+                    <th className="px-4 py-2.5 font-medium">Titles</th>
+                    <th className="px-4 py-2.5 font-medium">Assigned Validator</th>
+                    <th className="px-4 py-2.5 font-medium">Status</th>
+                    <th className="px-4 py-2.5 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
@@ -440,15 +457,20 @@ export const AdminDashboard: React.FC = () => {
                     </tr>
                   ) : (
                     submissions.map((sub) => {
-                      const validatorName = 
+                      const validatorName =
                         typeof sub.assignedValidator === 'object' && sub.assignedValidator !== null
                           ? sub.assignedValidator.name
                           : validators.find(v => v.validatorId === sub.assignedValidator)?.name || null;
 
                       return (
                         <tr key={sub.submissionId} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
-                          <td className="px-6 py-4 font-mono text-xs text-zinc-500">{sub.submissionId}</td>
-                          <td className="px-6 py-4">
+                          <td
+                            className="px-4 py-3 font-mono text-xs text-zinc-500"
+                            title={sub.submissionId}
+                          >
+                            {sub.submissionId.slice(0, 5)}...
+                          </td>
+                          <td className="px-4 py-3">
                             <div className="font-medium text-xs text-zinc-900 dark:text-zinc-100">{sub.studentName || 'Student'}</div>
                             <div className="text-[11px] text-zinc-400 mt-0.5 space-x-2 flex items-center">
                               <span>{sub.nim || 'N/A'}</span>
@@ -457,18 +479,28 @@ export const AdminDashboard: React.FC = () => {
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-xs font-semibold">
-                            {sub.titles ? `${sub.titles.length} proposed` : `${sub.titleCount || 1} proposed`}
+                          <td className="px-4 py-3">
+                            {sub.titles?.length ? (
+                              <ol className="min-w-56 max-w-md list-decimal space-y-1 pl-4 text-xs text-zinc-700 dark:text-zinc-300">
+                                {sub.titles.map((title) => (
+                                  <li key={title.titleId} className="pl-1 leading-relaxed">
+                                    {title.title}
+                                  </li>
+                                ))}
+                              </ol>
+                            ) : (
+                              <span className="text-xs italic text-zinc-400">No titles submitted</span>
+                            )}
                           </td>
-                          <td className="px-6 py-4 text-xs">
+                          <td className="px-4 py-3 text-xs">
                             {validatorName ? (
                               <span className="font-medium text-orange-600 dark:text-orange-400">{validatorName}</span>
                             ) : (
                               <span className="text-zinc-400 italic">Unassigned</span>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(sub.status)}</td>
-                          <td className="px-6 py-4 text-right">
+                          <td className="whitespace-nowrap px-4 py-3">{getStatusBadge(sub.status)}</td>
+                          <td className="px-4 py-3 text-right">
                             {sub.status.toUpperCase() === 'PENDING_ADMIN_REVIEW' ? (
                               <button
                                 onClick={() => {
@@ -477,7 +509,7 @@ export const AdminDashboard: React.FC = () => {
                                 }}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
                               >
-                                <UserCheck size={14} /> Assign Validator
+                                <UserCheck size={14} /> Tugaskan Validator
                               </button>
                             ) : (
                               <button
@@ -502,7 +534,7 @@ export const AdminDashboard: React.FC = () => {
 
             {/* Server-Side Pagination Controls */}
             {!loading && totalPages > 1 && (
-              <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-3 text-xs dark:border-zinc-800">
                 <span className="text-zinc-500">
                   Showing page <span className="font-semibold text-zinc-900 dark:text-zinc-100">{page}</span> of <span className="font-semibold text-zinc-900 dark:text-zinc-100">{totalPages}</span> ({totalSubmissions} total items)
                 </span>
@@ -568,7 +600,7 @@ export const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
-                  {allTitles.filter(t => 
+                  {allTitles.filter(t =>
                     (allTitlesTopicFilter === 'ALL' || t.topic === allTitlesTopicFilter) &&
                     (allTitlesProdiFilter === 'ALL' || t.studentProdi === allTitlesProdiFilter)
                   ).length === 0 ? (
@@ -579,7 +611,7 @@ export const AdminDashboard: React.FC = () => {
                     </tr>
                   ) : (
                     allTitles
-                      .filter(t => 
+                      .filter(t =>
                         (allTitlesTopicFilter === 'ALL' || t.topic === allTitlesTopicFilter) &&
                         (allTitlesProdiFilter === 'ALL' || t.studentProdi === allTitlesProdiFilter)
                       )
@@ -620,7 +652,7 @@ export const AdminDashboard: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                 <UserCheck size={20} className="text-orange-600" />
-                Assign Submission to Validator
+                Tugaskan Pengajuan kepada Validator
               </h2>
               <button
                 onClick={() => setAssigningSubmission(null)}
@@ -638,14 +670,14 @@ export const AdminDashboard: React.FC = () => {
 
             <form onSubmit={handleAssignValidator} className="space-y-4">
               <div className="p-3 bg-white dark:bg-zinc-950 rounded space-y-1 text-xs">
-                <div className="text-zinc-400">Submission ID: <span className="font-mono text-zinc-700 dark:text-zinc-300">{assigningSubmission.submissionId}</span></div>
-                <div className="text-zinc-900 dark:text-zinc-100 font-medium">Student: {assigningSubmission.studentName}</div>
-                <div className="text-zinc-500">Proposed Titles: {assigningSubmission.titles?.length || 1}</div>
+                <div className="text-zinc-400">ID Pengajuan: <span className="font-mono text-zinc-700 dark:text-zinc-300">{assigningSubmission.submissionId}</span></div>
+                <div className="text-zinc-900 dark:text-zinc-100 font-medium">Mahasiswa: {assigningSubmission.studentName}</div>
+                <div className="text-zinc-500">Jumlah Judul yang Diajukan: {assigningSubmission.titles?.length || 1}</div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2">
-                  Select Active Validator
+                  Pilih Validator Aktif
                 </label>
                 <Select
                   value={selectedValidatorId}
@@ -665,14 +697,14 @@ export const AdminDashboard: React.FC = () => {
                   onClick={() => setAssigningSubmission(null)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
                   disabled={assigning}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
-                  {assigning ? 'Assigning...' : 'Confirm Assignment'}
+                  {assigning ? 'Menugaskan...' : 'Konfirmasi Penugasan'}
                 </button>
               </div>
             </form>
