@@ -132,10 +132,11 @@ export const ValidatorDashboard: React.FC = () => {
         </span>
       );
     }
-    if (s === 'REJECTED') {
+    if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
+      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
-          <XCircle size={14} /> Rejected
+          <XCircle size={14} /> {label}
         </span>
       );
     }
@@ -386,50 +387,32 @@ export const ValidatorDashboard: React.FC = () => {
                     </div>
 
                     <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Penugasan Dosen (Opsional)</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-3">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-3">Informasi Penugasan Dosen (Read Only)</h4>
+                      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-md border border-zinc-200 dark:border-zinc-800 p-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
                           <div>
-                            <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Pembimbing 1</label>
-                            <input 
-                              type="text" 
-                              value={pembimbing1} 
-                              onChange={(e) => setPembimbing1(e.target.value)}
-                              placeholder="Nama Pembimbing 1"
-                              className="w-full p-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs outline-none focus:ring-1 focus:ring-orange-500"
-                            />
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">Pembimbing 1</span>
+                            <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                              {pembimbing1 || <span className="text-zinc-400 italic">Belum ada penugasan</span>}
+                            </div>
                           </div>
                           <div>
-                            <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Pembimbing 2</label>
-                            <input 
-                              type="text" 
-                              value={pembimbing2} 
-                              onChange={(e) => setPembimbing2(e.target.value)}
-                              placeholder="Nama Pembimbing 2"
-                              className="w-full p-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs outline-none focus:ring-1 focus:ring-orange-500"
-                            />
-                          </div>
-                        </div>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Penguji 1</label>
-                            <input 
-                              type="text" 
-                              value={penguji1} 
-                              onChange={(e) => setPenguji1(e.target.value)}
-                              placeholder="Nama Penguji 1"
-                              className="w-full p-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs outline-none focus:ring-1 focus:ring-orange-500"
-                            />
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">Pembimbing 2</span>
+                            <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                              {pembimbing2 || <span className="text-zinc-400 italic">Belum ada penugasan</span>}
+                            </div>
                           </div>
                           <div>
-                            <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Penguji 2</label>
-                            <input 
-                              type="text" 
-                              value={penguji2} 
-                              onChange={(e) => setPenguji2(e.target.value)}
-                              placeholder="Nama Penguji 2"
-                              className="w-full p-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs outline-none focus:ring-1 focus:ring-orange-500"
-                            />
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">Penguji 1</span>
+                            <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                              {penguji1 || <span className="text-zinc-400 italic">Belum ada penugasan</span>}
+                            </div>
+                          </div>
+                          <div>
+                            <span className="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">Penguji 2</span>
+                            <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                              {penguji2 || <span className="text-zinc-400 italic">Belum ada penugasan</span>}
+                            </div>
                           </div>
                         </div>
                       </div>

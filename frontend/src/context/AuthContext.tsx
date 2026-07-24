@@ -10,6 +10,7 @@ interface AuthContextType {
   quickLogin: (role: 'STUDENT' | 'ADMIN' | 'VALIDATOR') => Promise<void>;
   logout: () => void;
   hasRole: (role: UserRole) => boolean;
+  updateUser: (updates: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -79,6 +80,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return user.role.toUpperCase() === role.toUpperCase();
   };
 
+  const updateUser = (updates: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...updates });
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -89,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         quickLogin,
         logout,
         hasRole,
+        updateUser,
       }}
     >
       {children}

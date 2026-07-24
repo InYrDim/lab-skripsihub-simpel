@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import type { Submission } from '../types';
+import { Select } from '../components/ui/select';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid,
   LineChart, Line
@@ -166,35 +167,34 @@ export const SubmissionListPage: React.FC = () => {
             <div className="flex items-center gap-2 text-zinc-500 mr-2">
               <Filter size={16} /> <span className="text-sm font-bold uppercase">Filter:</span>
             </div>
-            <select
+            <Select
               value={filterProdi}
-              onChange={(e) => handleFilterChange(setFilterProdi, e.target.value)}
-              className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm rounded px-3 py-1.5 outline-none focus:ring-1 focus:ring-orange-500"
-            >
-              <option value="ALL">Semua Prodi</option>
-              <option value="PTIK">Pendidikan Teknik Informatika dan Komputer (PTIK)</option>
-              <option value="TEKOM">Teknik Komputer (TEKOM)</option>
-            </select>
-            <select
+              onChange={(val) => handleFilterChange(setFilterProdi, val)}
+              options={[
+                { value: 'ALL', label: 'Semua Prodi' },
+                { value: 'PTIK', label: 'Pendidikan Teknik Informatika dan Komputer (PTIK)' },
+                { value: 'TEKOM', label: 'Teknik Komputer (TEKOM)' }
+              ]}
+              className="w-full sm:w-64"
+            />
+            <Select
               value={filterTopic}
-              onChange={(e) => handleFilterChange(setFilterTopic, e.target.value)}
-              className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm rounded px-3 py-1.5 outline-none focus:ring-1 focus:ring-orange-500"
-            >
-              <option value="ALL">Semua Topik</option>
-              {uniqueTopics.map((topic, i) => (
-                <option key={i} value={topic}>{topic}</option>
-              ))}
-            </select>
-            <select
+              onChange={(val) => handleFilterChange(setFilterTopic, val)}
+              options={[
+                { value: 'ALL', label: 'Semua Topik' },
+                ...uniqueTopics.map(t => ({ value: t, label: t }))
+              ]}
+              className="w-full sm:w-48"
+            />
+            <Select
               value={filterYear}
-              onChange={(e) => handleFilterChange(setFilterYear, e.target.value)}
-              className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 text-sm rounded px-3 py-1.5 outline-none focus:ring-1 focus:ring-orange-500"
-            >
-              <option value="ALL">Semua Waktu</option>
-              {uniqueYears.map((year, i) => (
-                <option key={i} value={year}>Tahun {year}</option>
-              ))}
-            </select>
+              onChange={(val) => handleFilterChange(setFilterYear, val)}
+              options={[
+                { value: 'ALL', label: 'Semua Waktu' },
+                ...uniqueYears.map(y => ({ value: y, label: `Tahun ${y}` }))
+              ]}
+              className="w-full sm:w-40"
+            />
           </div>
 
         {/* Tabs */}

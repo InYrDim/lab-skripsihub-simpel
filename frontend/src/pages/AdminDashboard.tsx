@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
-import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole } from '../types';
+import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole, Topic } from '../types';
+import { Select } from '../components/ui/select';
+import { Dialog } from '../components/ui/dialog';
 import { 
   Users, 
   FileText, 
@@ -11,14 +13,19 @@ import {
   XCircle, 
   UserCheck,
   X,
-  Filter
+  Filter,
+  Tag,
+  Plus,
+  BookOpen
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'submissions' | 'users'>('submissions');
+  const [activeTab, setActiveTab] = useState<'submissions' | 'users' | 'topics' | 'all_titles'>('submissions');
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [validators, setValidators] = useState<ValidatorInfo[]>([]);
   const [users, setUsers] = useState<User[]>([]);
+  const [topics, setTopics] = useState<Topic[]>([]);
+  const [allTitles, setAllTitles] = useState<any[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,6 +34,8 @@ export const AdminDashboard: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [prodiFilter, setProdiFilter] = useState<string>('ALL');
   const [topicFilter, setTopicFilter] = useState<string>('ALL');
+  const [allTitlesTopicFilter, setAllTitlesTopicFilter] = useState<string>('ALL');
+  const [allTitlesProdiFilter, setAllTitlesProdiFilter] = useState<string>('ALL');
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
@@ -45,25 +54,50 @@ export const AdminDashboard: React.FC = () => {
     email: string;
     role: UserRole;
     department: string;
+    userId?: string;
+    prodi?: 'PTIK' | 'TEKOM';
+    angkatan?: string;
   }>({
     name: '',
     email: '',
     role: 'STUDENT',
     department: '',
+    userId: '',
+    prodi: 'PTIK',
+    angkatan: '',
   });
   const [addUserError, setAddUserError] = useState<string | null>(null);
   const [addingUser, setAddingUser] = useState(false);
 
+  // Edit User Modal
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editUserError, setEditUserError] = useState<string | null>(null);
+  const [updatingUser, setUpdatingUser] = useState(false);
+
+  // Delete User Dialog
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [deletingUser, setDeletingUser] = useState(false);
+
+  // Add Topic Modal
+  const [showAddTopicModal, setShowAddTopicModal] = useState(false);
+  const [newTopicName, setNewTopicName] = useState('');
+  const [addingTopic, setAddingTopic] = useState(false);
+
   const fetchInitialData = async () => {
     try {
-      const [valRes, usrRes, statsRes] = await Promise.all([
+      const [valRes, usrRes, statsRes, topRes, allTitlesRes] = await Promise.all([
         api.getValidators(),
         api.getUsers(),
         api.getAdminStats(),
+        api.getTopics(),
+        api.getAllTitles(),
       ]);
       if (valRes.success) setValidators(valRes.data || []);
       if (usrRes.success) setUsers(usrRes.data || []);
       if (statsRes.success) setStats(statsRes.data);
+      if (topRes.success) setTopics(topRes.data || []);
+      if (allTitlesRes.success) setAllTitles(allTitlesRes.data || []);
     } catch (err) {
       console.error(err);
     }
@@ -136,7 +170,7 @@ export const AdminDashboard: React.FC = () => {
       const res = await api.createUser(newUser);
       if (res.success) {
         setShowAddUserModal(false);
-        setNewUser({ name: '', email: '', role: 'STUDENT', department: '' });
+        setNewUser({ name: '', email: '', role: 'STUDENT', department: '', userId: '', prodi: 'PTIK', angkatan: '' });
         await fetchInitialData();
       } else {
         setAddUserError(res.message || 'User creation failed.');
@@ -146,6 +180,80 @@ export const AdminDashboard: React.FC = () => {
       else setAddUserError('Failed to create user.');
     } finally {
       setAddingUser(false);
+    }
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser || !editingUser.name || !editingUser.email) {
+      setEditUserError('Name and email are required.');
+      return;
+    }
+    setUpdatingUser(true);
+    setEditUserError(null);
+
+    try {
+      const res = await api.updateUser(editingUser.id, editingUser);
+      if (res.success) {
+        setShowEditUserModal(false);
+        setEditingUser(null);
+        await fetchInitialData();
+      } else {
+        setEditUserError(res.message || 'User update failed.');
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) setEditUserError(err.message);
+      else setEditUserError('Failed to update user.');
+    } finally {
+      setUpdatingUser(false);
+    }
+  };
+
+  const confirmDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeletingUser(true);
+    try {
+      const res = await api.deleteUser(userToDelete.id);
+      if (res.success) {
+        setUserToDelete(null);
+        await fetchInitialData();
+      } else {
+        alert(res.message || 'User deletion failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during deletion.');
+    } finally {
+      setDeletingUser(false);
+    }
+  };
+
+  const handleCreateTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTopicName.trim()) return;
+    setAddingTopic(true);
+    try {
+      const res = await api.createTopic({ name: newTopicName });
+      if (res.success) {
+        setShowAddTopicModal(false);
+        setNewTopicName('');
+        await fetchInitialData();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAddingTopic(false);
+    }
+  };
+
+  const handleToggleTopic = async (topicId: string) => {
+    try {
+      const res = await api.toggleTopicStatus(topicId);
+      if (res.success) {
+        setTopics(topics.map(t => t.id === topicId ? { ...t, isActive: !t.isActive } : t));
+      }
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -182,10 +290,11 @@ export const AdminDashboard: React.FC = () => {
         </span>
       );
     }
-    if (s === 'REJECTED') {
+    if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
+      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
-          <XCircle size={12} /> Rejected
+          <XCircle size={12} /> {label}
         </span>
       );
     }
@@ -227,6 +336,26 @@ export const AdminDashboard: React.FC = () => {
             >
               User Management
             </button>
+            <button
+              onClick={() => setActiveTab('topics')}
+              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
+                activeTab === 'topics'
+                  ? 'bg-orange-600 text-white shadow-md'
+                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
+              }`}
+            >
+              Topic Management
+            </button>
+            <button
+              onClick={() => setActiveTab('all_titles')}
+              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
+                activeTab === 'all_titles'
+                  ? 'bg-orange-600 text-white shadow-md'
+                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
+              }`}
+            >
+              All Titles
+            </button>
           </div>
         </div>
 
@@ -258,7 +387,7 @@ export const AdminDashboard: React.FC = () => {
 
         {/* TAB 1: SUBMISSIONS QUEUE */}
         {activeTab === 'submissions' && (
-          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden space-y-4">
+          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
                 <FileText size={18} className="text-orange-600" />
@@ -268,26 +397,30 @@ export const AdminDashboard: React.FC = () => {
               {/* Filters */}
               <div className="flex flex-wrap items-center gap-2">
                 <Filter size={16} className="text-zinc-400" />
-                <select
+                <Select
                   value={statusFilter}
-                  onChange={(e) => handleFilterChange(setStatusFilter, e.target.value)}
-                  className="px-3 py-1.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 outline-none"
-                >
-                  <option value="ALL">Semua Status</option>
-                  <option value="PENDING_ADMIN_REVIEW">Pending Admin</option>
-                  <option value="PENDING_VALIDATOR_REVIEW">With Validator</option>
-                  <option value="APPROVED">Approved</option>
-                  <option value="REJECTED">Rejected</option>
-                </select>
-                <select
+                  onChange={(val) => handleFilterChange(setStatusFilter, val)}
+                  options={[
+                    { value: 'ALL', label: 'Semua Status' },
+                    { value: 'PENDING_ADMIN_REVIEW', label: 'Pending Admin' },
+                    { value: 'PENDING_VALIDATOR_REVIEW', label: 'With Validator' },
+                    { value: 'APPROVED', label: 'Approved' },
+                    { value: 'REJECTED', label: 'Rejected' },
+                    { value: 'REJECTED_BY_ADMIN', label: 'Rejected by Admin' },
+                    { value: 'REJECTED_BY_VALIDATOR', label: 'Rejected by Validator' }
+                  ]}
+                  className="w-full sm:w-48"
+                />
+                <Select
                   value={prodiFilter}
-                  onChange={(e) => handleFilterChange(setProdiFilter, e.target.value)}
-                  className="px-3 py-1.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 outline-none"
-                >
-                  <option value="ALL">Semua Prodi</option>
-                  <option value="PTIK">PTIK</option>
-                  <option value="TEKOM">TEKOM</option>
-                </select>
+                  onChange={(val) => handleFilterChange(setProdiFilter, val)}
+                  options={[
+                    { value: 'ALL', label: 'Semua Prodi' },
+                    { value: 'PTIK', label: 'PTIK' },
+                    { value: 'TEKOM', label: 'TEKOM' }
+                  ]}
+                  className="w-full sm:w-40"
+                />
                 <input
                   type="text"
                   value={topicFilter === 'ALL' ? '' : topicFilter}
@@ -424,16 +557,17 @@ export const AdminDashboard: React.FC = () => {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <Filter size={16} className="text-zinc-400" />
-                  <select
+                  <Select
                     value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                    className="px-3 py-1.5 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 outline-none"
-                  >
-                    <option value="ALL">All Roles</option>
-                    <option value="STUDENT">Students</option>
-                    <option value="ADMIN">Admins</option>
-                    <option value="VALIDATOR">Validators</option>
-                  </select>
+                    onChange={(val) => setRoleFilter(val)}
+                    options={[
+                      { value: 'ALL', label: 'All Roles' },
+                      { value: 'STUDENT', label: 'Students' },
+                      { value: 'ADMIN', label: 'Admins' },
+                      { value: 'VALIDATOR', label: 'Validators' }
+                    ]}
+                    className="w-32 sm:w-40"
+                  />
                 </div>
 
                 <button
@@ -455,6 +589,7 @@ export const AdminDashboard: React.FC = () => {
                     <th className="px-6 py-3.5 font-medium">Role</th>
                     <th className="px-6 py-3.5 font-medium">Department</th>
                     <th className="px-6 py-3.5 font-medium">Status</th>
+                    <th className="px-6 py-3.5 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
@@ -472,8 +607,152 @@ export const AdminDashboard: React.FC = () => {
                       <td className="px-6 py-4 text-xs">
                         <span className="text-emerald-600 font-semibold">Active</span>
                       </td>
+                      <td className="px-6 py-4 text-right whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            setEditingUser(u);
+                            setShowEditUserModal(true);
+                          }}
+                          className="text-xs text-orange-600 hover:text-orange-700 font-semibold mr-3"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setUserToDelete(u)}
+                          className="text-xs text-rose-600 hover:text-rose-700 font-semibold"
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: TOPICS MANAGEMENT */}
+        {activeTab === 'topics' && (
+          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden space-y-4">
+            <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <Tag size={18} className="text-orange-600" />
+                Topics Directory
+              </h3>
+              <button
+                onClick={() => setShowAddTopicModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 text-white font-semibold text-xs shadow-sm hover:bg-orange-700 transition-colors"
+              >
+                <Plus size={14} /> Add Topic
+              </button>
+            </div>
+            <div className="overflow-x-auto p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                {topics.map(topic => (
+                  <div key={topic.id} className="p-4 rounded border border-zinc-200 dark:border-zinc-800 flex items-start justify-between bg-zinc-50 dark:bg-zinc-900/50">
+                    <div>
+                      <h4 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">{topic.name}</h4>
+                      {topic.description && (
+                        <p className="text-xs text-zinc-500 mt-1 line-clamp-2">{topic.description}</p>
+                      )}
+                      <div className="mt-3">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${topic.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'}`}>
+                          {topic.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleToggleTopic(topic.id)}
+                      className={`text-xs px-2 py-1 rounded border font-medium ${topic.isActive ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-900/30' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-900/30'}`}
+                    >
+                      {topic.isActive ? 'Disable' : 'Enable'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {/* TAB 4: ALL TITLES */}
+        {activeTab === 'all_titles' && (
+          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
+                <BookOpen size={18} className="text-orange-600" />
+                All Submitted Titles
+              </h3>
+              <div className="flex gap-2">
+                <Select
+                  value={allTitlesProdiFilter}
+                  onChange={(val) => setAllTitlesProdiFilter(val as string)}
+                  options={[
+                    { value: 'ALL', label: 'Semua Prodi' },
+                    { value: 'PTIK', label: 'PTIK' },
+                    { value: 'TEKOM', label: 'TEKOM' }
+                  ]}
+                  className="w-40"
+                />
+                <Select
+                  value={allTitlesTopicFilter}
+                  onChange={(val) => setAllTitlesTopicFilter(val as string)}
+                  options={[
+                    { value: 'ALL', label: 'Semua Topik' },
+                    ...topics.map(t => ({ value: t.name, label: t.name }))
+                  ]}
+                  className="w-48"
+                />
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
+                  <tr>
+                    <th className="px-6 py-3.5 font-medium">Student</th>
+                    <th className="px-6 py-3.5 font-medium">Topic</th>
+                    <th className="px-6 py-3.5 font-medium">Title</th>
+                    <th className="px-6 py-3.5 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
+                  {allTitles.filter(t => 
+                    (allTitlesTopicFilter === 'ALL' || t.topic === allTitlesTopicFilter) &&
+                    (allTitlesProdiFilter === 'ALL' || t.studentProdi === allTitlesProdiFilter)
+                  ).length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-8 text-center text-zinc-400 text-xs">
+                        No titles available.
+                      </td>
+                    </tr>
+                  ) : (
+                    allTitles
+                      .filter(t => 
+                        (allTitlesTopicFilter === 'ALL' || t.topic === allTitlesTopicFilter) &&
+                        (allTitlesProdiFilter === 'ALL' || t.studentProdi === allTitlesProdiFilter)
+                      )
+                      .map((t, i) => (
+                      <tr key={i} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-xs text-zinc-900 dark:text-zinc-100">{t.studentName || 'Student'}</div>
+                          <div className="text-[11px] text-zinc-400 mt-0.5 space-x-2 flex items-center">
+                            <span>{t.studentNIM || 'N/A'}</span>
+                            {t.studentProdi && (
+                              <span className="px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 rounded uppercase font-bold tracking-wider">{t.studentProdi}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-xs font-semibold text-orange-600 dark:text-orange-400">
+                          {t.topic || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 text-xs">
+                          {t.title}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(t.submissionStatus)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -515,19 +794,16 @@ export const AdminDashboard: React.FC = () => {
                 <label className="block text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-2">
                   Select Active Validator
                 </label>
-                <select
-                  required
+                <Select
                   value={selectedValidatorId}
-                  onChange={(e) => setSelectedValidatorId(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                >
-                  <option value="" disabled>Select validator...</option>
-                  {validators.map((val) => (
-                    <option key={val.validatorId} value={val.validatorId}>
-                      {val.name} ({val.department || 'CS'}) — {val.assignedSubmissions || 0} assigned
-                    </option>
-                  ))}
-                </select>
+                  onChange={(val) => setSelectedValidatorId(val)}
+                  placeholder="Select validator..."
+                  options={validators.map((val) => ({
+                    value: val.validatorId,
+                    label: `${val.name} (${val.department || 'CS'}) — ${val.assignedSubmissions || 0} assigned`
+                  }))}
+                  className="w-full"
+                />
               </div>
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
@@ -601,27 +877,72 @@ export const AdminDashboard: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">User Role</label>
-                <select
+                <Select
                   value={newUser.role}
-                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })}
-                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
-                >
-                  <option value="STUDENT">Student</option>
-                  <option value="VALIDATOR">Validator</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Department</label>
-                <input
-                  type="text"
-                  placeholder="Computer Science"
-                  value={newUser.department}
-                  onChange={(e) => setNewUser({ ...newUser, department: e.target.value })}
-                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                  onChange={(val) => setNewUser({ ...newUser, role: val as UserRole })}
+                  options={[
+                    { value: 'STUDENT', label: 'Student' },
+                    { value: 'VALIDATOR', label: 'Validator' },
+                    { value: 'ADMIN', label: 'Admin' }
+                  ]}
+                  className="mt-1 w-full"
                 />
               </div>
+
+              {newUser.role === 'STUDENT' ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">NIM / Student ID</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 210209500010"
+                      value={newUser.userId || ''}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        setNewUser(prev => {
+                          const newAngkatan = val.length >= 2 ? `20${val.slice(0, 2)}` : prev.angkatan;
+                          return { ...prev, userId: val, angkatan: newAngkatan };
+                        });
+                      }}
+                      className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Program Studi (Prodi)</label>
+                    <Select
+                      value={newUser.prodi || 'PTIK'}
+                      onChange={(val) => setNewUser({ ...newUser, prodi: val as 'PTIK' | 'TEKOM' })}
+                      options={[
+                        { value: 'PTIK', label: 'PTIK' },
+                        { value: 'TEKOM', label: 'TEKOM' }
+                      ]}
+                      className="mt-1 w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Angkatan</label>
+                    <input
+                      type="text"
+                      placeholder="2023"
+                      value={newUser.angkatan || ''}
+                      onChange={(e) => setNewUser({ ...newUser, angkatan: e.target.value })}
+                      className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Department</label>
+                  <input
+                    type="text"
+                    placeholder="Computer Science"
+                    value={newUser.department}
+                    onChange={(e) => setNewUser({ ...newUser, department: e.target.value })}
+                    className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                  />
+                </div>
+              )}
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
                 <button
@@ -643,6 +964,214 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* EDIT USER MODAL */}
+      {showEditUserModal && editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="bg-white dark:bg-zinc-950 rounded max-w-md w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <UserCheck size={20} className="text-orange-600" />
+                Edit User Account
+              </h2>
+              <button
+                onClick={() => setShowEditUserModal(false)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {editUserError && (
+              <div className="p-3 bg-rose-50 text-rose-600 text-xs rounded">
+                {editUserError}
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateUser} className="space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Dr. John Smith"
+                  value={editingUser.name}
+                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="john.smith@university.edu"
+                  value={editingUser.email}
+                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">User Role</label>
+                <Select
+                  value={editingUser.role}
+                  onChange={(val) => setEditingUser({ ...editingUser, role: val as UserRole })}
+                  options={[
+                    { value: 'STUDENT', label: 'Student' },
+                    { value: 'VALIDATOR', label: 'Validator' },
+                    { value: 'ADMIN', label: 'Admin' }
+                  ]}
+                  className="mt-1 w-full"
+                />
+              </div>
+
+              {editingUser.role === 'STUDENT' ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">NIM / Student ID</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. 210209500010"
+                      value={editingUser.userId || editingUser.id || ''}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '');
+                        setEditingUser(prev => {
+                          if (!prev) return prev;
+                          const newAngkatan = val.length >= 2 ? `20${val.slice(0, 2)}` : prev.angkatan;
+                          return { ...prev, userId: val, angkatan: newAngkatan };
+                        });
+                      }}
+                      className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Program Studi (Prodi)</label>
+                    <Select
+                      value={editingUser.prodi || 'PTIK'}
+                      onChange={(val) => setEditingUser({ ...editingUser, prodi: val as 'PTIK' | 'TEKOM' })}
+                      options={[
+                        { value: 'PTIK', label: 'PTIK' },
+                        { value: 'TEKOM', label: 'TEKOM' }
+                      ]}
+                      className="mt-1 w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Angkatan</label>
+                    <input
+                      type="text"
+                      placeholder="2023"
+                      value={editingUser.angkatan || ''}
+                      onChange={(e) => setEditingUser({ ...editingUser, angkatan: e.target.value })}
+                      className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Department</label>
+                  <input
+                    type="text"
+                    placeholder="Computer Science"
+                    value={editingUser.department || ''}
+                    onChange={(e) => setEditingUser({ ...editingUser, department: e.target.value })}
+                    className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                  />
+                </div>
+              )}
+
+              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditUserModal(false)}
+                  className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updatingUser}
+                  className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
+                >
+                  {updatingUser ? 'Updating...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ADD TOPIC MODAL */}
+      {showAddTopicModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="bg-white dark:bg-zinc-950 rounded max-w-md w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <Tag size={20} className="text-orange-600" />
+                Add New Topic
+              </h2>
+              <button
+                onClick={() => setShowAddTopicModal(false)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateTopic} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Topic Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Artificial Intelligence"
+                  value={newTopicName}
+                  onChange={(e) => setNewTopicName(e.target.value)}
+                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTopicModal(false)}
+                  className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addingTopic || !newTopicName.trim()}
+                  className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
+                >
+                  {addingTopic ? 'Adding...' : 'Add Topic'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE USER CONFIRMATION DIALOG */}
+      <Dialog
+        isOpen={!!userToDelete}
+        onClose={() => !deletingUser && setUserToDelete(null)}
+        title="Delete User"
+        description="Are you sure you want to delete this user? This action cannot be undone."
+        confirmLabel={deletingUser ? 'Deleting...' : 'Delete User'}
+        onConfirm={confirmDeleteUser}
+        isDestructive={true}
+      >
+        {userToDelete && (
+          <div className="p-3 bg-zinc-100 dark:bg-zinc-800/50 rounded flex flex-col gap-1 mt-2">
+            <span className="font-semibold text-zinc-900 dark:text-white">{userToDelete.name}</span>
+            <span className="text-zinc-500 text-xs">{userToDelete.email} • {userToDelete.role}</span>
+          </div>
+        )}
+      </Dialog>
     </DashboardLayout>
   );
 };

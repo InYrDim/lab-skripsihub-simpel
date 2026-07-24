@@ -8,7 +8,8 @@ import {
   LogOut, 
   ChevronLeft, 
   GraduationCap,
-  History
+  History,
+  User as UserIcon
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -123,7 +124,21 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       </div>
 
       {/* Footer Logout Area */}
-      <div className="p-4 border-t border-zinc-200 dark:border-zinc-800">
+      <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
+        <button
+          onClick={() => navigate('/profile')}
+          title={!isOpen ? "Profil" : undefined}
+          className={`
+            w-full flex items-center gap-3 px-3 py-2.5 rounded transition-all duration-200 group
+            text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-200 text-sm font-semibold
+          `}
+        >
+          <UserIcon size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-200" />
+          <span className={`whitespace-nowrap transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+            Profil
+          </span>
+        </button>
+
         <button
           onClick={handleLogout}
           title={!isOpen ? "Log out" : undefined}

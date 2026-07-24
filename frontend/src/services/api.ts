@@ -22,66 +22,73 @@ let mockTopics: Topic[] = [
 
 const mockUsers: User[] = [
   {
-    id: 'usr_student_01',
-    userId: 'usr_student_01',
+    id: '200209501001',
+    userId: '200209501001',
     name: 'Alex Student',
     email: 'student@university.edu',
     role: 'STUDENT',
     prodi: 'PTIK',
+    angkatan: '2020',
     department: 'Computer Science',
     status: 'active',
     createdAt: '2024-01-10T08:00:00Z',
   },
   {
-    id: 'usr_student_02',
-    userId: 'usr_student_02',
+    id: '210209501002',
+    userId: '210209501002',
     name: 'Putri Ayu Lestari',
     email: 'putri.ayu@university.edu',
     role: 'STUDENT',
     prodi: 'PTIK',
+    angkatan: '2021',
     department: 'Information Technology',
     status: 'active',
     createdAt: '2024-02-05T08:00:00Z',
   },
   {
-    id: 'usr_student_03',
-    userId: 'usr_student_03',
+    id: '220209501003',
+    userId: '220209501003',
     name: 'Muhammad Fadilah',
     email: 'fadilah@university.edu',
     role: 'STUDENT',
     prodi: 'PTIK',
+    angkatan: '2022',
     department: 'Computer Science',
     status: 'active',
     createdAt: '2024-02-12T08:00:00Z',
   },
   {
-    id: 'usr_student_04',
-    userId: 'usr_student_04',
+    id: '230209501004',
+    userId: '230209501004',
     name: 'Rina Sari',
     email: 'rina.sari@university.edu',
     role: 'STUDENT',
     prodi: 'PTIK',
+    angkatan: '2023',
     department: 'Information Systems',
     status: 'active',
     createdAt: '2024-03-01T08:00:00Z',
   },
   {
-    id: 'usr_student_05',
-    userId: 'usr_student_05',
+    id: '230209501005',
+    userId: '230209501005',
     name: 'Andi Pratama',
     email: 'andi.pratama@university.edu',
     role: 'STUDENT',
     prodi: 'PTIK',
+    angkatan: '2023',
     department: 'Computer Science',
     status: 'active',
     createdAt: '2024-03-10T08:00:00Z',
   },
   {
-    id: 'usr_student_06',
-    userId: 'usr_student_06',
+    id: '230209501006',
+    userId: '230209501006',
     name: 'Dewi Kartika Sari',
     email: 'dewi.kartika@university.edu',
     role: 'STUDENT',
+    prodi: 'TEKOM',
+    angkatan: '2023',
     department: 'Information Technology',
     status: 'active',
     createdAt: '2024-03-15T08:00:00Z',
@@ -121,7 +128,8 @@ const mockUsers: User[] = [
 let mockSubmissions: Submission[] = [
   {
     submissionId: 'sub_001',
-    studentId: 'usr_student_01',
+    studentId: '200209501001',
+    nim: '200209501001',
     studentName: 'Alex Student',
     studentEmail: 'student@university.edu',
     studentProdi: 'PTIK',
@@ -170,11 +178,12 @@ let mockSubmissions: Submission[] = [
   },
   {
     submissionId: 'sub_002',
-    studentId: 'usr_student_01',
+    studentId: '200209501001',
+    nim: '200209501001',
     studentName: 'Alex Student',
     studentEmail: 'student@university.edu',
     studentProdi: 'PTIK',
-    status: 'REJECTED',
+    status: 'REJECTED_BY_VALIDATOR',
     titles: [
       {
         titleId: 'tit_004',
@@ -200,7 +209,7 @@ let mockSubmissions: Submission[] = [
         assignedValidator: 'val_001',
       },
       {
-        status: 'REJECTED',
+        status: 'REJECTED_BY_VALIDATOR',
         timestamp: '2023-11-12T14:20:00Z',
         actor: 'val_001',
         reason: 'The proposed topic lacks sufficient technical depth and academic contribution for a Bachelor thesis.',
@@ -210,9 +219,9 @@ let mockSubmissions: Submission[] = [
   },
   {
     submissionId: 'sub_003',
-    studentId: 'usr_student_02',
-    nim: '1729041022',
-    studentName: 'M. AULIA ARIEF',
+    studentId: '210209501002',
+    nim: '210209501002',
+    studentName: 'Putri Ayu Lestari',
     studentEmail: 'putri.ayu@university.edu',
     studentProdi: 'TEKOM',
     studentPhone: '+628134567890',
@@ -321,25 +330,25 @@ let mockSubmissions: Submission[] = [
     submissionId: 'sub_006',
     studentId: 'usr_student_05',
     studentName: 'Andi Pratama',
-    studentEmail: 'andi.pratama@university.edu',
-    studentPhone: '+628167890123',
-    status: 'REJECTED',
+    studentEmail: 'rina.sari@university.edu',
+    studentProdi: 'PTIK',
+    studentPhone: '+6281567890123',
+    status: 'REJECTED_BY_ADMIN',
     titles: [
       {
-        titleId: 'tit_013',
-        title: 'Pembuatan Website Toko Online Sederhana Menggunakan WordPress',
-        description: 'Membangun website toko online menggunakan CMS WordPress dengan plugin WooCommerce.',
+        titleId: 'tit_008',
+        title: 'Pembuatan Website Profile Company Menggunakan WordPress',
+        description: 'Tugas akhir berupa kustomisasi tema WordPress untuk UMKM lokal.',
       },
     ],
-    submittedAt: '2024-03-05T14:00:00Z',
+    submittedAt: '2024-03-05T09:00:00Z',
     rejectedAt: '2024-03-08T16:00:00Z',
-    rejectedBy: 'val_002',
-    rejectedByName: 'Dr. Robert Johnson',
-    rejectionReason: 'Topik ini terlalu bersifat praktis dan tidak memiliki kontribusi akademik yang memadai untuk skripsi. Silakan pilih topik yang melibatkan riset atau pengembangan metode/algoritma baru.',
+    rejectedBy: 'usr_admin_01',
+    rejectedByName: 'Admin User',
+    rejectionReason: 'Topik terlalu bersifat praktis, tidak ada kontribusi akademik yang memadai.',
     statusHistory: [
-      { status: 'PENDING_ADMIN_REVIEW', timestamp: '2024-03-05T14:00:00Z', actor: 'system' },
-      { status: 'PENDING_VALIDATOR_REVIEW', timestamp: '2024-03-06T09:00:00Z', actor: 'usr_admin_01', assignedValidator: 'val_002' },
-      { status: 'REJECTED', timestamp: '2024-03-08T16:00:00Z', actor: 'val_002', reason: 'Topik terlalu bersifat praktis, tidak ada kontribusi akademik yang memadai.' },
+      { status: 'PENDING_ADMIN_REVIEW', timestamp: '2024-03-05T09:00:00Z', actor: 'system' },
+      { status: 'REJECTED_BY_ADMIN', timestamp: '2024-03-08T16:00:00Z', actor: 'usr_admin_01', reason: 'Topik terlalu bersifat praktis, tidak ada kontribusi akademik yang memadai.' },
     ],
     titleCount: 1,
   },
@@ -458,13 +467,12 @@ class ApiClient {
 
     // Student GET Current Submission
     if (endpoint === '/submissions/me/current' && method === 'GET') {
-      const active = mockSubmissions.find(s => 
-        ['DRAFT', 'draft', 'PENDING_ADMIN_REVIEW', 'pending_admin_review', 'PENDING_VALIDATOR_REVIEW', 'pending_validator_review'].includes(s.status)
-      );
+      const mySubmissions = mockSubmissions.filter(s => s.studentId === '200209501001' || s.studentId === 'usr_student_01');
+      const latest = mySubmissions.length > 0 ? mySubmissions[mySubmissions.length - 1] : null;
       return {
         success: true,
-        data: (active || null) as T,
-        message: active ? 'Current submission retrieved' : 'No active submission',
+        data: latest as T,
+        message: latest ? 'Current submission retrieved' : 'No submission found',
       };
     }
 
@@ -594,6 +602,28 @@ class ApiClient {
       }
     }
 
+    // Admin GET All Titles
+    if (endpoint.startsWith('/admin/all-titles') && method === 'GET') {
+      const allTitles: any[] = [];
+      mockSubmissions.forEach(sub => {
+        sub.titles?.forEach(t => {
+          allTitles.push({
+            ...t,
+            submissionId: sub.submissionId,
+            studentName: sub.studentName,
+            studentNIM: sub.nim || sub.studentId,
+            studentProdi: sub.studentProdi,
+            submissionStatus: sub.status,
+            assignedValidator: sub.assignedValidator,
+          });
+        });
+      });
+      return {
+        success: true,
+        data: allTitles as T,
+      };
+    }
+
     // Admin GET Validators
     if (endpoint.startsWith('/admin/validators') && method === 'GET') {
       const validators: ValidatorInfo[] = mockUsers
@@ -626,6 +656,26 @@ class ApiClient {
         data: mockTopics as T,
       };
     }
+    if (endpoint === '/topics' && method === 'POST') {
+      const body = JSON.parse((options.body as string) || '{}');
+      const newTopic: Topic = {
+        id: `top_${Date.now()}`,
+        name: body.name,
+        description: body.description || '',
+        isActive: true,
+      };
+      mockTopics.push(newTopic);
+      return { success: true, data: newTopic as T, message: 'Topic created successfully' };
+    }
+    if (endpoint.match(/\/topics\/(top_[a-zA-Z0-9_-]+)\/toggle/) && method === 'POST') {
+      const match = endpoint.match(/\/topics\/(top_[a-zA-Z0-9_-]+)\/toggle/);
+      const topicId = match ? match[1] : null;
+      const tIdx = mockTopics.findIndex(t => t.id === topicId);
+      if (tIdx !== -1) {
+        mockTopics[tIdx].isActive = !mockTopics[tIdx].isActive;
+        return { success: true, data: mockTopics[tIdx] as T, message: 'Topic status updated' };
+      }
+    }
 
     // Admin GET Users
     if (endpoint.startsWith('/admin/users') && method === 'GET') {
@@ -641,16 +691,43 @@ class ApiClient {
       const body = JSON.parse((options.body as string) || '{}');
       const newUser: User = {
         id: `usr_${Date.now()}`,
-        userId: `usr_${Date.now()}`,
+        userId: body.userId || `usr_${Date.now()}`,
         name: body.name,
         email: body.email,
         role: body.role,
-        department: body.department || 'General',
+        department: body.department || (body.role === 'STUDENT' ? 'Computer Science' : 'General'),
+        prodi: body.prodi || undefined,
+        angkatan: body.angkatan || undefined,
         status: 'active',
         createdAt: new Date().toISOString(),
       };
       mockUsers.push(newUser);
       return { success: true, data: newUser as T, message: 'User created successfully' };
+    }
+
+    // Admin PUT Update User
+    if (endpoint.startsWith('/admin/users/') && method === 'PUT') {
+      const match = endpoint.match(/\/admin\/users\/(usr_[a-zA-Z0-9_-]+)/);
+      const userId = match ? match[1] : null;
+      const uIdx = mockUsers.findIndex(u => u.id === userId);
+      if (uIdx !== -1) {
+        const body = JSON.parse((options.body as string) || '{}');
+        mockUsers[uIdx] = { ...mockUsers[uIdx], ...body };
+        return { success: true, data: mockUsers[uIdx] as T, message: 'User updated successfully' };
+      }
+      return { success: false, message: 'User not found' } as any;
+    }
+
+    // Admin DELETE User
+    if (endpoint.startsWith('/admin/users/') && method === 'DELETE') {
+      const match = endpoint.match(/\/admin\/users\/(usr_[a-zA-Z0-9_-]+)/);
+      const userId = match ? match[1] : null;
+      const uIdx = mockUsers.findIndex(u => u.id === userId);
+      if (uIdx !== -1) {
+        const deleted = mockUsers.splice(uIdx, 1);
+        return { success: true, data: deleted[0] as T, message: 'User deleted successfully' };
+      }
+      return { success: false, message: 'User not found' } as any;
     }
 
     // Admin Stats
@@ -660,7 +737,7 @@ class ApiClient {
         pendingAdminReview: mockSubmissions.filter(s => ['PENDING_ADMIN_REVIEW', 'pending_admin_review'].includes(s.status)).length,
         pendingValidatorReview: mockSubmissions.filter(s => ['PENDING_VALIDATOR_REVIEW', 'pending_validator_review'].includes(s.status)).length,
         approved: mockSubmissions.filter(s => ['APPROVED', 'approved'].includes(s.status)).length,
-        rejected: mockSubmissions.filter(s => ['REJECTED', 'rejected'].includes(s.status)).length,
+        rejected: mockSubmissions.filter(s => ['REJECTED', 'rejected', 'REJECTED_BY_ADMIN', 'rejected_by_admin', 'REJECTED_BY_VALIDATOR', 'rejected_by_validator'].includes(s.status)).length,
         totalStudents: mockUsers.filter(u => u.role === 'STUDENT' || u.role === 'student').length,
         totalValidators: mockUsers.filter(u => u.role === 'VALIDATOR' || u.role === 'validator').length,
         averageTimeToApproval: '1.5 days',
@@ -676,10 +753,11 @@ class ApiClient {
         const sub = mockSubmissions.find(s => s.submissionId === match[1]);
         return { success: true, data: (sub || mockSubmissions[0]) as T };
       }
+      const filteredSubmissions = mockSubmissions.filter(s => s.assignedValidator && (typeof s.assignedValidator === 'string' ? s.assignedValidator === 'val_001' : s.assignedValidator.validatorId === 'val_001'));
       return {
         success: true,
-        data: mockSubmissions as T,
-        pagination: { page: 1, limit: 20, total: mockSubmissions.length, totalPages: 1 },
+        data: filteredSubmissions as T,
+        pagination: { page: 1, limit: 20, total: filteredSubmissions.length, totalPages: 1 },
       };
     }
 
@@ -731,7 +809,7 @@ class ApiClient {
       if (subIndex !== -1) {
         mockSubmissions[subIndex] = {
           ...mockSubmissions[subIndex],
-          status: 'REJECTED',
+          status: 'REJECTED_BY_VALIDATOR',
           rejectedAt: new Date().toISOString(),
           rejectedBy: 'val_001',
           rejectedByName: 'Dr. Jane Smith',
@@ -739,7 +817,7 @@ class ApiClient {
           statusHistory: [
             ...(mockSubmissions[subIndex].statusHistory || []),
             {
-              status: 'REJECTED',
+              status: 'REJECTED_BY_VALIDATOR',
               timestamp: new Date().toISOString(),
               actor: 'val_001',
               reason: body.rejectionReason,
@@ -877,17 +955,17 @@ STATUS: OFFICIAL APPROVAL GRANTED
     return this.request<User[]>('/admin/users');
   }
 
-  createUser(user: Partial<User> & { password?: string }): Promise<ApiResponse<User>> {
+  createUser(user: Partial<User>): Promise<ApiResponse<User>> {
     return this.request<User>('/admin/users', {
       method: 'POST',
       body: JSON.stringify(user),
     });
   }
 
-  updateUser(userId: string, data: Partial<User>): Promise<ApiResponse<User>> {
-    return this.request<User>(`/admin/users/${userId}`, {
+  updateUser(id: string, user: Partial<User>): Promise<ApiResponse<User>> {
+    return this.request<User>(`/admin/users/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(data),
+      body: JSON.stringify(user),
     });
   }
 
@@ -934,6 +1012,23 @@ STATUS: OFFICIAL APPROVAL GRANTED
   // Topics Methods
   getTopics(): Promise<ApiResponse<Topic[]>> {
     return this.request<Topic[]>('/topics');
+  }
+
+  getAllTitles(): Promise<ApiResponse<any[]>> {
+    return this.request<any[]>('/admin/all-titles');
+  }
+  
+  createTopic(topic: Partial<Topic>): Promise<ApiResponse<Topic>> {
+    return this.request<Topic>('/topics', {
+      method: 'POST',
+      body: JSON.stringify(topic),
+    });
+  }
+
+  toggleTopicStatus(id: string): Promise<ApiResponse<Topic>> {
+    return this.request<Topic>(`/topics/${id}/toggle`, {
+      method: 'POST',
+    });
   }
 }
 

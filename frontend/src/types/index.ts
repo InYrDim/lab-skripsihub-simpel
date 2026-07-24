@@ -7,8 +7,14 @@ export interface User {
   email: string;
   role: UserRole;
   prodi?: 'PTIK' | 'TEKOM';
+  angkatan?: string;
   department?: string;
   status?: string;
+  dosenPA?: string;
+  dosenPANip?: string;
+  photoUrl?: string;
+  noHP?: string;
+  alamat?: string;
   createdAt?: string;
   lastLogin?: string;
 }
@@ -38,7 +44,11 @@ export type SubmissionStatus =
   | 'APPROVED'
   | 'approved'
   | 'REJECTED'
-  | 'rejected';
+  | 'rejected'
+  | 'REJECTED_BY_ADMIN'
+  | 'rejected_by_admin'
+  | 'REJECTED_BY_VALIDATOR'
+  | 'rejected_by_validator';
 
 export interface StatusHistoryItem {
   status: SubmissionStatus;
@@ -88,6 +98,7 @@ export interface Submission {
   rejectedByName?: string | null;
   letterUrl?: string | null;
   letterGeneratedAt?: string | null;
+  documentUrl?: string | null;
   statusHistory?: StatusHistoryItem[];
   titleCount?: number;
 }

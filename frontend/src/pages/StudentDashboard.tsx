@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import type { Submission, SubmissionStatus, Topic } from '../types';
+import { Select } from '../components/ui/select';
+import { useAuth } from '../context/AuthContext';
 import {
   FilePlus,
   AlertTriangle,
@@ -11,25 +13,36 @@ import {
   Download,
   Eye,
   Plus,
-  Trash2,
   X,
   FileText,
-  Info
+  Info,
+  UploadCloud,
+  ArrowRight,
+  ArrowLeft
 } from 'lucide-react';
 
 export const StudentDashboard: React.FC = () => {
+  const { user } = useAuth();
   const [currentSubmission, setCurrentSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<Submission | null>(null);
   const [availableTopics, setAvailableTopics] = useState<Topic[]>([]);
 
-  // Submission Form state (1 to 3 titles)
+  // Submission Form state (exactly 3 titles)
   const [titles, setTitles] = useState<Array<{ title: string; topic: string; description: string }>>([
     { title: '', topic: '', description: '' },
+    { title: '', topic: '', description: '' },
+    { title: '', topic: '', description: '' },
   ]);
+  const [pembimbing1, setPembimbing1] = useState('');
+  const [pembimbing2, setPembimbing2] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  
+  // Multi-step state
+  const [step, setStep] = useState<1 | 2>(1);
+  const [proposalFile, setProposalFile] = useState<File | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -64,16 +77,17 @@ export const StudentDashboard: React.FC = () => {
 
   const hasActiveSubmission = isStatusActive(currentSubmission?.status);
 
-  const handleAddTitle = () => {
-    if (titles.length < 3) {
-      setTitles([...titles, { title: '', topic: '', description: '' }]);
-    }
-  };
-
-  const handleRemoveTitle = (index: number) => {
-    if (titles.length > 1) {
-      setTitles(titles.filter((_, i) => i !== index));
-    }
+  const resetForm = () => {
+    setStep(1);
+    setTitles([
+      { title: '', topic: '', description: '' },
+      { title: '', topic: '', description: '' },
+      { title: '', topic: '', description: '' },
+    ]);
+    setPembimbing1('');
+    setPembimbing2('');
+    setProposalFile(null);
+    setFormError(null);
   };
 
   const handleTitleChange = (index: number, field: 'title' | 'topic' | 'description', value: string) => {
@@ -82,38 +96,55 @@ export const StudentDashboard: React.FC = () => {
     setTitles(updated);
   };
 
-  const handleCreateSubmission = async (e: React.FormEvent) => {
+  const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
 
-    // Validation
-    const filledTitles = titles.filter(t => t.title.trim().length > 0);
-    if (filledTitles.length === 0) {
-      setFormError('Please enter at least 1 thesis title.');
-      return;
-    }
-
-    for (let i = 0; i < filledTitles.length; i++) {
-      if (filledTitles[i].title.trim().length < 10) {
+    // Validation exactly 3 titles
+    for (let i = 0; i < titles.length; i++) {
+      if (titles[i].title.trim().length < 10) {
         setFormError(`Title ${i + 1} must be at least 10 characters long.`);
         return;
       }
     }
 
     // Check title uniqueness
-    const titleStrings = filledTitles.map(t => t.title.trim().toLowerCase());
+    const titleStrings = titles.map(t => t.title.trim().toLowerCase());
     const uniqueStrings = new Set(titleStrings);
     if (uniqueStrings.size !== titleStrings.length) {
-      setFormError('All proposed titles within a submission must be distinct.');
+      setFormError('All proposed titles must be distinct.');
+      return;
+    }
+
+    if (!pembimbing1.trim()) {
+      setFormError('Please input Pembimbing 1.');
+      return;
+    }
+
+    setStep(2);
+  };
+
+  const handleFinalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    if (!proposalFile) {
+      setFormError('Please upload your proposal document.');
       return;
     }
 
     setSubmitting(true);
     try {
-      const res = await api.createSubmission({ titles: filledTitles });
+      // In a real app, upload file to storage, get URL, include in payload
+      const res = await api.createSubmission({ 
+        titles,
+        pembimbing1,
+        pembimbing2,
+        documentUrl: URL.createObjectURL(proposalFile) // mocked URL
+      } as any); // using any for extra payload fields in mock
+
       if (res.success) {
         setShowCreateModal(false);
-        setTitles([{ title: '', topic: '', description: '' }]);
+        resetForm();
         await fetchData();
       } else {
         setFormError(res.message || 'Failed to submit thesis titles.');
@@ -152,10 +183,11 @@ export const StudentDashboard: React.FC = () => {
         </span>
       );
     }
-    if (s === 'REJECTED') {
+    if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
+      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
-          <XCircle size={14} /> Rejected
+          <XCircle size={14} /> {label}
         </span>
       );
     }
@@ -182,10 +214,10 @@ export const StudentDashboard: React.FC = () => {
 
           <button
             onClick={() => setShowCreateModal(true)}
-            disabled={hasActiveSubmission}
-            title={hasActiveSubmission ? 'Active submission under review' : 'Submit New Thesis Title'}
+            disabled={hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip}
+            title={hasActiveSubmission ? 'Active submission under review' : (!user?.dosenPA || !user?.dosenPANip) ? 'Please set your Dosen PA first' : 'Submit New Thesis Title'}
             className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded font-semibold text-sm transition-all ${
-              hasActiveSubmission
+              (hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip)
                 ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
                 : 'bg-orange-600 hover:bg-orange-700 text-white shadow-md'
             }`}
@@ -194,6 +226,20 @@ export const StudentDashboard: React.FC = () => {
             Create New Submission
           </button>
         </div>
+
+        {/* Missing Dosen PA Warning */}
+        {(!user?.dosenPA || !user?.dosenPANip) && (
+          <div className="p-4 bg-rose-50 dark:bg-rose-500/10 border-l-4 border-rose-500 rounded-r text-rose-800 dark:text-rose-300 flex items-start gap-3 shadow-sm">
+            <AlertTriangle size={22} className="shrink-0 text-rose-600 dark:text-rose-400 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-sm">Data Dosen Penasehat Akademik Belum Lengkap</h3>
+              <p className="text-xs mt-1 text-rose-700 dark:text-rose-400/90 leading-relaxed">
+                Anda tidak dapat membuat pengajuan skripsi baru sebelum melengkapi data Nama dan NIP Dosen Penasehat Akademik (PA).
+                Silakan buka menu <strong>Profil</strong> di sidebar kiri untuk mengatur Dosen PA Anda.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* UI Blocking Prominent Warning Banner if active submission exists */}
         {hasActiveSubmission && (
@@ -300,7 +346,12 @@ export const StudentDashboard: React.FC = () => {
             </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 transition-colors"
+              disabled={!user?.dosenPA || !user?.dosenPANip}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold transition-colors ${
+                (!user?.dosenPA || !user?.dosenPANip)
+                  ? 'bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed'
+                  : 'bg-orange-600 text-white hover:bg-orange-700'
+              }`}
             >
               <Plus size={16} /> Submit Proposal
             </button>
@@ -313,10 +364,23 @@ export const StudentDashboard: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
           <div className="bg-white dark:bg-zinc-950 rounded max-w-xl w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
-              <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-                <FilePlus className="text-orange-600" size={20} />
-                Submit Thesis Titles Proposal
-              </h2>
+              <div>
+                <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                  <FilePlus className="text-orange-600" size={20} />
+                  Submit Thesis Titles Proposal
+                </h2>
+                <div className="flex items-center gap-2 mt-2">
+                  <div className={`flex items-center gap-1.5 text-[11px] font-semibold ${step === 1 ? 'text-orange-600' : 'text-zinc-400'}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 1 ? 'bg-orange-600 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>1</span>
+                    Data Akademik
+                  </div>
+                  <div className="w-6 h-px bg-zinc-300 dark:bg-zinc-700" />
+                  <div className={`flex items-center gap-1.5 text-[11px] font-semibold ${step === 2 ? 'text-orange-600' : 'text-zinc-400'}`}>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 2 ? 'bg-orange-600 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>2</span>
+                    Upload Berkas
+                  </div>
+                </div>
+              </div>
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
@@ -331,97 +395,169 @@ export const StudentDashboard: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleCreateSubmission} className="space-y-4">
-              <div className="p-3 bg-orange-50/50 dark:bg-orange-500/10 rounded text-xs text-orange-700 dark:text-orange-300 flex items-start gap-2">
-                <Info size={16} className="shrink-0 mt-0.5" />
-                <span>
-                  You may propose 1 to 3 distinct thesis titles. Provide clear titles (min 10 characters) and optional short descriptions for academic review.
-                </span>
-              </div>
-
-              {titles.map((t, idx) => (
-                <div key={idx} className="p-4 rounded bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-3 relative">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">
-                      Proposed Title #{idx + 1}
-                    </label>
-                    {titles.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTitle(idx)}
-                        className="text-rose-500 hover:text-rose-700 text-xs flex items-center gap-1"
-                      >
-                        <Trash2 size={14} /> Remove
-                      </button>
-                    )}
+            <form onSubmit={step === 1 ? handleNextStep : handleFinalSubmit} className="space-y-4">
+              {step === 1 && (
+                <>
+                  <div className="p-3 bg-orange-50/50 dark:bg-orange-500/10 rounded text-xs text-orange-700 dark:text-orange-300 flex items-start gap-2">
+                    <Info size={16} className="shrink-0 mt-0.5" />
+                    <span>
+                      Anda harus mengusulkan tepat 3 judul skripsi beserta calon Dosen Pembimbing.
+                    </span>
                   </div>
 
-                  <div>
-                    <input
-                      type="text"
-                      required
-                      placeholder={`e.g., Machine Learning for Academic Progress Tracking`}
-                      value={t.title}
-                      onChange={(e) => handleTitleChange(idx, 'title', e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
-                    />
+                  {titles.map((t, idx) => (
+                    <div key={idx} className="p-4 rounded bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-3 relative">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold uppercase tracking-wider text-zinc-500">
+                          Usulan Judul #{idx + 1}
+                        </label>
+                      </div>
+
+                      <div>
+                        <input
+                          type="text"
+                          required
+                          placeholder={`e.g., Machine Learning for Academic Progress Tracking`}
+                          value={t.title}
+                          onChange={(e) => handleTitleChange(idx, 'title', e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
+                        />
+                      </div>
+
+                      <div>
+                        <Select
+                          value={t.topic || ''}
+                          onChange={(val) => handleTitleChange(idx, 'topic', val)}
+                          placeholder="Pilih Topik Skripsi..."
+                          options={availableTopics.filter(topic => topic.isActive).map(topic => ({
+                            value: topic.name,
+                            label: topic.name
+                          }))}
+                          className="w-full"
+                        />
+                      </div>
+
+                      <div>
+                        <textarea
+                          rows={2}
+                          placeholder="Deskripsi singkat atau metodologi..."
+                          value={t.description}
+                          onChange={(e) => handleTitleChange(idx, 'description', e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  <div className="p-4 rounded bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-500">Usulan Dosen Pembimbing</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Pembimbing 1 *</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="Nama Pembimbing 1"
+                          value={pembimbing1}
+                          onChange={(e) => setPembimbing1(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-zinc-600 dark:text-zinc-400 mb-1">Pembimbing 2 (Opsional)</label>
+                        <input
+                          type="text"
+                          placeholder="Nama Pembimbing 2"
+                          value={pembimbing2}
+                          onChange={(e) => setPembimbing2(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {step === 2 && (
+                <div className="space-y-4">
+                  <div className="p-3 bg-blue-50/50 dark:bg-blue-500/10 rounded text-xs text-blue-700 dark:text-blue-300 flex items-start gap-2">
+                    <Info size={16} className="shrink-0 mt-0.5" />
+                    <span>
+                      Langkah 2: Silakan unggah berkas pengajuan skripsi Anda. Anda dapat mengunduh template terlebih dahulu.
+                    </span>
                   </div>
 
-                  <div>
-                    <select
-                      required
-                      value={t.topic}
-                      onChange={(e) => handleTitleChange(idx, 'topic', e.target.value)}
-                      className={`w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-sm focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white ${
-                        t.topic === '' ? 'text-zinc-400' : 'text-zinc-900 dark:text-zinc-100'
-                      }`}
+                  <div className="flex justify-center">
+                    <a
+                      href="/template_pengajuan_judul.docx"
+                      download
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded text-xs font-semibold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
                     >
-                      <option value="" disabled>Pilih Topik Skripsi...</option>
-                      {availableTopics.filter(topic => topic.isActive).map(topic => (
-                        <option key={topic.id} value={topic.name}>
-                          {topic.name}
-                        </option>
-                      ))}
-                    </select>
+                      <Download size={16} /> Unduh Template Pengajuan
+                    </a>
                   </div>
 
-                  <div>
-                    <textarea
-                      rows={2}
-                      placeholder="Optional brief description or methodology outline..."
-                      value={t.description}
-                      onChange={(e) => handleTitleChange(idx, 'description', e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-900 dark:focus:ring-white focus:border-zinc-900 dark:focus:border-white"
+                  <div className="border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-lg p-8 text-center">
+                    <input
+                      type="file"
+                      id="proposal-upload"
+                      accept=".pdf,.doc,.docx"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setProposalFile(e.target.files[0]);
+                        }
+                      }}
                     />
+                    <label
+                      htmlFor="proposal-upload"
+                      className="cursor-pointer flex flex-col items-center justify-center gap-2"
+                    >
+                      <UploadCloud size={32} className={proposalFile ? "text-emerald-500" : "text-zinc-400"} />
+                      <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        {proposalFile ? proposalFile.name : 'Klik untuk mengunggah berkas'}
+                      </span>
+                      <span className="text-xs text-zinc-500">PDF, DOC, atau DOCX (Maks 5MB)</span>
+                    </label>
                   </div>
                 </div>
-              ))}
-
-              {titles.length < 3 && (
-                <button
-                  type="button"
-                  onClick={handleAddTitle}
-                  className="w-full py-2.5 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:border-orange-500 hover:text-orange-600 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Plus size={16} /> Add Another Title ({titles.length}/3)
-                </button>
               )}
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
-                >
-                  {submitting ? 'Submitting...' : 'Submit Proposal'}
-                </button>
+                {step === 1 ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateModal(false)}
+                      className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-colors"
+                    >
+                      Selanjutnya <ArrowRight size={14} />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    >
+                      <ArrowLeft size={14} /> Kembali
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 transition-colors"
+                    >
+                      {submitting ? 'Mengirim...' : 'Submit Proposal'}
+                    </button>
+                  </>
+                )}
               </div>
             </form>
           </div>

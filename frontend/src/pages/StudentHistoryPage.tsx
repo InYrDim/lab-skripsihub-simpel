@@ -50,10 +50,11 @@ export const StudentHistoryPage: React.FC = () => {
         </span>
       );
     }
-    if (s === 'REJECTED') {
+    if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
+      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
-          <XCircle size={14} /> Rejected
+          <XCircle size={14} /> {label}
         </span>
       );
     }

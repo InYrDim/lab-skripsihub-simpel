@@ -8,6 +8,7 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { ValidatorDashboard } from './pages/ValidatorDashboard';
 import { SubmissionListPage } from './pages/SubmissionListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
+import { ProfilePage } from './pages/ProfilePage';
 
 function App() {
   return (
@@ -57,6 +58,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['VALIDATOR', 'validator']}>
                 <ValidatorDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Profile Page */}
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={['STUDENT', 'student', 'ADMIN', 'admin', 'VALIDATOR', 'validator']}>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

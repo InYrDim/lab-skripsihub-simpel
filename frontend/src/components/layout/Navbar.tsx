@@ -76,7 +76,11 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
             </span>
           </div>
 
-          <div className="h-9 w-9 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800">
+          <div 
+            onClick={() => navigate('/profile')}
+            className={`h-9 w-9 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-800 transition-colors`}
+            title="Profil Saya"
+          >
             <UserIcon size={18} />
           </div>
 
