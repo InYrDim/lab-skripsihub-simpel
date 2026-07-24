@@ -41,7 +41,11 @@ export const AdminDashboard: React.FC = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
 
-  // Assignment Modal
+  // Admin review and assignment modals
+  const [reviewingSubmission, setReviewingSubmission] = useState<Submission | null>(null);
+  const [adminRejectionReason, setAdminRejectionReason] = useState('');
+  const [rejectingByAdmin, setRejectingByAdmin] = useState(false);
+  const [adminReviewError, setAdminReviewError] = useState<string | null>(null);
   const [assigningSubmission, setAssigningSubmission] = useState<Submission | null>(null);
   const [selectedValidatorId, setSelectedValidatorId] = useState<string>('');
   const [assigning, setAssigning] = useState(false);
@@ -130,6 +134,32 @@ export const AdminDashboard: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'submissions') fetchSubmissions();
   }, [page, limit, statusFilter, prodiFilter, topicFilter, activeTab]);
+
+  const handleRejectByAdmin = async () => {
+    if (!reviewingSubmission) return;
+    if (adminRejectionReason.trim().length < 10) {
+      setAdminReviewError('Alasan penolakan minimal 10 karakter.');
+      return;
+    }
+
+    setRejectingByAdmin(true);
+    setAdminReviewError(null);
+    try {
+      await api.rejectSubmissionByAdmin(
+        reviewingSubmission.submissionId,
+        adminRejectionReason.trim(),
+      );
+      setReviewingSubmission(null);
+      setAdminRejectionReason('');
+      await Promise.all([fetchSubmissions(), fetchInitialData()]);
+    } catch (error) {
+      setAdminReviewError(
+        error instanceof Error ? error.message : 'Gagal menolak batch pengajuan.',
+      );
+    } finally {
+      setRejectingByAdmin(false);
+    }
+  };
 
   const handleAssignValidator = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -508,12 +538,13 @@ export const AdminDashboard: React.FC = () => {
                             {sub.status.toUpperCase() === 'PENDING_ADMIN_REVIEW' ? (
                               <button
                                 onClick={() => {
-                                  setAssigningSubmission(sub);
-                                  setSelectedValidatorId(validators[0]?.validatorId || '');
+                                  setReviewingSubmission(sub);
+                                  setAdminRejectionReason('');
+                                  setAdminReviewError(null);
                                 }}
                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
                               >
-                                <UserCheck size={14} /> Tugaskan Validator
+                                <FileText size={14} /> Tinjau Batch
                               </button>
                             ) : sub.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW' ? (
                               <button
@@ -649,6 +680,104 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* ADMIN BATCH REVIEW MODAL */}
+      {reviewingSubmission && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
+          <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="flex shrink-0 items-start justify-between border-b border-zinc-200 p-5 dark:border-zinc-800">
+              <div>
+                <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-900 dark:text-white">
+                  <FileText size={20} className="text-orange-600" />
+                  Tinjau Batch Pengajuan
+                </h2>
+                <p className="mt-1 font-mono text-[11px] text-zinc-400">
+                  ID {reviewingSubmission.submissionId}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReviewingSubmission(null)}
+                className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                aria-label="Tutup modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4 overflow-y-auto p-5">
+              <section className="grid gap-3 rounded border border-zinc-200 p-4 text-xs dark:border-zinc-800 sm:grid-cols-2">
+                <div><span className="text-zinc-500">Mahasiswa</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{reviewingSubmission.studentName || '-'}</p></div>
+                <div><span className="text-zinc-500">NIM / Prodi</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{reviewingSubmission.nim || '-'} / {reviewingSubmission.studentProdi || '-'}</p></div>
+                <div className="sm:col-span-2"><span className="text-zinc-500">Dosen PA</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{reviewingSubmission.dosenPA || '-'}{reviewingSubmission.dosenPANip ? ` — NIP ${reviewingSubmission.dosenPANip}` : ''}</p></div>
+              </section>
+
+              <section>
+                <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Judul dalam Batch</h3>
+                <ol className="mt-2 space-y-2">
+                  {reviewingSubmission.titles.map((title, index) => (
+                    <li key={title.titleId} className="rounded border border-zinc-200 p-3 dark:border-zinc-800">
+                      <div className="flex gap-2 text-xs">
+                        <span className="font-bold text-orange-600">{index + 1}.</span>
+                        <div>
+                          <p className="font-semibold text-zinc-900 dark:text-zinc-100">{title.title}</p>
+                          {title.description && <p className="mt-1 leading-relaxed text-zinc-500">{title.description}</p>}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+
+              <section className="rounded border border-rose-200 bg-rose-50/50 p-4 dark:border-rose-500/20 dark:bg-rose-500/5">
+                <label htmlFor="admin-rejection-reason" className="text-xs font-bold text-rose-700 dark:text-rose-300">
+                  Alasan Penolakan Seluruh Batch
+                </label>
+                <textarea
+                  id="admin-rejection-reason"
+                  rows={3}
+                  value={adminRejectionReason}
+                  onChange={(event) => setAdminRejectionReason(event.target.value)}
+                  placeholder="Jelaskan alasan penolakan minimal 10 karakter..."
+                  className="mt-2 w-full rounded border border-rose-200 bg-white px-3 py-2 text-xs text-zinc-900 outline-none focus:border-rose-500 dark:border-rose-500/30 dark:bg-zinc-950 dark:text-zinc-100"
+                />
+                <div className="mt-1 flex justify-between text-[11px] text-zinc-500">
+                  <span>Seluruh judul dalam batch akan ditolak.</span>
+                  <span>{adminRejectionReason.trim().length}/10 karakter minimum</span>
+                </div>
+              </section>
+
+              {adminReviewError && (
+                <div className="rounded bg-rose-50 p-3 text-xs text-rose-600 dark:bg-rose-500/10 dark:text-rose-400">
+                  {adminReviewError}
+                </div>
+              )}
+            </div>
+
+            <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-zinc-200 p-4 dark:border-zinc-800 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                disabled={rejectingByAdmin}
+                onClick={handleRejectByAdmin}
+                className="rounded border border-rose-300 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 disabled:opacity-50 dark:border-rose-500/40 dark:hover:bg-rose-500/10"
+              >
+                {rejectingByAdmin ? 'Menolak...' : 'Tolak Seluruh Batch'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAssigningSubmission(reviewingSubmission);
+                  setSelectedValidatorId('');
+                  setReviewingSubmission(null);
+                }}
+                className="inline-flex items-center justify-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-700"
+              >
+                <UserCheck size={14} /> Teruskan ke Validator
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ASSIGN VALIDATOR MODAL */}
       {assigningSubmission && (

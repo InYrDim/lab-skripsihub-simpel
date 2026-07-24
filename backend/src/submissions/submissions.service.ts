@@ -73,6 +73,16 @@ export class SubmissionsService {
       }
     }
 
+    const student = await this.prisma.user.findUnique({
+      where: { id: studentId },
+      select: { dosenPA: true, dosenPANip: true },
+    });
+    if (!student?.dosenPA?.trim() || !student.dosenPANip?.trim()) {
+      throw new BadRequestException(
+        'Nama dan NIP Dosen PA wajib diisi sebelum mengajukan judul skripsi',
+      );
+    }
+
     // 3. Create submission in database
     const now = new Date();
     const submission = await this.prisma.submission.create({
@@ -267,9 +277,7 @@ export class SubmissionsService {
 
     const whereClause: any = {};
     const requestedStatus = query?.status?.toUpperCase();
-    if (requestedStatus === 'REJECTED_BY_ADMIN') {
-      whereClause.id = '__unsupported_rejected_by_admin_status__';
-    } else if (
+    if (
       requestedStatus &&
       Object.values(SubmissionStatus).includes(
         requestedStatus as SubmissionStatus,
@@ -307,8 +315,12 @@ export class SubmissionsService {
       return {
         submissionId: sub.id,
         studentId: sub.studentId,
+        nim: sub.student.universityId,
         studentName: sub.student.fullName,
         studentEmail: sub.student.email,
+        studentProdi: sub.student.prodi,
+        dosenPA: sub.student.dosenPA,
+        dosenPANip: sub.student.dosenPANip,
         status: sub.status.toLowerCase(),
         titles: sub.titles.map((title) => ({
           titleId: title.id,
@@ -316,6 +328,8 @@ export class SubmissionsService {
           description: title.description,
         })),
         submittedAt: sub.submittedAt,
+        rejectedAt: sub.rejectedAt,
+        rejectionReason: sub.adminRejectionReason,
         assignedValidator: latestAssignment
           ? {
               validatorId: latestAssignment.validator.id,
@@ -581,6 +595,62 @@ export class SubmissionsService {
     };
   }
 
+  async rejectSubmissionByAdmin(submissionId: string, rejectionReason: string) {
+    const reason = rejectionReason?.trim();
+    if (!reason || reason.length < 10) {
+      throw new BadRequestException(
+        'Alasan penolakan wajib diisi minimal 10 karakter',
+      );
+    }
+
+    const submission = await this.prisma.submission.findUnique({
+      where: { id: submissionId },
+    });
+    if (!submission) {
+      throw new NotFoundException(
+        `Submission with ID ${submissionId} not found`,
+      );
+    }
+    if (submission.status !== SubmissionStatus.PENDING_ADMIN_REVIEW) {
+      throw new ConflictException(
+        'Hanya pengajuan yang menunggu tinjauan admin yang dapat ditolak',
+      );
+    }
+
+    const rejectedAt = new Date();
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const result = await tx.submission.update({
+        where: { id: submissionId },
+        data: {
+          status: SubmissionStatus.REJECTED_BY_ADMIN,
+          adminRejectionReason: reason,
+          rejectedAt,
+        },
+        include: {
+          student: true,
+          titles: true,
+          assignments: {
+            include: { validator: true, feedback: true },
+          },
+          approvalLetter: true,
+        },
+      });
+
+      await tx.notification.create({
+        data: {
+          userId: submission.studentId,
+          type: NotificationType.FINAL_DECISION,
+          message: `Pengajuan judul skripsi ditolak oleh admin: ${reason}`,
+          relatedSubmissionId: submissionId,
+        },
+      });
+
+      return result;
+    });
+
+    return this.formatSubmissionDetail(updated);
+  }
+
   async getAdminDashboardStats() {
     const [
       totalSubmissions,
@@ -602,7 +672,14 @@ export class SubmissionsService {
         where: { status: SubmissionStatus.APPROVED },
       }),
       this.prisma.submission.count({
-        where: { status: SubmissionStatus.REJECTED_BY_VALIDATOR },
+        where: {
+          status: {
+            in: [
+              SubmissionStatus.REJECTED_BY_ADMIN,
+              SubmissionStatus.REJECTED_BY_VALIDATOR,
+            ],
+          },
+        },
       }),
       this.prisma.user.count({ where: { role: UserRole.STUDENT } }),
       this.prisma.user.count({ where: { role: UserRole.VALIDATOR } }),
@@ -712,7 +789,10 @@ export class SubmissionsService {
     const limit = Number(query?.limit) || 20;
     const skip = (page - 1) * limit;
 
-    const whereClause: any = { validatorId };
+    const whereClause: any = {
+      validatorId,
+      status: AssignmentStatus.PENDING,
+    };
 
     if (query?.status) {
       whereClause.submission = {
@@ -741,10 +821,18 @@ export class SubmissionsService {
     const data = assignments.map((a) => ({
       submissionId: a.submission.id,
       studentId: a.submission.studentId,
+      nim: a.submission.student.universityId,
       studentName: a.submission.student.fullName,
       studentEmail: a.submission.student.email,
+      studentProdi: a.submission.student.prodi,
+      dosenPA: a.submission.student.dosenPA,
+      dosenPANip: a.submission.student.dosenPANip,
       status: a.submission.status.toLowerCase(),
-      titleCount: a.submission.titles.length,
+      titles: a.submission.titles.map((title) => ({
+        titleId: title.id,
+        title: title.title,
+        description: title.description,
+      })),
       submittedAt: a.submission.submittedAt,
       assignedAt: a.assignedAt,
     }));
@@ -1198,6 +1286,10 @@ export class SubmissionsService {
       result.approvedBy =
         latestAssignment?.validator?.fullName || latestAssignment?.validatorId;
       result.letterUrl = submission.approvalLetter?.pdfUrl;
+    } else if (submission.status === SubmissionStatus.REJECTED_BY_ADMIN) {
+      result.rejectedAt = submission.rejectedAt;
+      result.rejectionReason = submission.adminRejectionReason;
+      result.rejectedByName = 'Admin';
     } else if (
       submission.status === SubmissionStatus.REJECTED_BY_VALIDATOR &&
       latestFeedback

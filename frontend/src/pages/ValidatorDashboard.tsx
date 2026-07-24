@@ -114,26 +114,26 @@ export const ValidatorDashboard: React.FC = () => {
     if (s === 'PENDING_VALIDATOR_REVIEW') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-          <Clock size={14} /> Pending Review
+          <Clock size={14} /> Menunggu Penilaian
         </span>
       );
     }
     if (s === 'PENDING_ADMIN_REVIEW') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-          <Clock size={14} /> Pending Admin
+          <Clock size={14} /> Menunggu Admin
         </span>
       );
     }
     if (s === 'APPROVED') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-          <CheckCircle size={14} /> Approved
+          <CheckCircle size={14} /> Disetujui
         </span>
       );
     }
     if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
-      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
+      const label = s === 'REJECTED_BY_ADMIN' ? 'Ditolak Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Ditolak Validator' : 'Ditolak';
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
           <XCircle size={14} /> {label}
@@ -145,23 +145,23 @@ export const ValidatorDashboard: React.FC = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white flex items-center gap-2">
             <FileCheck className="text-emerald-600" size={28} />
-            Validator Review Queue
+            Antrean Penilaian Validator
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Review assigned thesis title proposals, approve single title, or reject with feedback.
+            Tinjau proposal judul skripsi yang ditugaskan, setujui satu judul, atau tolak dengan catatan.
           </p>
         </div>
 
         {/* Assigned Submissions Table */}
-        <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-          <div className="p-5 border-b border-zinc-200 dark:border-zinc-800">
+        <div className="overflow-hidden rounded border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="border-b border-zinc-200 p-4 dark:border-zinc-800">
             <h3 className="font-semibold text-base text-zinc-900 dark:text-white">
-              Assigned Submissions ({submissions.length})
+              Pengajuan yang Ditugaskan ({submissions.length})
             </h3>
           </div>
 
@@ -169,55 +169,93 @@ export const ValidatorDashboard: React.FC = () => {
             <table className="w-full text-sm text-left">
               <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
                 <tr>
-                  <th className="px-6 py-3.5 font-medium">Submission ID</th>
-                  <th className="px-6 py-3.5 font-medium">Student Name</th>
-                  <th className="px-6 py-3.5 font-medium">Titles Count</th>
-                  <th className="px-6 py-3.5 font-medium">Assigned Date</th>
-                  <th className="px-6 py-3.5 font-medium">Status</th>
-                  <th className="px-6 py-3.5 font-medium text-right">Actions</th>
+                  <th className="px-4 py-2.5 font-medium">ID</th>
+                  <th className="px-4 py-2.5 font-medium">Mahasiswa</th>
+                  <th className="px-4 py-2.5 font-medium">Judul</th>
+                  <th className="px-4 py-2.5 font-medium">Dosen PA</th>
+                  <th className="px-4 py-2.5 font-medium">Ditugaskan</th>
+                  <th className="px-4 py-2.5 font-medium">Status</th>
+                  <th className="px-4 py-2.5 font-medium text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-zinc-400 text-xs">
-                      Loading assigned review queue...
+                    <td colSpan={7} className="px-4 py-8 text-center text-zinc-400 text-xs">
+                      Memuat antrean penilaian...
                     </td>
                   </tr>
                 ) : submissions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-zinc-400 text-xs">
-                      No submissions currently assigned for review.
+                    <td colSpan={7} className="px-4 py-8 text-center text-zinc-400 text-xs">
+                      Belum ada pengajuan yang ditugaskan untuk dinilai.
                     </td>
                   </tr>
                 ) : (
                   submissions.map((sub) => (
                     <tr key={sub.submissionId} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
-                      <td className="px-6 py-4 font-mono text-xs text-zinc-500">{sub.submissionId}</td>
-                      <td className="px-6 py-4 font-medium text-xs text-zinc-900 dark:text-zinc-100">
-                        {sub.studentName || 'Student'}
+                      <td
+                        className="px-4 py-3 font-mono text-xs text-zinc-500"
+                        title={sub.submissionId}
+                      >
+                        {sub.submissionId.slice(0, 5)}...
                       </td>
-                      <td className="px-6 py-4 text-xs font-semibold">
-                        {sub.titles ? `${sub.titles.length} proposed` : `${sub.titleCount || 1} proposed`}
+                      <td className="px-4 py-3">
+                        <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
+                          {sub.studentName || 'Mahasiswa'}
+                        </div>
+                        <div className="mt-0.5 flex items-center gap-2 text-[11px] text-zinc-400">
+                          <span>{sub.nim || 'NIM tidak tersedia'}</span>
+                          {sub.studentProdi && (
+                            <span className="rounded bg-orange-100 px-1.5 py-0.5 font-bold uppercase tracking-wider text-orange-700 dark:bg-orange-900/50 dark:text-orange-400">
+                              {sub.studentProdi}
+                            </span>
+                          )}
+                        </div>
                       </td>
-                      <td className="px-6 py-4 text-xs whitespace-nowrap">
-                        {sub.assignedAt ? new Date(sub.assignedAt).toLocaleDateString() : 'Recent'}
+                      <td className="px-4 py-3">
+                        {sub.titles?.length ? (
+                          <ol className="min-w-56 max-w-md list-decimal space-y-1 pl-4 text-xs text-zinc-700 dark:text-zinc-300">
+                            {sub.titles.map((title) => (
+                              <li key={title.titleId} className="pl-1 leading-relaxed">
+                                {title.title}
+                              </li>
+                            ))}
+                          </ol>
+                        ) : (
+                          <span className="text-xs italic text-zinc-400">Judul tidak tersedia</span>
+                        )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(sub.status)}</td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-4 py-3 text-xs">
+                        <div className="font-medium text-zinc-800 dark:text-zinc-200">
+                          {sub.dosenPA || 'Belum diatur'}
+                        </div>
+                        {sub.dosenPANip && (
+                          <div className="mt-0.5 font-mono text-[11px] text-zinc-400">
+                            NIP {sub.dosenPANip}
+                          </div>
+                        )}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-xs">
+                        {sub.assignedAt
+                          ? new Date(sub.assignedAt).toLocaleDateString('id-ID')
+                          : 'Baru saja'}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3">{getStatusBadge(sub.status)}</td>
+                      <td className="px-4 py-3 text-right">
                         {sub.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW' ? (
                           <button
                             onClick={() => openReviewModal(sub)}
                             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
                           >
-                            <FileText size={14} /> Review Submission
+                            <FileText size={14} /> Tinjau Pengajuan
                           </button>
                         ) : (
                           <button
                             onClick={() => openReviewModal(sub)}
                             className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline font-medium"
                           >
-                            View Decision
+                            Lihat Keputusan
                           </button>
                         )}
                       </td>

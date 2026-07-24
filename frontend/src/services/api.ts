@@ -12,6 +12,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 type ApiUser = Omit<User, 'name' | 'userId' | 'status'> & {
   fullName: string;
   universityId: string;
+  dosenPA?: string;
+  dosenPANip?: string;
   isActive: boolean;
 };
 
@@ -145,6 +147,16 @@ class ApiClient {
     });
   }
 
+  rejectSubmissionByAdmin(
+    submissionId: string,
+    rejectionReason: string,
+  ): Promise<ApiResponse<Submission>> {
+    return this.request<Submission>(`/admin/submissions/${submissionId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ rejectionReason }),
+    });
+  }
+
   getValidators(): Promise<ApiResponse<ValidatorInfo[]>> {
     return this.request<ValidatorInfo[]>('/admin/validators');
   }
@@ -164,6 +176,8 @@ class ApiClient {
         universityId: user.userId,
         department: user.department,
         prodi: user.prodi,
+        dosenPA: user.dosenPA,
+        dosenPANip: user.dosenPANip,
       }),
     });
   }
@@ -178,6 +192,8 @@ class ApiClient {
         universityId: user.userId,
         department: user.department,
         prodi: user.prodi,
+        dosenPA: user.dosenPA,
+        dosenPANip: user.dosenPANip,
       }),
     });
   }

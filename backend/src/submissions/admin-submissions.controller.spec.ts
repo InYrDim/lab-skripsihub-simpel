@@ -10,6 +10,7 @@ describe('AdminSubmissionsController', () => {
     getAdminSubmissions: jest.fn(),
     getAdminSubmissionById: jest.fn(),
     assignValidator: jest.fn(),
+    rejectSubmissionByAdmin: jest.fn(),
     getAdminValidators: jest.fn(),
   };
 
@@ -74,6 +75,29 @@ describe('AdminSubmissionsController', () => {
       expect(res.success).toBe(true);
       expect(res.data).toEqual(assigned);
       expect(service.assignValidator).toHaveBeenCalledWith('sub-1', 'val-1');
+    });
+  });
+
+  describe('rejectSubmission', () => {
+    it('should reject a batch with the admin reason', async () => {
+      const rejected = {
+        submissionId: 'sub-1',
+        status: 'rejected_by_admin',
+      };
+      mockSubmissionsService.rejectSubmissionByAdmin.mockResolvedValue(
+        rejected,
+      );
+
+      const result = await controller.rejectSubmission('sub-1', {
+        rejectionReason: 'Judul belum memenuhi standar akademik.',
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual(rejected);
+      expect(service.rejectSubmissionByAdmin).toHaveBeenCalledWith(
+        'sub-1',
+        'Judul belum memenuhi standar akademik.',
+      );
     });
   });
 

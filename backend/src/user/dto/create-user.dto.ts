@@ -8,4 +8,6 @@ export class CreateUserDto {
   universityId: string;
   department?: string;
   prodi?: ProgramStudi;
+  dosenPA?: string;
+  dosenPANip?: string;
 }

@@ -45,6 +45,12 @@ export class UserService {
         ...(createUserDto.prodi !== undefined && {
           prodi: createUserDto.prodi,
         }),
+        ...(createUserDto.dosenPA !== undefined && {
+          dosenPA: createUserDto.dosenPA,
+        }),
+        ...(createUserDto.dosenPANip !== undefined && {
+          dosenPANip: createUserDto.dosenPANip,
+        }),
       },
     });
   }
@@ -76,6 +82,12 @@ export class UserService {
         department: updateUserDto.department,
       }),
       ...(updateUserDto.prodi !== undefined && { prodi: updateUserDto.prodi }),
+      ...(updateUserDto.dosenPA !== undefined && {
+        dosenPA: updateUserDto.dosenPA,
+      }),
+      ...(updateUserDto.dosenPANip !== undefined && {
+        dosenPANip: updateUserDto.dosenPANip,
+      }),
       ...(updateUserDto.password && {
         passwordHash: await bcrypt.hash(updateUserDto.password, 10),
       }),

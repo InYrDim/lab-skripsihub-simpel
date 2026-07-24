@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import type { Submission, SubmissionStatus, Topic } from '../types';
@@ -21,10 +21,13 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
+const MAX_PROPOSAL_FILE_SIZE = 5 * 1024 * 1024;
+
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
   const { showToast } = useToast();
   const [currentSubmission, setCurrentSubmission] = useState<Submission | null>(null);
+  const [lastSubmission, setLastSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<Submission | null>(null);
@@ -39,19 +42,33 @@ export const StudentDashboard: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   
   // Multi-step state
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [proposalFile, setProposalFile] = useState<File | null>(null);
+  const proposalPreviewUrl = useMemo(
+    () => (proposalFile ? URL.createObjectURL(proposalFile) : null),
+    [proposalFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (proposalPreviewUrl) URL.revokeObjectURL(proposalPreviewUrl);
+    };
+  }, [proposalPreviewUrl]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [currentRes, topicsRes] = await Promise.all([
+      const [currentRes, historyRes, topicsRes] = await Promise.all([
         api.getCurrentSubmission(),
+        api.getStudentSubmissions(),
         api.getTopics()
       ]);
       
       if (currentRes.success) {
         setCurrentSubmission(currentRes.data);
+      }
+      if (historyRes.success) {
+        setLastSubmission(historyRes.data?.[0] || null);
       }
       if (topicsRes.success) {
         setAvailableTopics(topicsRes.data);
@@ -121,10 +138,54 @@ export const StudentDashboard: React.FC = () => {
     setStep(2);
   };
 
+  const handleFileStep = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!proposalFile) {
+      showToast('Mohon unggah dokumen proposal PDF Anda.', 'error');
+      return;
+    }
+    if (proposalFile.type !== 'application/pdf') {
+      showToast('Berkas pengajuan harus berformat PDF.', 'error');
+      return;
+    }
+
+    setStep(3);
+  };
+
+  const handleSaveDraft = () => {
+    localStorage.setItem(
+      'thesis_submission_draft',
+      JSON.stringify({ titles, savedAt: new Date().toISOString() }),
+    );
+    setShowCreateModal(false);
+    setStep(1);
+    setProposalFile(null);
+    showToast(
+      'Draf disimpan. Berkas PDF perlu dipilih ulang saat melanjutkan.',
+      'success',
+    );
+  };
+
+  const openSubmissionModal = () => {
+    const savedDraft = localStorage.getItem('thesis_submission_draft');
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft) as { titles?: typeof titles };
+        if (parsed.titles?.length === 3) setTitles(parsed.titles);
+      } catch {
+        localStorage.removeItem('thesis_submission_draft');
+      }
+    }
+    setStep(1);
+    setProposalFile(null);
+    setShowCreateModal(true);
+  };
+
   const handleFinalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!proposalFile) {
-      showToast('Mohon unggah dokumen proposal Anda.', 'error');
+      showToast('Mohon unggah dokumen proposal PDF Anda.', 'error');
+      setStep(2);
       return;
     }
 
@@ -139,6 +200,7 @@ export const StudentDashboard: React.FC = () => {
       if (res.success) {
         setShowCreateModal(false);
         resetForm();
+        localStorage.removeItem('thesis_submission_draft');
         await fetchData();
         showToast('Berhasil mengajukan judul skripsi baru.', 'success');
       } else {
@@ -208,7 +270,7 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           <button
-            onClick={() => setShowCreateModal(true)}
+            onClick={openSubmissionModal}
             disabled={loading || hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip}
             title={loading ? 'Memuat status...' : hasActiveSubmission ? 'Pengajuan aktif sedang ditinjau' : (!user?.dosenPA || !user?.dosenPANip) ? 'Mohon atur Dosen PA Anda terlebih dahulu' : 'Ajukan Judul Skripsi Baru'}
             className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded font-semibold text-sm transition-all ${
@@ -249,6 +311,63 @@ export const StudentDashboard: React.FC = () => {
             </div>
           </div>
         )}
+
+        {/* Latest Submission Summary */}
+        <section className="overflow-hidden rounded border border-zinc-300 bg-linear-to-br from-white via-zinc-50 to-zinc-100 shadow-sm dark:border-zinc-700 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-900">
+          <div className="flex flex-col justify-between gap-3 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2">
+              <span className="flex h-8 w-8 items-center justify-center rounded bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
+                <FileText size={16} />
+              </span>
+              <div>
+                <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Pengajuan Terakhir</h2>
+                <p className="text-[11px] text-zinc-500">Ringkasan pengajuan terbaru Anda</p>
+              </div>
+            </div>
+            {lastSubmission && getStatusBadge(lastSubmission.status)}
+          </div>
+
+          {loading ? (
+            <div className="px-4 py-5 text-xs text-zinc-500">Memuat pengajuan terakhir...</div>
+          ) : lastSubmission ? (
+            <div className="grid gap-4 px-4 py-4 sm:grid-cols-[10rem_minmax(0,1fr)]">
+              <dl className="space-y-3 text-xs">
+                <div>
+                  <dt className="text-zinc-500">ID Pengajuan</dt>
+                  <dd className="mt-0.5 font-mono font-semibold text-zinc-900 dark:text-zinc-100" title={lastSubmission.submissionId}>
+                    {lastSubmission.submissionId.slice(0, 8)}...
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-zinc-500">Tanggal Pengajuan</dt>
+                  <dd className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">
+                    {lastSubmission.submittedAt
+                      ? new Date(lastSubmission.submittedAt).toLocaleDateString('id-ID', {
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric',
+                        })
+                      : '-'}
+                  </dd>
+                </div>
+              </dl>
+              <div>
+                <h3 className="text-xs font-semibold text-zinc-500">Judul yang Diajukan</h3>
+                <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-xs text-zinc-700 dark:text-zinc-300">
+                  {lastSubmission.titles.map((title, index) => (
+                    <li key={title.titleId || index} className="pl-1 leading-relaxed">
+                      {title.title}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          ) : (
+            <div className="px-4 py-5 text-xs text-zinc-500">
+              Belum ada pengajuan skripsi. Pengajuan terbaru akan tampil di sini.
+            </div>
+          )}
+        </section>
 
         {/* Active Submission Card */}
         {loading ? (
@@ -323,7 +442,7 @@ export const StudentDashboard: React.FC = () => {
                     Proposal Ditolak oleh {currentSubmission.rejectedByName || 'Admin/Validator'}
                   </div>
                   <button
-                    onClick={() => setShowCreateModal(true)}
+                    onClick={openSubmissionModal}
                     className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition-colors shadow-sm"
                   >
                     <FilePlus size={14} /> Buat Pengajuan Baru
@@ -357,7 +476,7 @@ export const StudentDashboard: React.FC = () => {
               Anda tidak memiliki usulan skripsi yang sedang ditinjau. Klik di bawah untuk mengajukan hingga 3 usulan judul skripsi.
             </p>
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={openSubmissionModal}
               disabled={!user?.dosenPA || !user?.dosenPANip}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold transition-colors ${
                 (!user?.dosenPA || !user?.dosenPANip)
@@ -374,24 +493,16 @@ export const StudentDashboard: React.FC = () => {
       {/* CREATE SUBMISSION MODAL */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
-          <div className="bg-white dark:bg-zinc-950 rounded max-w-xl w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="flex h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950">
+            <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
               <div>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                   <FilePlus className="text-orange-600" size={20} />
                   Ajukan Usulan Judul Skripsi
                 </h2>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className={`flex items-center gap-1.5 text-[11px] font-semibold ${step === 1 ? 'text-orange-600' : 'text-zinc-400'}`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 1 ? 'bg-orange-600 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>1</span>
-                    Data Akademik
-                  </div>
-                  <div className="w-6 h-px bg-zinc-300 dark:bg-zinc-700" />
-                  <div className={`flex items-center gap-1.5 text-[11px] font-semibold ${step === 2 ? 'text-orange-600' : 'text-zinc-400'}`}>
-                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step === 2 ? 'bg-orange-600 text-white' : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-500'}`}>2</span>
-                    Upload Berkas
-                  </div>
-                </div>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  Lengkapi setiap tahap untuk mengirim pengajuan.
+                </p>
               </div>
               <button
                 onClick={() => setShowCreateModal(false)}
@@ -401,7 +512,92 @@ export const StudentDashboard: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={step === 1 ? handleNextStep : handleFinalSubmit} className="space-y-4">
+            <div className="mt-4 grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] gap-5 overflow-hidden sm:grid-cols-[11rem_minmax(0,1fr)] sm:grid-rows-1">
+              <aside className="shrink-0 overflow-hidden border-b border-zinc-200 pb-4 dark:border-zinc-800 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-5">
+                <ol className="relative space-y-0" aria-label="Tahapan pengajuan judul skripsi">
+                  <li className="relative flex gap-3 pb-8">
+                    <span
+                      className={`absolute left-3.75 top-8 h-[calc(100%-2rem)] w-px ${
+                        step > 1
+                          ? 'bg-orange-500'
+                          : 'bg-zinc-200 dark:bg-zinc-700'
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span
+                      className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors ${
+                        step === 1
+                          ? 'border-orange-600 bg-orange-600 text-white shadow-sm shadow-orange-200 dark:shadow-orange-950'
+                          : 'border-orange-500 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400'
+                      }`}
+                    >
+                      {step > 1 ? <CheckCircle size={16} /> : '1'}
+                    </span>
+                    <div className="pt-0.5">
+                      <p className={`text-xs font-semibold ${step === 1 ? 'text-orange-600 dark:text-orange-400' : 'text-zinc-900 dark:text-zinc-100'}`}>
+                        Data Akademik
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
+                        Isi tiga usulan judul dan topik.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="relative flex gap-3 pb-8">
+                    <span
+                      className={`absolute left-3.75 top-8 h-[calc(100%-2rem)] w-px ${
+                        step === 3
+                          ? 'bg-orange-500'
+                          : 'bg-zinc-200 dark:bg-zinc-700'
+                      }`}
+                      aria-hidden="true"
+                    />
+                    <span
+                      className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors ${
+                        step === 2
+                          ? 'border-orange-600 bg-orange-600 text-white shadow-sm shadow-orange-200 dark:shadow-orange-950'
+                          : step === 3
+                            ? 'border-orange-500 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400'
+                            : 'border-zinc-200 bg-white text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900'
+                      }`}
+                    >
+                      {step === 3 ? <CheckCircle size={16} /> : '2'}
+                    </span>
+                    <div className="pt-0.5">
+                      <p className={`text-xs font-semibold ${step === 2 ? 'text-orange-600 dark:text-orange-400' : step === 3 ? 'text-zinc-900 dark:text-zinc-100' : 'text-zinc-500'}`}>
+                        Unggah Berkas
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
+                        Unduh template dan unggah proposal.
+                      </p>
+                    </div>
+                  </li>
+                  <li className="relative flex gap-3">
+                    <span
+                      className={`relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors ${
+                        step === 3
+                          ? 'border-orange-600 bg-orange-600 text-white shadow-sm shadow-orange-200 dark:shadow-orange-950'
+                          : 'border-zinc-200 bg-white text-zinc-400 dark:border-zinc-700 dark:bg-zinc-900'
+                      }`}
+                    >
+                      3
+                    </span>
+                    <div className="pt-0.5">
+                      <p className={`text-xs font-semibold ${step === 3 ? 'text-orange-600 dark:text-orange-400' : 'text-zinc-500'}`}>
+                        Verifikasi Data
+                      </p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">
+                        Periksa seluruh data sebelum dikirim.
+                      </p>
+                    </div>
+                  </li>
+                </ol>
+              </aside>
+
+              <form
+                onSubmit={step === 1 ? handleNextStep : step === 2 ? handleFileStep : handleFinalSubmit}
+                className="flex min-h-0 min-w-0 flex-col overflow-hidden"
+              >
+                <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
               {step === 1 && (
                 <>
                   <div className="p-3 bg-orange-50/50 dark:bg-orange-500/10 rounded text-xs text-orange-700 dark:text-orange-300 flex items-start gap-2">
@@ -482,12 +678,22 @@ export const StudentDashboard: React.FC = () => {
                     <input
                       type="file"
                       id="proposal-upload"
-                      accept=".pdf,.doc,.docx"
+                      accept="application/pdf,.pdf"
                       className="hidden"
                       onChange={(e) => {
-                        if (e.target.files && e.target.files[0]) {
-                          setProposalFile(e.target.files[0]);
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        if (file.type !== 'application/pdf') {
+                          showToast('Berkas pengajuan harus berformat PDF.', 'error');
+                          e.target.value = '';
+                          return;
                         }
+                        if (file.size > MAX_PROPOSAL_FILE_SIZE) {
+                          showToast('Ukuran berkas PDF maksimal 5MB.', 'error');
+                          e.target.value = '';
+                          return;
+                        }
+                        setProposalFile(file);
                       }}
                     />
                     <label
@@ -498,49 +704,134 @@ export const StudentDashboard: React.FC = () => {
                       <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                         {proposalFile ? proposalFile.name : 'Klik untuk mengunggah berkas'}
                       </span>
-                      <span className="text-xs text-zinc-500">PDF, DOC, atau DOCX (Maks 5MB)</span>
+                      <span className="text-xs text-zinc-500">PDF (Maks 5MB)</span>
                     </label>
+
+                    {proposalFile && (
+                      <div className="mx-auto mt-5 max-w-sm text-left">
+                        <div className="mb-1.5 flex items-center justify-between text-[11px] font-medium text-zinc-500">
+                          <span>
+                            {(proposalFile.size / 1024 / 1024).toFixed(2)} MB dari 5 MB
+                          </span>
+                          <span>
+                            {Math.min(
+                              100,
+                              Math.round(
+                                (proposalFile.size / MAX_PROPOSAL_FILE_SIZE) * 100,
+                              ),
+                            )}%
+                          </span>
+                        </div>
+                        <div
+                          className="h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700"
+                          role="progressbar"
+                          aria-label="Persentase ukuran berkas pengajuan"
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={Math.min(
+                            100,
+                            Math.round(
+                              (proposalFile.size / MAX_PROPOSAL_FILE_SIZE) * 100,
+                            ),
+                          )}
+                        >
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              proposalFile.size / MAX_PROPOSAL_FILE_SIZE >= 0.8
+                                ? 'bg-amber-500'
+                                : 'bg-emerald-500'
+                            }`}
+                            style={{
+                              width: `${Math.min(
+                                100,
+                                (proposalFile.size / MAX_PROPOSAL_FILE_SIZE) * 100,
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
 
-              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                {step === 1 ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setShowCreateModal(false)}
-                      className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                    >
-                      Batal
-                    </button>
-                    <button
-                      type="submit"
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-colors"
-                    >
-                      Selanjutnya <ArrowRight size={14} />
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => setStep(1)}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                    >
-                      <ArrowLeft size={14} /> Kembali
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50 transition-colors"
-                    >
-                      {submitting ? 'Mengirim...' : 'Ajukan Proposal'}
-                    </button>
-                  </>
-                )}
+              {step === 3 && (
+                <div className="space-y-4">
+                  <div className="rounded border border-orange-200 bg-orange-50/60 p-3 text-xs text-orange-800 dark:border-orange-500/20 dark:bg-orange-500/10 dark:text-orange-300">
+                    Pastikan seluruh data berikut sudah benar sebelum mengirim pengajuan.
+                  </div>
+
+                  <section className="grid gap-3 rounded border border-zinc-200 p-4 text-xs dark:border-zinc-800 sm:grid-cols-2">
+                    <div><span className="text-zinc-500">NIM</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{user?.userId || '-'}</p></div>
+                    <div><span className="text-zinc-500">Nama</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{user?.name || '-'}</p></div>
+                    <div><span className="text-zinc-500">Jurusan</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{user?.department || '-'}</p></div>
+                    <div><span className="text-zinc-500">Program Studi</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{user?.prodi || '-'}</p></div>
+                    <div className="sm:col-span-2"><span className="text-zinc-500">Dosen PA</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{user?.dosenPA || '-'}{user?.dosenPANip ? ` — NIP ${user.dosenPANip}` : ''}</p></div>
+                  </section>
+
+                  <section className="rounded border border-zinc-200 p-4 dark:border-zinc-800">
+                    <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Daftar Judul yang Diajukan</h3>
+                    <ol className="mt-3 list-decimal space-y-3 pl-5">
+                      {titles.map((title, index) => (
+                        <li key={index} className="pl-1 text-xs text-zinc-700 dark:text-zinc-300">
+                          <p className="font-semibold text-zinc-900 dark:text-zinc-100">{title.title}</p>
+                          <p className="mt-0.5 text-[11px] font-medium text-orange-600 dark:text-orange-400">{title.topic}</p>
+                          <p className="mt-1 leading-relaxed text-zinc-500">{title.description}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  </section>
+
+                  <section className="rounded border border-zinc-200 p-4 dark:border-zinc-800">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <div>
+                        <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Pratinjau Berkas Pengajuan</h3>
+                        <p className="mt-0.5 text-[11px] text-zinc-500">{proposalFile?.name} · {proposalFile ? `${(proposalFile.size / 1024 / 1024).toFixed(2)} MB` : '-'}</p>
+                      </div>
+                      <button type="button" onClick={() => setStep(2)} className="text-xs font-semibold text-orange-600 hover:text-orange-700">Ganti Berkas</button>
+                    </div>
+                    {proposalPreviewUrl && (
+                      <iframe
+                        src={proposalPreviewUrl}
+                        title="Pratinjau berkas pengajuan skripsi"
+                        className="h-80 w-full rounded border border-zinc-200 bg-white dark:border-zinc-700"
+                      />
+                    )}
+                  </section>
+                </div>
+              )}
+
+                </div>
+
+              <div className="mt-3 flex shrink-0 flex-col gap-2 border-t border-zinc-200 bg-white pt-3 dark:border-zinc-800 dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between">
+                <button
+                  type="button"
+                  onClick={handleSaveDraft}
+                  className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                >
+                  Simpan sebagai Draf
+                </button>
+                <div className="flex justify-end gap-2">
+                  {step === 1 ? (
+                    <>
+                      <button type="button" onClick={() => setShowCreateModal(false)} className="rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">Batal</button>
+                      <button type="submit" className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700">Selanjutnya <ArrowRight size={14} /></button>
+                    </>
+                  ) : step === 2 ? (
+                    <>
+                      <button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"><ArrowLeft size={14} /> Kembali</button>
+                      <button type="submit" className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700">Verifikasi Data <ArrowRight size={14} /></button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" onClick={() => setStep(2)} className="inline-flex items-center gap-1.5 rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"><ArrowLeft size={14} /> Kembali</button>
+                      <button type="submit" disabled={submitting} className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700 disabled:opacity-50">{submitting ? 'Mengirim...' : 'Ajukan Proposal'}</button>
+                    </>
+                  )}
+                </div>
               </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}

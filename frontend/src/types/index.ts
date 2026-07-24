@@ -76,6 +76,8 @@ export interface Submission {
   studentEmail?: string;
   studentPhone?: string;
   studentProdi?: 'PTIK' | 'TEKOM';
+  dosenPA?: string | null;
+  dosenPANip?: string | null;
   status: SubmissionStatus;
   titles: ProposedTitle[];
   submittedAt: string;

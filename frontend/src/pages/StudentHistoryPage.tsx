@@ -115,7 +115,7 @@ export const StudentHistoryPage: React.FC = () => {
                           {sub.titles && sub.titles.length > 0 ? (
                             <ul className="flex flex-col gap-4">
                               {sub.titles.map((t, i) => (
-                                <li key={i} className="flex gap-2 text-xs leading-relaxed min-h-[2.5rem]">
+                                <li key={i} className="flex gap-2 text-xs leading-relaxed">
                                   <span className="text-zinc-400 shrink-0">{i + 1}.</span>
                                   <div className="flex flex-col">
                                     <span className={`${sub.approvedTitle === t.title ? 'text-emerald-700 dark:text-emerald-400 font-bold' : 'text-zinc-700 dark:text-zinc-300'} line-clamp-2`}>
@@ -138,7 +138,7 @@ export const StudentHistoryPage: React.FC = () => {
                           {sub.titles && sub.titles.length > 0 ? (
                             <ul className="flex flex-col gap-4">
                               {sub.titles.map((t, i) => (
-                                <li key={i} className="text-[10px] font-bold text-zinc-500 uppercase min-h-[2.5rem] pt-0.5">
+                                <li key={i} className="text-[10px] font-bold text-zinc-500 uppercase pt-0.5">
                                   {t.topic || '-'}
                                 </li>
                               ))}

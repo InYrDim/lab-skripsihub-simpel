@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { AssignSubmissionDto } from './dto/assign-submission.dto';
+import { RejectSubmissionDto } from './dto/reject-submission.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -70,6 +71,22 @@ export class AdminSubmissionsController {
       success: true,
       data: result,
       message: 'Submission assigned to validator successfully',
+    };
+  }
+
+  @Post('submissions/:submissionId/reject')
+  @Roles('ADMIN')
+  async rejectSubmission(
+    @Param('submissionId') submissionId: string,
+    @Body() rejectDto: RejectSubmissionDto,
+  ) {
+    return {
+      success: true,
+      data: await this.submissionsService.rejectSubmissionByAdmin(
+        submissionId,
+        rejectDto.rejectionReason,
+      ),
+      message: 'Batch pengajuan berhasil ditolak',
     };
   }
 

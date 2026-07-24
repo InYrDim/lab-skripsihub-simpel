@@ -21,6 +21,8 @@ describe('SubmissionsService', () => {
     fullName: 'John Doe',
     email: 'john@student.edu',
     role: UserRole.STUDENT,
+    dosenPA: 'Dr. Academic Advisor',
+    dosenPANip: '197001011995031001',
     isActive: true,
   };
 
@@ -113,6 +115,7 @@ describe('SubmissionsService', () => {
 
     service = module.get<SubmissionsService>(SubmissionsService);
     jest.clearAllMocks();
+    mockPrismaService.user.findUnique.mockResolvedValue(mockStudent);
   });
 
   it('should be defined', () => {
@@ -212,6 +215,22 @@ describe('SubmissionsService', () => {
           titles: [{ title: 'Valid Proposal Title with Sufficient Length' }],
         }),
       ).rejects.toThrow(ConflictException);
+    });
+
+    it('should require academic advisor data before submission', async () => {
+      mockPrismaService.submission.findFirst.mockResolvedValue(null);
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        dosenPA: null,
+        dosenPANip: null,
+      });
+
+      await expect(
+        service.createSubmission('student-1', {
+          titles: [{ title: 'A valid proposed thesis title' }],
+        }),
+      ).rejects.toThrow(
+        'Nama dan NIP Dosen PA wajib diisi sebelum mengajukan judul skripsi',
+      );
     });
 
     it('should throw BadRequestException if any title length is less than 10 chars', async () => {
@@ -333,6 +352,52 @@ describe('SubmissionsService', () => {
         },
       });
       expect(result.data[0].status).toBe('rejected_by_validator');
+    });
+  });
+
+  describe('rejectSubmissionByAdmin', () => {
+    it('should reject the entire batch while it awaits admin review', async () => {
+      const rejectedSubmission = {
+        ...mockSubmission,
+        status: SubmissionStatus.REJECTED_BY_ADMIN,
+        adminRejectionReason: 'Judul belum memenuhi standar akademik.',
+        rejectedAt: mockDate,
+      };
+      mockPrismaService.submission.findUnique.mockResolvedValue(mockSubmission);
+      mockPrismaService.submission.update.mockResolvedValue(rejectedSubmission);
+
+      const result = await service.rejectSubmissionByAdmin(
+        'sub-1',
+        'Judul belum memenuhi standar akademik.',
+      );
+
+      expect(mockPrismaService.submission.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'sub-1' },
+          data: expect.objectContaining({
+            status: SubmissionStatus.REJECTED_BY_ADMIN,
+            adminRejectionReason: 'Judul belum memenuhi standar akademik.',
+          }),
+        }),
+      );
+      expect(result.status).toBe('rejected_by_admin');
+      expect(result.rejectionReason).toBe(
+        'Judul belum memenuhi standar akademik.',
+      );
+    });
+
+    it('should reject an admin decision outside admin review', async () => {
+      mockPrismaService.submission.findUnique.mockResolvedValue({
+        ...mockSubmission,
+        status: SubmissionStatus.PENDING_VALIDATOR_REVIEW,
+      });
+
+      await expect(
+        service.rejectSubmissionByAdmin(
+          'sub-1',
+          'Alasan penolakan yang cukup panjang.',
+        ),
+      ).rejects.toThrow(ConflictException);
     });
   });
 
