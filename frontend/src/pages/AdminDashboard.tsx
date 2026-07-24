@@ -682,10 +682,10 @@ export const AdminDashboard: React.FC = () => {
                 <Select
                   value={selectedValidatorId}
                   onChange={(val) => setSelectedValidatorId(val)}
-                  placeholder="Select validator..."
+                  placeholder="Pilih validator..."
                   options={validators.map((val) => ({
                     value: val.validatorId,
-                    label: `${val.name} (${val.department || 'CS'}) — ${val.assignedSubmissions || 0} assigned`
+                    label: `${val.name} (${val.department || 'Tanpa departemen'}) — ${val.assignedSubmissions || 0} pengajuan aktif`
                   }))}
                   className="w-full"
                 />
