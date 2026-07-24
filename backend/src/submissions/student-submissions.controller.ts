@@ -6,7 +6,15 @@ import {
   Param,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { mkdirSync } from 'node:fs';
+import { extname, join } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { SubmissionsService } from './submissions.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -31,14 +39,55 @@ export class StudentSubmissionsController {
 
   @Post()
   @Roles('STUDENT')
+  @UseInterceptors(
+    FileInterceptor('document', {
+      storage: diskStorage({
+        destination: (_request, _file, callback) => {
+          const directory = join(process.cwd(), 'uploads', 'proposals');
+          mkdirSync(directory, { recursive: true });
+          callback(null, directory);
+        },
+        filename: (_request, file, callback) => {
+          callback(
+            null,
+            `${randomUUID()}${extname(file.originalname).toLowerCase()}`,
+          );
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter: (_request, file, callback) => {
+        if (file.mimetype !== 'application/pdf') {
+          callback(
+            new BadRequestException('Berkas harus berformat PDF'),
+            false,
+          );
+          return;
+        }
+        callback(null, true);
+      },
+    }),
+  )
   async create(
     @CurrentUser() user: RequestUser,
-    @Body() createSubmissionDto: CreateSubmissionDto,
+    @Body() body: { titles: string },
+    @UploadedFile() document?: Express.Multer.File,
   ) {
-    const result = await this.submissionsService.createSubmission(
-      user.id,
-      createSubmissionDto,
-    );
+    if (!document) {
+      throw new BadRequestException('Berkas pengajuan PDF wajib diunggah');
+    }
+
+    let titles: CreateSubmissionDto['titles'];
+    try {
+      titles = JSON.parse(body.titles) as CreateSubmissionDto['titles'];
+    } catch {
+      throw new BadRequestException('Data judul pengajuan tidak valid');
+    }
+
+    const result = await this.submissionsService.createSubmission(user.id, {
+      titles,
+      documentUrl: `/uploads/proposals/${document.filename}`,
+      documentName: document.originalname,
+    });
     return {
       success: true,
       data: result,

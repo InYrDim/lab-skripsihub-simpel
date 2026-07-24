@@ -276,7 +276,7 @@ export const ValidatorDashboard: React.FC = () => {
               <div>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
                   <FileCheck size={20} className="text-emerald-600" />
-                  Review Thesis Proposal
+                  Tinjau Proposal Skripsi
                 </h2>
                 <p className="text-xs text-zinc-400 font-mono">ID: {selectedSubmission.submissionId}</p>
               </div>
@@ -297,6 +297,41 @@ export const ValidatorDashboard: React.FC = () => {
               </div>
               <div>{getStatusBadge(selectedSubmission.status)}</div>
             </div>
+
+            <section className="rounded border border-zinc-200 p-4 dark:border-zinc-800">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                    Berkas Pengajuan
+                  </h3>
+                  <p className="mt-0.5 text-[11px] text-zinc-500">
+                    {selectedSubmission.documentName || 'Dokumen proposal PDF'}
+                  </p>
+                </div>
+                {selectedSubmission.documentUrl && (
+                  <a
+                    href={api.getAssetUrl(selectedSubmission.documentUrl)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-semibold text-orange-600 hover:text-orange-700"
+                  >
+                    Buka di Tab Baru
+                  </a>
+                )}
+              </div>
+
+              {selectedSubmission.documentUrl ? (
+                <iframe
+                  src={api.getAssetUrl(selectedSubmission.documentUrl)}
+                  title="Pratinjau berkas pengajuan skripsi"
+                  className="h-80 w-full rounded border border-zinc-200 bg-white dark:border-zinc-700"
+                />
+              ) : (
+                <div className="rounded bg-zinc-50 px-3 py-6 text-center text-xs text-zinc-500 dark:bg-zinc-900">
+                  Berkas PDF belum tersedia untuk pengajuan ini.
+                </div>
+              )}
+            </section>
 
             {reviewError && (
               <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs rounded flex items-center gap-2">

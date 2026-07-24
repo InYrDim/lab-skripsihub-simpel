@@ -64,6 +64,8 @@ model Submission {
   submittedAt      DateTime? @map("submitted_at")
   adminRejectionReason String? @db.Text @map("admin_rejection_reason")
   rejectedAt       DateTime? @map("rejected_at")
+  documentUrl      String?  @db.VarChar(1024) @map("document_url")
+  documentName     String?  @db.VarChar(255) @map("document_name")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 

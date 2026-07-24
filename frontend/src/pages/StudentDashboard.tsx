@@ -191,11 +191,7 @@ export const StudentDashboard: React.FC = () => {
 
     setSubmitting(true);
     try {
-      // In a real app, upload file to storage, get URL, include in payload
-      const res = await api.createSubmission({ 
-        titles,
-        documentUrl: URL.createObjectURL(proposalFile) // mocked URL
-      } as any); // using any for extra payload fields in mock
+      const res = await api.createSubmission({ titles }, proposalFile);
 
       if (res.success) {
         setShowCreateModal(false);

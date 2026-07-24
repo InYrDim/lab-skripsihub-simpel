@@ -32,8 +32,9 @@ class ApiClient {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
+    const isFormData = options.body instanceof FormData;
     const headers = {
-      'Content-Type': 'application/json',
+      ...(!isFormData && { 'Content-Type': 'application/json' }),
       ...this.getAuthHeader(),
       ...(options.headers as Record<string, string> || {}),
     };
@@ -89,11 +90,22 @@ class ApiClient {
     return this.request<Submission>(`/submissions/me/${id}`);
   }
 
-  createSubmission(data: { titles: Array<{ title: string; description?: string }> }): Promise<ApiResponse<Submission>> {
+  createSubmission(
+    data: { titles: Array<{ title: string; topic?: string; description?: string }> },
+    document: File,
+  ): Promise<ApiResponse<Submission>> {
+    const formData = new FormData();
+    formData.append('titles', JSON.stringify(data.titles));
+    formData.append('document', document);
+
     return this.request<Submission>('/submissions', {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: formData,
     });
+  }
+
+  getAssetUrl(path: string): string {
+    return new URL(path, API_BASE_URL).toString();
   }
 
   async downloadLetter(submissionId: string): Promise<void> {

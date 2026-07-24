@@ -45,11 +45,29 @@ describe('StudentSubmissionsController', () => {
       };
       mockSubmissionsService.createSubmission.mockResolvedValue(expectedResult);
 
-      const response = await controller.create(mockUser, dto);
+      const document = {
+        filename: 'proposal-test.pdf',
+        originalname: 'proposal.pdf',
+      } as Express.Multer.File;
+      const response = await controller.create(
+        mockUser,
+        { titles: JSON.stringify(dto.titles) },
+        document,
+      );
 
       expect(response.success).toBe(true);
       expect(response.data).toEqual(expectedResult);
-      expect(service.createSubmission).toHaveBeenCalledWith('student-1', dto);
+      expect(service.createSubmission).toHaveBeenCalledWith('student-1', {
+        titles: dto.titles,
+        documentUrl: '/uploads/proposals/proposal-test.pdf',
+        documentName: 'proposal.pdf',
+      });
+    });
+
+    it('should require a PDF document', async () => {
+      await expect(
+        controller.create(mockUser, { titles: '[]' }),
+      ).rejects.toThrow('Berkas pengajuan PDF wajib diunggah');
     });
   });
 

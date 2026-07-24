@@ -90,9 +90,12 @@ export class SubmissionsService {
         studentId,
         status: SubmissionStatus.PENDING_ADMIN_REVIEW,
         submittedAt: now,
+        documentUrl: createSubmissionDto.documentUrl,
+        documentName: createSubmissionDto.documentName,
         titles: {
           create: titles.map((item, index) => ({
             title: item.title.trim(),
+            topic: item.topic ? item.topic.trim() : null,
             description: item.description ? item.description.trim() : null,
             sequenceNumber: index + 1,
           })),
@@ -121,6 +124,8 @@ export class SubmissionsService {
         description: t.description,
       })),
       submittedAt: submission.submittedAt,
+      documentUrl: submission.documentUrl,
+      documentName: submission.documentName,
       statusHistory: this.buildStatusHistory(submission),
     };
   }
@@ -328,6 +333,8 @@ export class SubmissionsService {
           description: title.description,
         })),
         submittedAt: sub.submittedAt,
+        documentUrl: sub.documentUrl,
+        documentName: sub.documentName,
         rejectedAt: sub.rejectedAt,
         rejectionReason: sub.adminRejectionReason,
         assignedValidator: latestAssignment
@@ -834,6 +841,8 @@ export class SubmissionsService {
         description: title.description,
       })),
       submittedAt: a.submission.submittedAt,
+      documentUrl: a.submission.documentUrl,
+      documentName: a.submission.documentName,
       assignedAt: a.assignedAt,
     }));
 
@@ -1236,6 +1245,8 @@ export class SubmissionsService {
         isApproved: t.id === sub.approvedTitleId,
       })),
       submittedAt: sub.submittedAt,
+      documentUrl: sub.documentUrl,
+      documentName: sub.documentName,
       statusHistory: this.buildStatusHistory(sub),
     };
 

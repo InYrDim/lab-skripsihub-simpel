@@ -101,6 +101,7 @@ export interface Submission {
   letterUrl?: string | null;
   letterGeneratedAt?: string | null;
   documentUrl?: string | null;
+  documentName?: string | null;
   statusHistory?: StatusHistoryItem[];
   titleCount?: number;
 }
