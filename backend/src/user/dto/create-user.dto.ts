@@ -11,4 +11,5 @@ export class CreateUserDto {
   dosenPA?: string;
   dosenPANip?: string;
   status?: UserStatus;
+  photoUrl?: string;
 }

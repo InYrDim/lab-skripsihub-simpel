@@ -7,7 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -44,6 +51,43 @@ export class UserController {
     };
   }
 
+  @Post('me/avatar')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/profiles',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `avatar-${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png)$/)) {
+          return cb(new BadRequestException('Only JPG, JPEG, and PNG images are allowed!'), false);
+        }
+        cb(null, true);
+      },
+      limits: {
+        fileSize: 2 * 1024 * 1024, // 2MB max
+      },
+    }),
+  )
+  async uploadAvatar(@CurrentUser() user: any, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File is required');
+    }
+    const photoUrl = `http://localhost:3000/api/uploads/profiles/${file.filename}`;
+    const updatedUser = await this.userService.update(user.id, { photoUrl });
+    const { passwordHash, ...result } = updatedUser;
+    
+    return {
+      success: true,
+      data: result,
+      message: 'Profile photo uploaded successfully',
+    };
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
@@ -71,11 +115,17 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('ADMIN')
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    const user = await this.userService.update(id, updateUserDto);
-    const { passwordHash, ...result } = user;
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Param('id') id: string, 
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() user: any
+  ) {
+    if (user.role !== 'ADMIN' && user.id !== id) {
+      throw new ForbiddenException('Access denied: Insufficient user permissions');
+    }
+    const updatedUser = await this.userService.update(id, updateUserDto);
+    const { passwordHash, ...result } = updatedUser;
     return {
       success: true,
       data: result,

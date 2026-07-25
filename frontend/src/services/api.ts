@@ -224,7 +224,17 @@ class ApiClient {
         dosenPA: user.dosenPA,
         dosenPANip: user.dosenPANip,
         status: user.status,
+        photoUrl: user.photoUrl,
       }),
+    });
+  }
+
+  uploadAvatar(file: File): Promise<ApiResponse<User>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.request<User>('/users/me/avatar', {
+      method: 'POST',
+      body: formData,
     });
   }
 

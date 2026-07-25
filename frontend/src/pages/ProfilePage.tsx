@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 import { ImageCropper } from '../components/ui/ImageCropper';
 import {
   User as UserIcon,
@@ -74,13 +75,26 @@ export const ProfilePage: React.FC = () => {
     setShowCropper(true);
   };
 
-  const handleCropComplete = (croppedUrl: string) => {
-    setPhotoPreview(croppedUrl);
-    updateUser({ photoUrl: croppedUrl });
-    setShowCropper(false);
-    if (rawImageUrl) URL.revokeObjectURL(rawImageUrl);
-    setRawImageUrl(null);
-    setShowPhotoSuccessModal(true);
+  const handleCropComplete = async (croppedUrl: string) => {
+    try {
+      const response = await fetch(croppedUrl);
+      const blob = await response.blob();
+      const file = new File([blob], `avatar-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      
+      const apiResponse = await api.uploadAvatar(file);
+      if (apiResponse.success && apiResponse.data) {
+        setPhotoPreview(apiResponse.data.photoUrl || null);
+        updateUser({ photoUrl: apiResponse.data.photoUrl });
+        setShowPhotoSuccessModal(true);
+      }
+    } catch (err) {
+      showToast('Gagal mengunggah foto profil', 'error');
+      console.error(err);
+    } finally {
+      setShowCropper(false);
+      if (rawImageUrl) URL.revokeObjectURL(rawImageUrl);
+      setRawImageUrl(null);
+    }
   };
 
   const handleCropCancel = () => {

@@ -54,6 +54,9 @@ export class UserService {
         ...(createUserDto.status !== undefined && {
           status: createUserDto.status,
         }),
+        ...(createUserDto.photoUrl !== undefined && {
+          photoUrl: createUserDto.photoUrl,
+        }),
       },
     });
   }
@@ -93,6 +96,9 @@ export class UserService {
       }),
       ...(updateUserDto.status !== undefined && {
         status: updateUserDto.status,
+      }),
+      ...(updateUserDto.photoUrl !== undefined && {
+        photoUrl: updateUserDto.photoUrl,
       }),
       ...(updateUserDto.password && {
         passwordHash: await bcrypt.hash(updateUserDto.password, 10),
