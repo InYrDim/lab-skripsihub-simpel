@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
-import type { Submission, SubmissionStatus } from '../types';
-import { 
-  FileCheck, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  FileText, 
+import { useAuth } from '../context/AuthContext';
+import { BerkasPengajuan } from '../components/ui/BerkasPengajuan';
+import { SubmissionsTable } from '../components/ui/SubmissionsTable';
+import type { Submission } from '../types';
+import {
+  FileCheck,
+  CheckCircle,
+  XCircle,
+  Clock,
+  FileText,
   X,
   AlertCircle
 } from 'lucide-react';
@@ -16,6 +19,7 @@ export const ValidatorDashboard: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
+  const { user } = useAuth();
 
   // Review Modal Form State
   const [actionType, setActionType] = useState<'APPROVE' | 'REJECT'>('APPROVE');
@@ -27,6 +31,8 @@ export const ValidatorDashboard: React.FC = () => {
   const [penguji2, setPenguji2] = useState('');
   const [reviewError, setReviewError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  console.log(submissions)
 
   const fetchData = async () => {
     setLoading(true);
@@ -109,39 +115,6 @@ export const ValidatorDashboard: React.FC = () => {
     }
   };
 
-  const getStatusBadge = (status: SubmissionStatus) => {
-    const s = status.toUpperCase();
-    if (s === 'PENDING_VALIDATOR_REVIEW') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-          <Clock size={14} /> Menunggu Penilaian
-        </span>
-      );
-    }
-    if (s === 'PENDING_ADMIN_REVIEW') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-          <Clock size={14} /> Menunggu Admin
-        </span>
-      );
-    }
-    if (s === 'APPROVED') {
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-          <CheckCircle size={14} /> Disetujui
-        </span>
-      );
-    }
-    if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
-      const label = s === 'REJECTED_BY_ADMIN' ? 'Ditolak Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Ditolak Validator' : 'Ditolak';
-      return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
-          <XCircle size={14} /> {label}
-        </span>
-      );
-    }
-    return <span className="text-xs font-semibold">{status}</span>;
-  };
 
   return (
     <DashboardLayout>
@@ -165,106 +138,30 @@ export const ValidatorDashboard: React.FC = () => {
             </h3>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                <tr>
-                  <th className="px-4 py-2.5 font-medium">ID</th>
-                  <th className="px-4 py-2.5 font-medium">Mahasiswa</th>
-                  <th className="px-4 py-2.5 font-medium">Judul</th>
-                  <th className="px-4 py-2.5 font-medium">Dosen PA</th>
-                  <th className="px-4 py-2.5 font-medium">Ditugaskan</th>
-                  <th className="px-4 py-2.5 font-medium">Status</th>
-                  <th className="px-4 py-2.5 font-medium text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
-                {loading ? (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-zinc-400 text-xs">
-                      Memuat antrean penilaian...
-                    </td>
-                  </tr>
-                ) : submissions.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-zinc-400 text-xs">
-                      Belum ada pengajuan yang ditugaskan untuk dinilai.
-                    </td>
-                  </tr>
+          <SubmissionsTable
+            submissions={submissions}
+            loading={loading}
+            onPreview={openReviewModal}
+            renderActions={(sub) => (
+              <>
+                {sub.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW' ? (
+                  <button
+                    onClick={() => openReviewModal(sub)}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
+                  >
+                    <FileText size={14} /> Tinjau Pengajuan
+                  </button>
                 ) : (
-                  submissions.map((sub) => (
-                    <tr key={sub.submissionId} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
-                      <td
-                        className="px-4 py-3 font-mono text-xs text-zinc-500"
-                        title={sub.submissionId}
-                      >
-                        {sub.submissionId.slice(0, 5)}...
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="text-xs font-medium text-zinc-900 dark:text-zinc-100">
-                          {sub.studentName || 'Mahasiswa'}
-                        </div>
-                        <div className="mt-0.5 flex items-center gap-2 text-[11px] text-zinc-400">
-                          <span>{sub.nim || 'NIM tidak tersedia'}</span>
-                          {sub.studentProdi && (
-                            <span className="rounded bg-orange-100 px-1.5 py-0.5 font-bold uppercase tracking-wider text-orange-700 dark:bg-orange-900/50 dark:text-orange-400">
-                              {sub.studentProdi}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        {sub.titles?.length ? (
-                          <ol className="min-w-56 max-w-md list-decimal space-y-1 pl-4 text-xs text-zinc-700 dark:text-zinc-300">
-                            {sub.titles.map((title) => (
-                              <li key={title.titleId} className="pl-1 leading-relaxed">
-                                {title.title}
-                              </li>
-                            ))}
-                          </ol>
-                        ) : (
-                          <span className="text-xs italic text-zinc-400">Judul tidak tersedia</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-xs">
-                        <div className="font-medium text-zinc-800 dark:text-zinc-200">
-                          {sub.dosenPA || 'Belum diatur'}
-                        </div>
-                        {sub.dosenPANip && (
-                          <div className="mt-0.5 font-mono text-[11px] text-zinc-400">
-                            NIP {sub.dosenPANip}
-                          </div>
-                        )}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-xs">
-                        {sub.assignedAt
-                          ? new Date(sub.assignedAt).toLocaleDateString('id-ID')
-                          : 'Baru saja'}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-3">{getStatusBadge(sub.status)}</td>
-                      <td className="px-4 py-3 text-right">
-                        {sub.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW' ? (
-                          <button
-                            onClick={() => openReviewModal(sub)}
-                            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
-                          >
-                            <FileText size={14} /> Tinjau Pengajuan
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => openReviewModal(sub)}
-                            className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline font-medium"
-                          >
-                            Lihat Keputusan
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
+                  <button
+                    onClick={() => openReviewModal(sub)}
+                    className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline font-medium"
+                  >
+                    Lihat Keputusan
+                  </button>
                 )}
-              </tbody>
-            </table>
-          </div>
+              </>
+            )}
+          />
         </div>
       </div>
 
@@ -295,43 +192,23 @@ export const ValidatorDashboard: React.FC = () => {
                 <span className="font-bold text-zinc-900 dark:text-zinc-100">{selectedSubmission.studentName}</span>{' '}
                 ({selectedSubmission.studentEmail})
               </div>
-              <div>{getStatusBadge(selectedSubmission.status)}</div>
+              <div>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold ${
+                  selectedSubmission.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW'
+                    ? 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20'
+                    : selectedSubmission.status.toUpperCase() === 'APPROVED'
+                    ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+                    : 'bg-zinc-50 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700'
+                }`}>
+                  {selectedSubmission.status}
+                </span>
+              </div>
             </div>
 
-            <section className="rounded border border-zinc-200 p-4 dark:border-zinc-800">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div>
-                  <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                    Berkas Pengajuan
-                  </h3>
-                  <p className="mt-0.5 text-[11px] text-zinc-500">
-                    {selectedSubmission.documentName || 'Dokumen proposal PDF'}
-                  </p>
-                </div>
-                {selectedSubmission.documentUrl && (
-                  <a
-                    href={api.getAssetUrl(selectedSubmission.documentUrl)}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-semibold text-orange-600 hover:text-orange-700"
-                  >
-                    Buka di Tab Baru
-                  </a>
-                )}
-              </div>
-
-              {selectedSubmission.documentUrl ? (
-                <iframe
-                  src={api.getAssetUrl(selectedSubmission.documentUrl)}
-                  title="Pratinjau berkas pengajuan skripsi"
-                  className="h-80 w-full rounded border border-zinc-200 bg-white dark:border-zinc-700"
-                />
-              ) : (
-                <div className="rounded bg-zinc-50 px-3 py-6 text-center text-xs text-zinc-500 dark:bg-zinc-900">
-                  Berkas PDF belum tersedia untuk pengajuan ini.
-                </div>
-              )}
-            </section>
+            <BerkasPengajuan
+              documentUrl={selectedSubmission.documentUrl}
+              documentName={selectedSubmission.documentName}
+            />
 
             {reviewError && (
               <div className="p-3 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs rounded flex items-center gap-2">

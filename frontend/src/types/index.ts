@@ -32,6 +32,10 @@ export interface ProposedTitle {
   topic?: string;
   description?: string;
   isApproved?: boolean;
+  similarityCheck?: {
+    percentage: number;
+    matches: { title: string }[];
+  };
 }
 
 export type SubmissionStatus = 

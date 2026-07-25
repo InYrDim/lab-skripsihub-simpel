@@ -3,6 +3,8 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import type { Submission, SubmissionStatus, Topic } from '../types';
 import { Select } from '../components/ui/select';
+import { ModalDetailProposal } from '../components/ui/ModalDetailProposal';
+import { ProposedTitlesList } from '../components/ui/ProposedTitlesList';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import {
@@ -18,8 +20,10 @@ import {
   Info,
   UploadCloud,
   ArrowRight,
-  ArrowLeft
+  ArrowLeft,
+  Eye
 } from 'lucide-react';
+import { StudentIdentityCard } from '../components/ui/StudentIdentityCard';
 
 const MAX_PROPOSAL_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -31,6 +35,7 @@ export const StudentDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState<Submission | null>(null);
+  const [previewingSubmission, setPreviewingSubmission] = useState<Submission | null>(null);
   const [availableTopics, setAvailableTopics] = useState<Topic[]>([]);
 
   // Submission Form state (exactly 3 titles)
@@ -320,7 +325,18 @@ export const StudentDashboard: React.FC = () => {
                 <p className="text-[11px] text-zinc-500">Ringkasan pengajuan terbaru Anda</p>
               </div>
             </div>
-            {lastSubmission && getStatusBadge(lastSubmission.status)}
+            {lastSubmission && (
+              <div className="flex items-center gap-2">
+                {getStatusBadge(lastSubmission.status)}
+                <button
+                  onClick={() => setPreviewingSubmission(lastSubmission)}
+                  title="Preview Pengajuan"
+                  className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
+                >
+                  <Eye size={15} />
+                </button>
+              </div>
+            )}
           </div>
 
           {loading ? (
@@ -379,7 +395,16 @@ export const StudentDashboard: React.FC = () => {
                   Usulan Skripsi Saat Ini
                 </h2>
               </div>
-              <div>{getStatusBadge(currentSubmission.status)}</div>
+              <div className="flex items-center gap-2">
+                {getStatusBadge(currentSubmission.status)}
+                <button
+                  onClick={() => setPreviewingSubmission(currentSubmission)}
+                  title="Preview Pengajuan"
+                  className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
+                >
+                  <Eye size={15} />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3">
@@ -765,18 +790,11 @@ export const StudentDashboard: React.FC = () => {
                     <div className="sm:col-span-2"><span className="text-zinc-500">Dosen PA</span><p className="mt-0.5 font-semibold text-zinc-900 dark:text-zinc-100">{user?.dosenPA || '-'}{user?.dosenPANip ? ` — NIP ${user.dosenPANip}` : ''}</p></div>
                   </section>
 
-                  <section className="rounded border border-zinc-200 p-4 dark:border-zinc-800">
-                    <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Daftar Judul yang Diajukan</h3>
-                    <ol className="mt-3 list-decimal space-y-3 pl-5">
-                      {titles.map((title, index) => (
-                        <li key={index} className="pl-1 text-xs text-zinc-700 dark:text-zinc-300">
-                          <p className="font-semibold text-zinc-900 dark:text-zinc-100">{title.title}</p>
-                          <p className="mt-0.5 text-[11px] font-medium text-orange-600 dark:text-orange-400">{title.topic}</p>
-                          <p className="mt-1 leading-relaxed text-zinc-500">{title.description}</p>
-                        </li>
-                      ))}
-                    </ol>
-                  </section>
+                  <ProposedTitlesList
+                    sectionTitle="Daftar Judul yang Diajukan"
+                    className="rounded border border-zinc-200 p-4 dark:border-zinc-800"
+                    titles={titles.map((t, i) => ({ ...t, titleId: `draft-${i}` }))}
+                  />
 
                   <section className="rounded border border-zinc-200 p-4 dark:border-zinc-800">
                     <div className="mb-3 flex items-center justify-between gap-3">
@@ -878,6 +896,15 @@ export const StudentDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* PREVIEW SUBMISSION MODAL */}
+      {previewingSubmission && (
+        <ModalDetailProposal
+          submission={previewingSubmission}
+          onClose={() => setPreviewingSubmission(null)}
+          statusBadge={getStatusBadge(previewingSubmission.status)}
+        />
       )}
     </DashboardLayout>
   );

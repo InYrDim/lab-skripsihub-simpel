@@ -1,8 +1,8 @@
-import type { 
-  ApiResponse, 
-  User, 
-  Submission, 
-  ValidatorInfo, 
+import type {
+  ApiResponse,
+  User,
+  Submission,
+  ValidatorInfo,
   AdminStats,
   Topic
 } from '../types';
@@ -143,7 +143,7 @@ class ApiClient {
     if (params?.status && params.status !== 'ALL') p.append('status', params.status);
     if (params?.prodi && params.prodi !== 'ALL') p.append('prodi', params.prodi);
     if (params?.topic && params.topic !== 'ALL') p.append('topic', params.topic);
-    
+
     const endpoint = `/admin/submissions${p.toString() ? `?${p.toString()}` : ''}`;
     return this.request<Submission[]>(endpoint);
   }
@@ -258,7 +258,7 @@ class ApiClient {
   getAllTitles(): Promise<ApiResponse<any[]>> {
     return this.request<any[]>('/admin/all-titles');
   }
-  
+
   createTopic(topic: Partial<Topic>): Promise<ApiResponse<Topic>> {
     return this.request<Topic>('/topics', {
       method: 'POST',

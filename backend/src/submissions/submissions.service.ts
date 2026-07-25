@@ -228,6 +228,8 @@ export class SubmissionsService {
           }
         : null,
       assignedAt: latestAssignment ? latestAssignment.assignedAt : null,
+      documentUrl: submission.documentUrl,
+      documentName: submission.documentName,
       statusHistory: this.buildStatusHistory(submission),
     };
   }
@@ -798,7 +800,6 @@ export class SubmissionsService {
 
     const whereClause: any = {
       validatorId,
-      status: AssignmentStatus.PENDING,
     };
 
     if (query?.status) {
@@ -1260,6 +1261,19 @@ export class SubmissionsService {
       result.approvedTitle =
         sub.approvalLetter?.approvedTitle || approvedTitleObj?.title;
       result.letterUrl = sub.approvalLetter?.pdfUrl;
+    } else if (sub.status === SubmissionStatus.REJECTED_BY_ADMIN) {
+      result.rejectedAt = sub.rejectedAt;
+      result.rejectionReason = sub.adminRejectionReason;
+      result.rejectedByName = 'Admin';
+    } else if (sub.status === SubmissionStatus.REJECTED_BY_VALIDATOR) {
+      const latestAssignment = sub.assignments?.[sub.assignments.length - 1];
+      const latestFeedback = latestAssignment?.feedback;
+      if (latestFeedback) {
+        result.rejectedAt = latestFeedback.createdAt;
+        result.rejectionReason = latestFeedback.feedbackText;
+        result.rejectedBy = latestAssignment?.validator?.fullName || latestAssignment?.validatorId;
+        result.rejectedByName = result.rejectedBy; // for UI fallback
+      }
     }
 
     return result;
@@ -1286,6 +1300,8 @@ export class SubmissionsService {
         description: t.description,
       })),
       submittedAt: submission.submittedAt,
+      documentUrl: submission.documentUrl,
+      documentName: submission.documentName,
       statusHistory: this.buildStatusHistory(submission),
     };
 
@@ -1309,6 +1325,7 @@ export class SubmissionsService {
       result.rejectionReason = latestFeedback.feedbackText;
       result.rejectedBy =
         latestAssignment?.validator?.fullName || latestAssignment?.validatorId;
+      result.rejectedByName = result.rejectedBy;
     }
 
     return result;
