@@ -34,4 +34,35 @@ export class TopicsService {
       data: { isActive: !topic.isActive },
     });
   }
+
+  async update(id: string, input: { name?: string; description?: string }) {
+    const topic = await this.prisma.topic.findUnique({ where: { id } });
+    if (!topic) {
+      throw new NotFoundException('Topic not found');
+    }
+    
+    const name = input.name?.trim();
+    if (!name) {
+      throw new BadRequestException('Topic name is required');
+    }
+
+    return this.prisma.topic.update({
+      where: { id },
+      data: {
+        name,
+        description: input.description?.trim() || null,
+      },
+    });
+  }
+
+  async remove(id: string) {
+    const topic = await this.prisma.topic.findUnique({ where: { id } });
+    if (!topic) {
+      throw new NotFoundException('Topic not found');
+    }
+    
+    return this.prisma.topic.delete({
+      where: { id },
+    });
+  }
 }

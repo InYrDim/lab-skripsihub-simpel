@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, UseGuards } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -35,6 +35,28 @@ export class TopicsController {
       success: true,
       data: await this.topicsService.toggle(id),
       message: 'Topic status updated',
+    };
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async update(@Param('id') id: string, @Body() body: { name?: string; description?: string }) {
+    return {
+      success: true,
+      data: await this.topicsService.update(id, body),
+      message: 'Topic updated successfully',
+    };
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  async remove(@Param('id') id: string) {
+    return {
+      success: true,
+      data: await this.topicsService.remove(id),
+      message: 'Topic deleted successfully',
     };
   }
 }

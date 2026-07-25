@@ -85,6 +85,16 @@ export const AdminManagement: React.FC = () => {
   const [newTopicName, setNewTopicName] = useState('');
   const [addingTopic, setAddingTopic] = useState(false);
 
+  // Edit Topic Modal
+  const [showEditTopicModal, setShowEditTopicModal] = useState(false);
+  const [editingTopic, setEditingTopic] = useState<Topic | null>(null);
+  const [editTopicName, setEditTopicName] = useState('');
+  const [updatingTopic, setUpdatingTopic] = useState(false);
+
+  // Delete Topic Dialog
+  const [topicToDelete, setTopicToDelete] = useState<Topic | null>(null);
+  const [deletingTopic, setDeletingTopic] = useState(false);
+
   // Settings
   const [defaultDepartment, setDefaultDepartment] = useState('Teknik Informatika dan Komputer');
   const [editingDepartment, setEditingDepartment] = useState('');
@@ -252,6 +262,44 @@ export const AdminManagement: React.FC = () => {
     }
   };
 
+  const handleUpdateTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTopic || !editTopicName.trim()) return;
+    setUpdatingTopic(true);
+    try {
+      const res = await api.updateTopic(editingTopic.id, { name: editTopicName });
+      if (res.success) {
+        setShowEditTopicModal(false);
+        setEditingTopic(null);
+        setEditTopicName('');
+        await fetchInitialData();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingTopic(false);
+    }
+  };
+
+  const confirmDeleteTopic = async () => {
+    if (!topicToDelete) return;
+    setDeletingTopic(true);
+    try {
+      const res = await api.deleteTopic(topicToDelete.id);
+      if (res.success) {
+        setTopicToDelete(null);
+        await fetchInitialData();
+      } else {
+        alert(res.message || 'Topic deletion failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during deletion.');
+    } finally {
+      setDeletingTopic(false);
+    }
+  };
+
   const handleToggleTopic = async (topicId: string) => {
     try {
       const res = await api.toggleTopicStatus(topicId);
@@ -335,10 +383,10 @@ export const AdminManagement: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-              Data Management Portal
+              Portal Manajemen Data
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Manage user accounts, topics, and system settings.
+              Kelola akun pengguna, topik, dan pengaturan sistem.
             </p>
           </div>
 
@@ -532,7 +580,7 @@ export const AdminManagement: React.FC = () => {
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
                 <Tag size={18} className="text-orange-600" />
-                Topics Directory
+                Direktori Topik
               </h3>
               <button
                 onClick={() => setShowAddTopicModal(true)}
@@ -556,12 +604,30 @@ export const AdminManagement: React.FC = () => {
                         </span>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleToggleTopic(topic.id)}
-                      className={`text-xs px-2 py-1 rounded border font-medium ${topic.isActive ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-900/30' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-900/30'}`}
-                    >
-                      {topic.isActive ? 'Disable' : 'Enable'}
-                    </button>
+                    <div className="flex flex-col gap-2 shrink-0">
+                      <button
+                        onClick={() => handleToggleTopic(topic.id)}
+                        className={`text-xs px-2 py-1 rounded border font-medium ${topic.isActive ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-900/30' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-900/30'}`}
+                      >
+                        {topic.isActive ? 'Disable' : 'Enable'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingTopic(topic);
+                          setEditTopicName(topic.name);
+                          setShowEditTopicModal(true);
+                        }}
+                        className="text-xs px-2 py-1 rounded border border-orange-200 text-orange-600 hover:bg-orange-50 dark:border-orange-900 dark:text-orange-400 dark:hover:bg-orange-900/30 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setTopicToDelete(topic)}
+                        className="text-xs px-2 py-1 rounded border border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 font-medium"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1051,6 +1117,67 @@ export const AdminManagement: React.FC = () => {
           </div>
         )}
       </Dialog>
+      {/* EDIT TOPIC MODAL */}
+      {showEditTopicModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="bg-white dark:bg-zinc-950 rounded max-w-sm w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <Tag size={20} className="text-orange-600" />
+                Edit Topik
+              </h2>
+              <button
+                onClick={() => setShowEditTopicModal(false)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateTopic} className="space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Nama Topik</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Machine Learning"
+                  value={editTopicName}
+                  onChange={(e) => setEditTopicName(e.target.value)}
+                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+              <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowEditTopicModal(false)}
+                  className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={updatingTopic || !editTopicName.trim()}
+                  className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
+                >
+                  {updatingTopic ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE TOPIC DIALOG */}
+      <Dialog
+        isOpen={!!topicToDelete}
+        onClose={() => setTopicToDelete(null)}
+        title="Hapus Topik"
+        description={`Apakah Anda yakin ingin menghapus topik "${topicToDelete?.name}"? Tindakan ini tidak dapat dibatalkan.`}
+        isDestructive={true}
+        confirmLabel={deletingTopic ? 'Menghapus...' : 'Hapus Topik'}
+        cancelLabel="Batal"
+        onConfirm={confirmDeleteTopic}
+      />
     </DashboardLayout>
   );
 };
+

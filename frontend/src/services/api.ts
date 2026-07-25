@@ -272,6 +272,19 @@ class ApiClient {
     });
   }
 
+  updateTopic(id: string, topic: Partial<Topic>): Promise<ApiResponse<Topic>> {
+    return this.request<Topic>(`/topics/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(topic),
+    });
+  }
+
+  deleteTopic(id: string): Promise<ApiResponse<Topic>> {
+    return this.request<Topic>(`/topics/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Admin Settings
   getDefaultDepartment(): Promise<ApiResponse<{ defaultDepartment: string }>> {
     return this.request<{ defaultDepartment: string }>('/admin/settings/default-department');
