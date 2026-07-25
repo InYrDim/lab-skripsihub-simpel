@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { GraduationCap, UserCheck, ShieldCheck, FileCheck, Lock, Mail, AlertCircle } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -8,6 +9,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { login, quickLogin, loading } = useAuth();
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +24,11 @@ export const LoginPage: React.FC = () => {
       navigate('/');
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message);
+        if (err.message === 'Akun Anda sedang menunggu persetujuan Admin') {
+          showToast(err.message, 'warning');
+        } else {
+          setError(err.message);
+        }
       } else {
         setError('Login failed. Please check your credentials.');
       }
@@ -157,6 +163,13 @@ export const LoginPage: React.FC = () => {
                   <FileCheck size={20} className="text-emerald-500 mb-1 group-hover:scale-110 transition-transform" />
                   <span className="text-xs font-bold">Validator</span>
                 </button>
+              </div>
+
+              <div className="mt-8 text-center text-sm font-medium text-zinc-600">
+                Belum punya akun?{' '}
+                <Link to="/register" className="text-orange-600 hover:text-orange-700 font-bold hover:underline transition-all">
+                  Daftar Sekarang
+                </Link>
               </div>
             </div>
           </div>

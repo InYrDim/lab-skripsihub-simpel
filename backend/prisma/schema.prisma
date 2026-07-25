@@ -29,7 +29,7 @@ model User {
   prodi         ProgramStudi @default(PTIK)
   dosenPA       String?  @map("dosen_pa")
   dosenPANip    String?  @map("dosen_pa_nip")
-  isActive      Boolean  @default(true) @map("is_active")
+  status        UserStatus @default(AKTIF)
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
@@ -49,6 +49,13 @@ enum UserRole {
   STUDENT
   ADMIN
   VALIDATOR
+}
+
+enum UserStatus {
+  MENUNGGU_APPROVE
+  AKTIF
+  NONAKTIF
+  DITOLAK
 }
 
 enum ProgramStudi {

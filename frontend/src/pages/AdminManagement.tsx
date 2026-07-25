@@ -32,6 +32,7 @@ export const AdminManagement: React.FC = () => {
 
   // Filters & Pagination
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [userStatusFilter, setUserStatusFilter] = useState<string>('ALL');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [prodiFilter, setProdiFilter] = useState<string>('ALL');
   const [topicFilter, setTopicFilter] = useState<string>('ALL');
@@ -244,6 +245,34 @@ export const AdminManagement: React.FC = () => {
     }
   };
 
+  const handleApproveUser = async (user: User) => {
+    try {
+      const res = await api.updateUser(user.id, { status: 'AKTIF' });
+      if (res.success) {
+        await fetchInitialData();
+      } else {
+        alert(res.message || 'User approval failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during approval.');
+    }
+  };
+
+  const handleRejectUser = async (user: User) => {
+    try {
+      const res = await api.updateUser(user.id, { status: 'DITOLAK' });
+      if (res.success) {
+        await fetchInitialData();
+      } else {
+        alert(res.message || 'User rejection failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during rejection.');
+    }
+  };
+
   const handleCreateTopic = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTopicName.trim()) return;
@@ -337,8 +366,10 @@ export const AdminManagement: React.FC = () => {
       u.role.toUpperCase() === roleFilter.toUpperCase();
     const matchesProdi =
       prodiFilter === 'ALL' || u.prodi === prodiFilter;
+    const matchesStatus =
+      userStatusFilter === 'ALL' || u.status === userStatusFilter;
 
-    return matchesRole && matchesProdi;
+    return matchesRole && matchesProdi && matchesStatus;
   });
   const showStudentIdentityColumn = ['ALL', 'STUDENT'].includes(roleFilter);
 
@@ -437,6 +468,18 @@ export const AdminManagement: React.FC = () => {
 
               <div className="flex items-center gap-2">
                 <Select
+                  value={userStatusFilter}
+                  onChange={(value) => setUserStatusFilter(value as string)}
+                  options={[
+                    { value: 'ALL', label: 'Semua Status' },
+                    { value: 'AKTIF', label: 'Aktif' },
+                    { value: 'MENUNGGU_APPROVE', label: 'Menunggu Approve' },
+                    { value: 'NONAKTIF', label: 'Nonaktif' },
+                    { value: 'DITOLAK', label: 'Ditolak' }
+                  ]}
+                  className="w-40"
+                />
+                <Select
                   value={prodiFilter}
                   onChange={(value) => setProdiFilter(value)}
                   options={[
@@ -463,12 +506,13 @@ export const AdminManagement: React.FC = () => {
                   { value: 'ADMIN', label: 'Admin' },
                   { value: 'VALIDATOR', label: 'Validator' },
                 ].map((tab) => {
-                  const usersInProdi = users.filter(
-                    (user) => prodiFilter === 'ALL' || user.prodi === prodiFilter,
+                  const usersInProdiAndStatus = users.filter(
+                    (user) => (prodiFilter === 'ALL' || user.prodi === prodiFilter) &&
+                              (userStatusFilter === 'ALL' || user.status === userStatusFilter)
                   );
                   const count = tab.value === 'ALL'
-                    ? usersInProdi.length
-                    : usersInProdi.filter(
+                    ? usersInProdiAndStatus.length
+                    : usersInProdiAndStatus.filter(
                         (user) => user.role.toUpperCase() === tab.value,
                       ).length;
 
@@ -545,9 +589,35 @@ export const AdminManagement: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-xs">
-                        <span className="text-emerald-600 font-semibold">Active</span>
+                        {u.status === 'AKTIF' ? (
+                          <span className="text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded">Aktif</span>
+                        ) : u.status === 'MENUNGGU_APPROVE' ? (
+                          <span className="text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded">Menunggu</span>
+                        ) : u.status === 'DITOLAK' ? (
+                          <span className="text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded">Ditolak</span>
+                        ) : (
+                          <span className="text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded">Nonaktif</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 text-right whitespace-nowrap">
+                        {u.status === 'MENUNGGU_APPROVE' && (
+                          <>
+                            <button
+                              onClick={() => handleRejectUser(u)}
+                              className="mr-2 inline-flex items-center gap-1.5 rounded border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
+                            >
+                              <XCircle size={13} />
+                              Tolak
+                            </button>
+                            <button
+                              onClick={() => handleApproveUser(u)}
+                              className="mr-2 inline-flex items-center gap-1.5 rounded border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+                            >
+                              <CheckCircle size={13} />
+                              Approve
+                            </button>
+                          </>
+                        )}
                         <button
                           onClick={() => {
                             setEditingUser(u);
@@ -967,6 +1037,21 @@ export const AdminManagement: React.FC = () => {
                     { value: 'STUDENT', label: 'Student' },
                     { value: 'VALIDATOR', label: 'Validator' },
                     { value: 'ADMIN', label: 'Admin' }
+                  ]}
+                  className="mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">User Status</label>
+                <Select
+                  value={editingUser.status || 'AKTIF'}
+                  onChange={(val) => setEditingUser({ ...editingUser, status: val as any })}
+                  options={[
+                    { value: 'AKTIF', label: 'Aktif' },
+                    { value: 'MENUNGGU_APPROVE', label: 'Menunggu Approve' },
+                    { value: 'NONAKTIF', label: 'Nonaktif' },
+                    { value: 'DITOLAK', label: 'Ditolak' }
                   ]}
                   className="mt-1 w-full"
                 />

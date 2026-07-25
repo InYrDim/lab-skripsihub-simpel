@@ -14,14 +14,14 @@ type ApiUser = Omit<User, 'name' | 'userId' | 'status'> & {
   universityId: string;
   dosenPA?: string;
   dosenPANip?: string;
-  isActive: boolean;
+  status: 'MENUNGGU_APPROVE' | 'AKTIF' | 'NONAKTIF';
 };
 
 const toUser = (user: ApiUser): User => ({
   ...user,
   name: user.fullName,
   userId: user.universityId,
-  status: user.isActive ? 'active' : 'inactive',
+  status: user.status,
 });
 
 class ApiClient {
@@ -71,6 +71,23 @@ class ApiClient {
         user: toUser(response.data.user),
       },
     };
+  }
+
+  register(user: Partial<User> & { password?: string }): Promise<ApiResponse<User>> {
+    return this.request<User>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: user.email,
+        password: user.password,
+        fullName: user.name,
+        role: user.role,
+        universityId: user.userId,
+        department: user.department,
+        prodi: user.prodi,
+        dosenPA: user.dosenPA,
+        dosenPANip: user.dosenPANip,
+      }),
+    });
   }
 
   logout(): Promise<ApiResponse<unknown>> {
@@ -206,6 +223,7 @@ class ApiClient {
         prodi: user.prodi,
         dosenPA: user.dosenPA,
         dosenPANip: user.dosenPANip,
+        status: user.status,
       }),
     });
   }

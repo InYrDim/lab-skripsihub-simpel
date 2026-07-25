@@ -1,4 +1,4 @@
-import { ProgramStudi, UserRole } from '@prisma/client';
+import { ProgramStudi, UserRole, UserStatus } from '@prisma/client';
 
 export class CreateUserDto {
   email: string;
@@ -10,4 +10,5 @@ export class CreateUserDto {
   prodi?: ProgramStudi;
   dosenPA?: string;
   dosenPANip?: string;
+  status?: UserStatus;
 }

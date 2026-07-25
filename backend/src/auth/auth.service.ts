@@ -18,8 +18,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    if (!user.isActive) {
-      throw new UnauthorizedException('User account is inactive');
+    if (user.status !== 'AKTIF') {
+      const message = user.status === 'MENUNGGU_APPROVE' 
+        ? 'Akun Anda sedang menunggu persetujuan Admin' 
+        : user.status === 'DITOLAK'
+        ? 'Pengajuan akun Anda telah ditolak oleh Admin'
+        : 'Akun Anda telah dinonaktifkan';
+      throw new UnauthorizedException(message);
     }
 
     const isPasswordValid = await bcrypt.compare(
@@ -57,11 +62,29 @@ export class AuthService {
           prodi: user.prodi,
           dosenPA: user.dosenPA,
           dosenPANip: user.dosenPANip,
-          isActive: user.isActive,
+          status: user.status,
           createdAt: user.createdAt,
         },
       },
       message: 'Login successful',
+    };
+  }
+
+  async register(registerDto: any) {
+    const user = await this.userService.create({
+      ...registerDto,
+      status: 'MENUNGGU_APPROVE',
+    });
+
+    return {
+      success: true,
+      data: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role,
+      },
+      message: 'Registrasi berhasil. Silakan tunggu persetujuan Admin.',
     };
   }
 
@@ -77,7 +100,7 @@ export class AuthService {
       }
 
       const user = await this.userService.findById(payload.sub);
-      if (!user || !user.isActive) {
+      if (!user || user.status !== 'AKTIF') {
         throw new UnauthorizedException('Invalid or expired refresh token');
       }
 

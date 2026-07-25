@@ -51,6 +51,9 @@ export class UserService {
         ...(createUserDto.dosenPANip !== undefined && {
           dosenPANip: createUserDto.dosenPANip,
         }),
+        ...(createUserDto.status !== undefined && {
+          status: createUserDto.status,
+        }),
       },
     });
   }
@@ -87,6 +90,9 @@ export class UserService {
       }),
       ...(updateUserDto.dosenPANip !== undefined && {
         dosenPANip: updateUserDto.dosenPANip,
+      }),
+      ...(updateUserDto.status !== undefined && {
+        status: updateUserDto.status,
       }),
       ...(updateUserDto.password && {
         passwordHash: await bcrypt.hash(updateUserDto.password, 10),

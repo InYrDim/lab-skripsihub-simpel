@@ -524,8 +524,8 @@ export class SubmissionsService {
       throw new NotFoundException(`Validator with ID ${validatorId} not found`);
     }
 
-    if (!validator.isActive) {
-      throw new BadRequestException('Specified validator is inactive');
+    if (validator.status !== 'AKTIF') {
+      throw new BadRequestException('Validator is not active');
     }
 
     const now = new Date();
@@ -746,9 +746,9 @@ export class SubmissionsService {
 
     const whereClause: any = { role: UserRole.VALIDATOR };
     if (query?.status === 'active') {
-      whereClause.isActive = true;
+      whereClause.status = 'AKTIF';
     } else if (query?.status === 'inactive') {
-      whereClause.isActive = false;
+      whereClause.status = 'NONAKTIF';
     }
 
     const [total, validators] = await Promise.all([
@@ -771,7 +771,7 @@ export class SubmissionsService {
       name: v.fullName,
       email: v.email,
       universityId: v.universityId,
-      status: v.isActive ? 'active' : 'inactive',
+      status: v.status,
       assignedSubmissions: v.assignments.length,
       createdAt: v.createdAt,
     }));

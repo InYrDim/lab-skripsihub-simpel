@@ -1,4 +1,5 @@
 export type UserRole = 'STUDENT' | 'ADMIN' | 'VALIDATOR' | 'student' | 'admin' | 'validator';
+export type UserStatus = 'MENUNGGU_APPROVE' | 'AKTIF' | 'NONAKTIF' | 'DITOLAK';
 
 export interface User {
   id: string;
@@ -9,7 +10,7 @@ export interface User {
   prodi?: 'PTIK' | 'TEKOM';
   angkatan?: string;
   department?: string;
-  status?: string;
+  status?: UserStatus;
   dosenPA?: string;
   dosenPANip?: string;
   photoUrl?: string;

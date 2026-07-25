@@ -97,6 +97,9 @@ export const AdminDashboard: React.FC = () => {
   const [newTopicName, setNewTopicName] = useState('');
   const [addingTopic, setAddingTopic] = useState(false);
 
+  // Pending Users Modal
+  const [showPendingUsersModal, setShowPendingUsersModal] = useState(false);
+
   const fetchInitialData = async () => {
     try {
       const [valRes, usrRes, statsRes, topRes, allTitlesRes] = await Promise.all([
@@ -267,6 +270,34 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleApproveUser = async (user: User) => {
+    try {
+      const res = await api.updateUser(user.id, { status: 'AKTIF' });
+      if (res.success) {
+        await fetchInitialData();
+      } else {
+        alert(res.message || 'User approval failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during approval.');
+    }
+  };
+
+  const handleRejectUser = async (user: User) => {
+    try {
+      const res = await api.updateUser(user.id, { status: 'DITOLAK' });
+      if (res.success) {
+        await fetchInitialData();
+      } else {
+        alert(res.message || 'User rejection failed.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred during rejection.');
+    }
+  };
+
   const handleCreateTopic = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTopicName.trim()) return;
@@ -307,6 +338,8 @@ export const AdminDashboard: React.FC = () => {
   });
 
   const getStatusBadgeLocal = getStatusBadge;
+
+  const pendingUsersCount = users.filter(u => u.status === 'MENUNGGU_APPROVE').length;
 
   return (
     <DashboardLayout>
@@ -349,7 +382,7 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         {/* Overview Stats */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           <div className="space-y-0.5 rounded border border-zinc-300 bg-linear-to-br from-white via-zinc-50 to-zinc-200/80 p-3 shadow-sm shadow-zinc-200/60 dark:border-zinc-600 dark:from-zinc-900 dark:via-zinc-900 dark:to-zinc-800 dark:shadow-black/20">
             <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">Total Batch Proposals</span>
             <p className="text-2xl font-bold text-zinc-950 dark:text-white">{stats?.totalSubmissions ?? 0}</p>
@@ -371,6 +404,20 @@ export const AdminDashboard: React.FC = () => {
             <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
               {stats?.approved ?? 0}
             </p>
+          </div>
+          <div className="space-y-0.5 rounded border border-rose-300 bg-linear-to-br from-white via-rose-50 to-rose-100/90 p-3 shadow-sm shadow-rose-200/60 dark:border-rose-700 dark:from-zinc-900 dark:via-rose-950/50 dark:to-rose-900/40 dark:shadow-black/20 flex flex-col justify-between">
+            <div>
+              <span className="text-xs font-semibold text-rose-800 dark:text-rose-300">Pending Users</span>
+              <p className="text-2xl font-bold text-rose-700 dark:text-rose-300">
+                {pendingUsersCount}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowPendingUsersModal(true)}
+              className="mt-2 w-full px-2 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded shadow-sm transition-colors"
+            >
+              Lihat Detail
+            </button>
           </div>
         </div>
 
@@ -1073,6 +1120,87 @@ export const AdminDashboard: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* PENDING USERS MODAL */}
+      {showPendingUsersModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="bg-white dark:bg-zinc-950 rounded max-w-3xl w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800 shrink-0">
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <Users size={20} className="text-rose-600" />
+                Mahasiswa Menunggu Persetujuan
+              </h2>
+              <button
+                onClick={() => setShowPendingUsersModal(false)}
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="overflow-y-auto flex-1 border border-zinc-200 dark:border-zinc-800 rounded">
+              <table className="w-full text-sm text-left">
+                <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 sticky top-0">
+                  <tr>
+                    <th className="px-6 py-3.5 font-medium">NIM / Prodi</th>
+                    <th className="px-6 py-3.5 font-medium">Nama / Email</th>
+                    <th className="px-6 py-3.5 font-medium text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
+                  {users.filter(u => u.status === 'MENUNGGU_APPROVE').length === 0 ? (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                        Tidak ada mahasiswa yang menunggu persetujuan.
+                      </td>
+                    </tr>
+                  ) : (
+                    users.filter(u => u.status === 'MENUNGGU_APPROVE').map(u => (
+                      <tr key={u.id} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
+                        <td className="px-6 py-4">
+                          <div className="font-mono text-xs font-semibold text-zinc-900 dark:text-zinc-100">{u.userId || '-'}</div>
+                          {u.prodi && (
+                            <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-zinc-500">{u.prodi}</div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-sm text-zinc-900 dark:text-zinc-100">{u.name}</div>
+                          <div className="text-[11px] text-zinc-500 mt-1">{u.email}</div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleRejectUser(u)}
+                              className="inline-flex items-center gap-1.5 rounded border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
+                            >
+                              <XCircle size={13} /> Tolak
+                            </button>
+                            <button
+                              onClick={() => handleApproveUser(u)}
+                              className="inline-flex items-center gap-1.5 rounded border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+                            >
+                              <CheckCircle size={13} /> Approve
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            
+            <div className="shrink-0 flex justify-end pt-3 border-t border-zinc-200 dark:border-zinc-800">
+              <button
+                onClick={() => setShowPendingUsersModal(false)}
+                className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              >
+                Tutup
+              </button>
+            </div>
           </div>
         </div>
       )}

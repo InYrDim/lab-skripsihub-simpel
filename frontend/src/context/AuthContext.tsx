@@ -26,7 +26,7 @@ const normalizeStoredUser = (user: StoredUser): User => ({
   name: user.name || user.fullName || 'Pengguna',
   userId: user.userId || user.universityId,
   status:
-    user.status || (user.isActive === undefined ? undefined : user.isActive ? 'active' : 'inactive'),
+    user.status || (user.isActive === undefined ? undefined : user.isActive ? 'AKTIF' : 'NONAKTIF'),
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

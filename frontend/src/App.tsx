@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute, RoleBasedRedirect } from './components/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { StudentDashboard } from './pages/StudentDashboard';
 import { StudentHistoryPage } from './pages/StudentHistoryPage';
 import { AdminDashboard } from './pages/AdminDashboard';
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           {/* Public Login Route */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
           {/* Root Redirect based on user role */}
           <Route path="/" element={<RoleBasedRedirect />} />
