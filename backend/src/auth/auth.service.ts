@@ -63,6 +63,7 @@ export class AuthService {
           dosenPA: user.dosenPA,
           dosenPANip: user.dosenPANip,
           status: user.status,
+          photoUrl: user.photoUrl,
           createdAt: user.createdAt,
         },
       },
