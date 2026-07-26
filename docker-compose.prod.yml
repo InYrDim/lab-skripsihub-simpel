@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: skripsihub-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: skripsihub
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      timeout: 20s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: skripsihub-backend
+    restart: always
+    environment:
+      DATABASE_URL: mysql://root:${DB_PASSWORD}@mysql:3306/skripsihub
+      JWT_SECRET: ${JWT_SECRET}
+      MODE: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: skripsihub-frontend
+    restart: always
+    ports:
+      - "8030:80"
+    depends_on:
+      - backend
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: skripsihub-cloudflared
+    restart: always
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  mysql_data:
