@@ -13,6 +13,7 @@ import {
   User as UserIcon
 } from 'lucide-react';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
+import { Brand } from '../ui/Brand';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -68,17 +69,7 @@ export function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     >
       {/* Logo Area */}
       <div className="h-16 flex items-center justify-between px-4 border-b border-zinc-200 dark:border-zinc-800">
-        <div 
-          onClick={() => navigate('/')}
-          className={`flex items-center gap-3 overflow-hidden transition-all duration-300 cursor-pointer ${isOpen ? 'opacity-100 w-full' : 'opacity-0 w-0'}`}
-        >
-          <div className="bg-orange-600 p-1.5 rounded shadow-sm">
-            <GraduationCap className="text-white w-6 h-6" />
-          </div>
-          <span className="text-xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-orange-500 to-blue-600 whitespace-nowrap">
-            SkripsiHub
-          </span>
-        </div>
+        <Brand isCollapsed={!isOpen} onClick={() => navigate('/')} />
         
         {/* Toggle Button */}
         <button 

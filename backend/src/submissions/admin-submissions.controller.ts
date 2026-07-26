@@ -6,6 +6,7 @@ import {
   Param,
   Query,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { SubmissionsService } from './submissions.service';
 import { AssignSubmissionDto } from './dto/assign-submission.dto';
@@ -55,6 +56,12 @@ export class AdminSubmissionsController {
       data: result,
       message: 'Submission details retrieved successfully',
     };
+  }
+
+  @Delete('submissions/:submissionId')
+  @Roles('ADMIN')
+  async deleteSubmission(@Param('submissionId') submissionId: string) {
+    return await this.submissionsService.deleteSubmissionByAdmin(submissionId);
   }
 
   @Post('submissions/:submissionId/assign')

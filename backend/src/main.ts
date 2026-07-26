@@ -8,9 +8,7 @@ config({ path: join(__dirname, '..', '.env') });
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useStaticAssets(join(process.cwd(), 'uploads'), {
-    prefix: '/api/uploads/',
-  });
+  // app.useStaticAssets removed for private serving
   app.setGlobalPrefix('api');
   app.enableCors({
     origin: true,

@@ -23,7 +23,8 @@ import {
   Tag,
   Plus,
   BookOpen,
-  Eye
+  Eye,
+  Trash2
 } from 'lucide-react';
 
 export const AdminDashboard: React.FC = () => {
@@ -91,6 +92,10 @@ export const AdminDashboard: React.FC = () => {
   // Delete User Dialog
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [deletingUser, setDeletingUser] = useState(false);
+
+  // Delete Submission Dialog
+  const [submissionToDelete, setSubmissionToDelete] = useState<string | null>(null);
+  const [deletingSubmission, setDeletingSubmission] = useState(false);
 
   // Add Topic Modal
   const [showAddTopicModal, setShowAddTopicModal] = useState(false);
@@ -196,6 +201,25 @@ export const AdminDashboard: React.FC = () => {
       else setAssignError('An error occurred during assignment.');
     } finally {
       setAssigning(false);
+    }
+  };
+
+  const confirmDeleteSubmission = async () => {
+    if (!submissionToDelete) return;
+    setDeletingSubmission(true);
+    try {
+      const res = await api.deleteAdminSubmission(submissionToDelete);
+      if (res.success) {
+        await fetchSubmissions();
+        await fetchInitialData(); // update stats
+        setSubmissionToDelete(null);
+      } else {
+        alert(res.message || 'Gagal menghapus pengajuan');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Gagal menghapus pengajuan');
+    } finally {
+      setDeletingSubmission(false);
     }
   };
 
@@ -516,6 +540,13 @@ export const AdminDashboard: React.FC = () => {
                   ) : (
                     <span className="text-xs text-zinc-300 dark:text-zinc-700">-</span>
                   )}
+                  <button
+                    onClick={() => setSubmissionToDelete(sub.submissionId)}
+                    title="Hapus Pengajuan"
+                    className="inline-flex items-center justify-center p-1.5 rounded text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors ml-2"
+                  >
+                    <Trash2 size={14} />
+                  </button>
                 </>
               )}
             />
@@ -1222,6 +1253,17 @@ export const AdminDashboard: React.FC = () => {
           </div>
         )}
       </Dialog>
+
+      {/* DELETE SUBMISSION CONFIRMATION DIALOG */}
+      <Dialog
+        isOpen={!!submissionToDelete}
+        onClose={() => !deletingSubmission && setSubmissionToDelete(null)}
+        title="Hapus Pengajuan"
+        description="Apakah Anda yakin ingin menghapus pengajuan ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel={deletingSubmission ? 'Menghapus...' : 'Hapus'}
+        onConfirm={confirmDeleteSubmission}
+        isDestructive={true}
+      />
     </DashboardLayout>
   );
 };

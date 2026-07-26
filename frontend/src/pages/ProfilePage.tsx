@@ -3,6 +3,7 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { ImageCropper } from '../components/ui/ImageCropper';
+import { AuthenticatedImage } from '../components/ui/AuthenticatedImage';
 import {
   User as UserIcon,
   Save,
@@ -138,7 +139,7 @@ export const ProfilePage: React.FC = () => {
             <div className="relative group shrink-0">
               <div className="h-28 w-28 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 flex items-center justify-center">
                 {photoPreview ? (
-                  <img src={photoPreview} alt="Foto profil" className="h-full w-full object-cover" />
+                  <AuthenticatedImage src={photoPreview} alt="Foto profil" className="h-full w-full object-cover" />
                 ) : (
                   <UserIcon size={48} className="text-zinc-400" />
                 )}

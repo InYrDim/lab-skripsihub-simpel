@@ -186,6 +186,12 @@ class ApiClient {
     });
   }
 
+  deleteAdminSubmission(submissionId: string): Promise<ApiResponse<unknown>> {
+    return this.request(`/admin/submissions/${submissionId}`, {
+      method: 'DELETE',
+    });
+  }
+
   getValidators(): Promise<ApiResponse<ValidatorInfo[]>> {
     return this.request<ValidatorInfo[]>('/admin/validators');
   }

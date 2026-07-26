@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
+import { AuthenticatedImage } from '../ui/AuthenticatedImage';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -84,7 +85,7 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
             title="Profil Saya"
           >
             {user?.photoUrl ? (
-              <img src={user.photoUrl} alt="Foto Profil" className="h-full w-full object-cover" />
+              <AuthenticatedImage src={user.photoUrl} alt="Foto Profil" className="h-full w-full object-cover" />
             ) : (
               <UserIcon size={18} />
             )}

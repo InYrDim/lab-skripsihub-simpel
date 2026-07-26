@@ -660,6 +660,23 @@ export class SubmissionsService {
     return this.formatSubmissionDetail(updated);
   }
 
+  async deleteSubmissionByAdmin(submissionId: string) {
+    const submission = await this.prisma.submission.findUnique({
+      where: { id: submissionId },
+    });
+    if (!submission) {
+      throw new NotFoundException(
+        `Submission with ID ${submissionId} not found`,
+      );
+    }
+
+    await this.prisma.submission.delete({
+      where: { id: submissionId },
+    });
+
+    return { success: true, message: 'Submission deleted successfully' };
+  }
+
   async getAdminDashboardStats() {
     const [
       totalSubmissions,
