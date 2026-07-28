@@ -11,6 +11,7 @@ export interface User {
   angkatan?: string;
   department?: string;
   status?: UserStatus;
+  submissionStatus?: string;
   dosenPA?: string;
   dosenPANip?: string;
   photoUrl?: string;

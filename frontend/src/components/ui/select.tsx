@@ -46,7 +46,7 @@ function DropdownMenu({ options, value, onSelect, style }: any) {
       className="select-portal-dropdown bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-md shadow-xl overflow-hidden"
       style={style}
     >
-      <ul className="max-h-60 overflow-auto py-1 custom-scrollbar">
+      <ul className="max-h-60 overflow-y-auto overflow-x-hidden py-1 custom-scrollbar">
         {options.map((opt: any) => {
           const isSelected = opt.value === value;
           return (

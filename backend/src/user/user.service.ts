@@ -61,8 +61,23 @@ export class UserService {
     });
   }
 
-  async findAll(): Promise<User[]> {
-    return this.prisma.user.findMany();
+  async findAll(): Promise<any[]> {
+    const users = await this.prisma.user.findMany({
+      include: {
+        submissions: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
+    });
+    
+    return users.map((user) => {
+      const { submissions, ...rest } = user;
+      return {
+        ...rest,
+        submissionStatus: submissions.length > 0 ? submissions[0].status : 'Belum Mengajukan',
+      };
+    });
   }
 
   async findOne(id: string): Promise<User> {

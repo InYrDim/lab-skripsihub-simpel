@@ -18,7 +18,8 @@ import {
   Plus,
   BookOpen,
   Pencil,
-  Trash2
+  Trash2,
+  Eye
 } from 'lucide-react';
 
 export const AdminManagement: React.FC = () => {
@@ -77,6 +78,10 @@ export const AdminManagement: React.FC = () => {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editUserError, setEditUserError] = useState<string | null>(null);
   const [updatingUser, setUpdatingUser] = useState(false);
+
+  // User Detail Modal
+  const [showUserDetailModal, setShowUserDetailModal] = useState(false);
+  const [selectedUserDetail, setSelectedUserDetail] = useState<User | null>(null);
 
   // Delete User Dialog
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -592,6 +597,16 @@ export const AdminManagement: React.FC = () => {
                             </Button>
                           </>
                         )}
+                        <Button
+                          onClick={() => {
+                            setSelectedUserDetail(u);
+                            setShowUserDetailModal(true);
+                          }}
+                          className="mr-2 inline-flex items-center gap-1.5 rounded border border-blue-200 px-2.5 py-1.5 text-xs font-semibold text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700 dark:border-blue-500/30 dark:hover:bg-blue-500/10"
+                        >
+                          <Eye size={13} aria-hidden="true" />
+                          Detail
+                        </Button>
                         <Button
                           onClick={() => {
                             setEditingUser(u);
@@ -1237,6 +1252,97 @@ export const AdminManagement: React.FC = () => {
         cancelLabel="Batal"
         onConfirm={confirmDeleteTopic}
       />
+
+      {/* USER DETAIL MODAL */}
+      {showUserDetailModal && selectedUserDetail && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="relative bg-white dark:bg-zinc-950 rounded max-w-md w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+                <UserCheck size={20} className="text-blue-600" />
+                Detail User
+              </h2>
+              <Button
+                type="button"
+                onClick={() => setShowUserDetailModal(false)}
+                className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+              >
+                <X size={20} />
+              </Button>
+            </div>
+            
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-center mb-6">
+                {selectedUserDetail.photoUrl ? (
+                  <img src={selectedUserDetail.photoUrl} alt={selectedUserDetail.name} className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-zinc-900 shadow-md" />
+                ) : (
+                  <div className="w-24 h-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400 border-4 border-white dark:border-zinc-900 shadow-md">
+                    <UserCheck size={36} />
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <span className="text-zinc-500 font-medium">Nama:</span>
+                <span className="col-span-2 font-semibold text-zinc-900 dark:text-zinc-100">{selectedUserDetail.name}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <span className="text-zinc-500 font-medium">Email:</span>
+                <span className="col-span-2 text-zinc-900 dark:text-zinc-100">{selectedUserDetail.email}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <span className="text-zinc-500 font-medium">Role:</span>
+                <span className="col-span-2 text-zinc-900 dark:text-zinc-100">{selectedUserDetail.role}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <span className="text-zinc-500 font-medium">Status Akun:</span>
+                <span className="col-span-2 text-zinc-900 dark:text-zinc-100">{selectedUserDetail.status || '-'}</span>
+              </div>
+              
+              {/* Extra Info For Student */}
+              {(selectedUserDetail.role.toUpperCase() === 'STUDENT' || selectedUserDetail.role.toUpperCase() === 'MAHASISWA') && (
+                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-3">
+                  <h3 className="font-bold text-zinc-800 dark:text-zinc-200 mb-2">Data Mahasiswa</h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    <span className="text-zinc-500 font-medium">Pengajuan:</span>
+                    <span className="col-span-2 text-zinc-900 dark:text-zinc-100">
+                      {selectedUserDetail.submissionStatus === 'Belum Mengajukan' ? (
+                        <span className="text-zinc-500 italic">Belum Mengajukan</span>
+                      ) : (
+                        <span className="font-semibold text-orange-600">{selectedUserDetail.submissionStatus}</span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <span className="text-zinc-500 font-medium">NIM:</span>
+                    <span className="col-span-2 font-mono text-zinc-900 dark:text-zinc-100">{selectedUserDetail.userId || '-'}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <span className="text-zinc-500 font-medium">Program Studi:</span>
+                    <span className="col-span-2 text-zinc-900 dark:text-zinc-100">{selectedUserDetail.prodi || '-'}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <span className="text-zinc-500 font-medium">Dosen PA:</span>
+                    <span className="col-span-2 text-zinc-900 dark:text-zinc-100">{selectedUserDetail.dosenPA || '-'}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <span className="text-zinc-500 font-medium">NIP Dosen PA:</span>
+                    <span className="col-span-2 font-mono text-zinc-900 dark:text-zinc-100">{selectedUserDetail.dosenPANip || '-'}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="pt-4 flex justify-end">
+              <Button
+                onClick={() => setShowUserDetailModal(false)}
+                className="px-4 py-2 bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 rounded transition-colors font-medium text-sm"
+              >
+                Tutup
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

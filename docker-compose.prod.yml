@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.4
@@ -9,7 +7,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: skripsihub
     ports:
-      - "3306:3306"
+      - "4040:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -26,8 +24,8 @@ services:
       DATABASE_URL: mysql://root:${DB_PASSWORD}@mysql:3306/skripsihub
       JWT_SECRET: ${JWT_SECRET}
       MODE: production
-    ports:
-      - "3000:3000"
+    # ports:
+    #   - "3000:3000"
     depends_on:
       mysql:
         condition: service_healthy
@@ -39,8 +37,8 @@ services:
         VITE_API_URL: ${VITE_API_URL}
     container_name: skripsihub-frontend
     restart: always
-    ports:
-      - "8030:80"
+    # ports:
+    #   - "8030:80"
     depends_on:
       - backend
 

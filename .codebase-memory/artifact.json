@@ -1,0 +1,11 @@
+{
+    "schema_version": 2,
+    "commit": "c93b9c8d594b9b68364ebc2434e51870708808ff",
+    "indexed_at": "2026-07-28T23:52:55Z",
+    "project": "skripsihub",
+    "nodes": 2020,
+    "edges": 3594,
+    "original_size": 3604480,
+    "compressed_size": 643181,
+    "compression_level": 9
+}
