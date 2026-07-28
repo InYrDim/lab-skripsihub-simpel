@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { GraduationCap, Mail, AlertCircle, Lock } from 'lucide-react';
 import { DemoSection } from '../components/auth/DemoSection';
+import { Button } from '../components/ui/button';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+gsap.registerPlugin(useGSAP);
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -12,6 +17,43 @@ export const LoginPage: React.FC = () => {
   const { login, quickLogin, loading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.from('.gsap-left-item', {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'power3.out'
+    });
+
+    gsap.from('.gsap-right-shape', {
+      scale: 0.8,
+      opacity: 0,
+      duration: 1.5,
+      stagger: 0.2,
+      ease: 'power2.out',
+    });
+
+    gsap.from('.gsap-char', {
+      y: 20,
+      opacity: 0,
+      duration: 0.5,
+      stagger: 0.03,
+      delay: 0.2,
+      ease: 'back.out(1.7)'
+    });
+
+    gsap.from('.gsap-right-text', {
+      x: 30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.15,
+      delay: 0.5,
+      ease: 'power3.out'
+    });
+  }, { scope: containerRef });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,11 +95,11 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex selection:bg-orange-500/30 font-sans">
+    <div ref={containerRef} className="min-h-screen bg-white flex selection:bg-orange-500/30 font-sans">
       {/* Left Form Side */}
       <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-16 xl:px-24 relative z-10 bg-white shadow-[20px_0_40px_rgba(0,0,0,0.02)]">
         <div className="w-full max-w-sm mx-auto">
-          <div className="mb-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
+          <div className="mb-6 gsap-left-item">
             <div className="inline-flex items-center justify-center p-3.5 bg-orange-600 rounded text-white mb-6">
               <GraduationCap size={32} strokeWidth={2.5} />
             </div>
@@ -69,7 +111,7 @@ export const LoginPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500 delay-100">
+          <div className="space-y-4 gsap-left-item">
             {error && (
               <div className="p-3 bg-rose-50 border border-rose-200 rounded flex items-center gap-2 text-rose-600 text-sm font-semibold">
                 <AlertCircle size={18} className="shrink-0" />
@@ -116,13 +158,13 @@ export const LoginPage: React.FC = () => {
                 </div>
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-2.5 px-4 mt-2 border border-transparent rounded text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 hover:shadow-xl hover:shadow-orange-600/20 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 transition-all disabled:opacity-50"
+                className="w-full flex justify-center py-2.5 px-4 mt-2 rounded text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 hover:shadow-xl hover:shadow-orange-600/20 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 transition-all disabled:opacity-50"
               >
                 {loading ? 'Authenticating...' : 'Sign In'}
-              </button>
+              </Button>
             </form>
 
             {import.meta.env.VITE_MODE === 'development' && (
@@ -144,18 +186,26 @@ export const LoginPage: React.FC = () => {
       {/* Right Graphic Side */}
       <div className="hidden lg:flex flex-1 bg-zinc-950 relative overflow-hidden items-center justify-center">
         {/* Accent abstract shapes */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-orange-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-20 -translate-y-1/4 translate-x-1/4"></div>
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-600 rounded-full mix-blend-multiply filter blur-[120px] opacity-20 translate-y-1/4 -translate-x-1/4"></div>
+        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-orange-500 rounded-full mix-blend-multiply filter blur-[120px] opacity-20 -translate-y-1/4 translate-x-1/4 gsap-right-shape"></div>
+        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-600 rounded-full mix-blend-multiply filter blur-[120px] opacity-20 translate-y-1/4 -translate-x-1/4 gsap-right-shape"></div>
 
         <div className="relative z-10 p-10 max-w-lg">
-          <h1 className="text-5xl font-extrabold text-white tracking-tight leading-[1.1] mb-6">
-            Streamline your thesis journey.
+          <h1 className="text-5xl font-extrabold text-white tracking-tight leading-[1.1] mb-6 flex flex-wrap gap-x-3 gap-y-2">
+            {"Streamline your thesis journey.".split(" ").map((word, wordIdx) => (
+              <span key={wordIdx} className="inline-block whitespace-nowrap">
+                {word.split("").map((char, charIdx) => (
+                  <span key={charIdx} className="gsap-char inline-block">
+                    {char}
+                  </span>
+                ))}
+              </span>
+            ))}
           </h1>
-          <p className="text-lg text-zinc-400 font-medium leading-relaxed">
+          <p className="text-lg text-zinc-400 font-medium leading-relaxed gsap-right-text">
             A minimal, modern approach to submitting, reviewing, and tracking academic proposals. Everything you need, nothing you don't.
           </p>
 
-          <div className="mt-12 flex items-center gap-4">
+          <div className="mt-12 flex items-center gap-4 gsap-right-text">
             <div className="flex -space-x-3">
               {[1,2,3].map(i => (
                 <div key={i} className="w-10 h-10 rounded-full border-2 border-zinc-950 bg-zinc-800 flex items-center justify-center text-xs font-bold text-white">

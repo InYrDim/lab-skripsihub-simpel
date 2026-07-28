@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { GraduationCap, Mail, Lock, User, Hash, AlertTriangle, CheckCircle, MapPin } from 'lucide-react';
 import { Select } from '../components/ui/select';
+import { Button } from '../components/ui/button';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 
 export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -15,6 +18,17 @@ export const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    gsap.from('.gsap-item', {
+      y: 30,
+      opacity: 0,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'power3.out'
+    });
+  }, { scope: containerRef });
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,8 +65,8 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div ref={containerRef} className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md gsap-item">
         <div className="flex justify-center">
           <div className="w-16 h-16 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-600/20">
             <GraduationCap className="w-10 h-10 text-white" />
@@ -69,7 +83,7 @@ export const RegisterPage: React.FC = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md gsap-item">
         <div className="bg-white dark:bg-zinc-900 py-8 px-4 shadow-xl sm:rounded-xl sm:px-10 border border-zinc-200 dark:border-zinc-800">
           
           {success ? (
@@ -202,13 +216,13 @@ export const RegisterPage: React.FC = () => {
               </div>
 
               <div className="pt-2">
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
                   className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {loading ? 'Mendaftarkan...' : 'Daftar Sekarang'}
-                </button>
+                </Button>
               </div>
             </form>
           )}

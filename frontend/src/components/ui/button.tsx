@@ -1,10 +1,12 @@
+import React, { useRef } from 'react';
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
-
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-colors outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -40,19 +42,68 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+const Button = React.forwardRef<
+  HTMLButtonElement,
+  ButtonPrimitive.Props & VariantProps<typeof buttonVariants>
+>(({ className, variant = "default", size = "default", onMouseEnter, onMouseLeave, onMouseDown, onMouseUp, ...props }, ref) => {
+  const localRef = useRef<HTMLButtonElement>(null);
+
+  const setRefs = (element: HTMLButtonElement) => {
+    localRef.current = element;
+    if (typeof ref === 'function') {
+      ref(element);
+    } else if (ref) {
+      (ref as React.MutableRefObject<HTMLButtonElement | null>).current = element;
+    }
+  };
+
+  const { contextSafe } = useGSAP({ scope: localRef });
+
+  const handleMouseEnter = contextSafe((e: any) => {
+    gsap.to(localRef.current, { scale: 1.02, duration: 0.2, ease: "power2.out" });
+    onMouseEnter?.(e);
+  });
+
+  const handleMouseLeave = contextSafe((e: any) => {
+    gsap.to(localRef.current, { scale: 1, duration: 0.3, ease: "power2.out" });
+    onMouseLeave?.(e);
+  });
+
+  const handleMouseDown = contextSafe((e: any) => {
+    gsap.to(localRef.current, { scale: 0.95, duration: 0.1, ease: "power2.in" });
+    onMouseDown?.(e);
+  });
+
+  const handleMouseUp = contextSafe((e: any) => {
+    gsap.to(localRef.current, { 
+      scale: 1.05, 
+      duration: 0.6, 
+      ease: "elastic.out(1, 0.4)" 
+    });
+    // Return back to hover scale after pop
+    gsap.to(localRef.current, {
+      scale: 1.02,
+      duration: 0.3,
+      delay: 0.2,
+      ease: "power2.out"
+    });
+    onMouseUp?.(e);
+  });
+
   return (
     <ButtonPrimitive
+      ref={setRefs}
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       {...props}
     />
   )
-}
+})
+
+Button.displayName = "Button"
 
 export { Button, buttonVariants }
