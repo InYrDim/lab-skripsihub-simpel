@@ -20,3 +20,4 @@ node_module
 *.njsproj
 *.sln
 *.sw?
+dist
