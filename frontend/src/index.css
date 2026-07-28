@@ -52,3 +52,13 @@
     @apply bg-orange-500;
   }
 }
+
+/* NProgress Customization */
+#nprogress .bar {
+  background: #ea580c !important; /* Orange 600 */
+  height: 3px !important;
+}
+#nprogress .peg {
+  box-shadow: 0 0 10px #ea580c, 0 0 5px #ea580c !important;
+}
+

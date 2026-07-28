@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { BerkasPengajuan } from '../components/ui/BerkasPengajuan';
@@ -117,7 +116,7 @@ export const ValidatorDashboard: React.FC = () => {
 
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-4">
         {/* Header */}
         <div>
@@ -430,6 +429,6 @@ export const ValidatorDashboard: React.FC = () => {
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 };

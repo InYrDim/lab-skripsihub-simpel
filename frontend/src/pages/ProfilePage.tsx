@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { ImageCropper } from '../components/ui/ImageCropper';
@@ -20,7 +19,7 @@ import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { useToast } from '../context/ToastContext';
 
 export const ProfilePage: React.FC = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, loading } = useAuth();
   const { showToast } = useToast();
 
   // Form state
@@ -121,7 +120,7 @@ export const ProfilePage: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="max-w-2xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
@@ -132,7 +131,39 @@ export const ProfilePage: React.FC = () => {
           </p>
         </div>
 
-        {/* Photo + Identity Card */}
+        {loading ? (
+          <div className="space-y-6 animate-pulse">
+            <div className="bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col sm:flex-row items-center gap-6">
+              <div className="h-28 w-28 rounded-full bg-zinc-200 dark:bg-zinc-800 shrink-0"></div>
+              <div className="flex-1 space-y-3 w-full">
+                <div className="h-6 w-1/3 bg-zinc-200 dark:bg-zinc-800 rounded mx-auto sm:mx-0"></div>
+                <div className="h-4 w-1/2 bg-zinc-200 dark:bg-zinc-800 rounded mx-auto sm:mx-0"></div>
+                <div className="flex gap-2 justify-center sm:justify-start">
+                  <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                  <div className="h-5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800">
+              <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+                <div className="h-4 w-32 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="space-y-2">
+                  <div className="h-3 w-32 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                  <div className="h-9 w-full bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 w-20 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                  <div className="h-14 w-full bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Photo + Identity Card */}
         <div className="bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800 shadow-sm overflow-hidden">
           <div className="p-6 flex flex-col sm:flex-row items-center gap-6">
             {/* Photo Upload */}
@@ -318,6 +349,8 @@ export const ProfilePage: React.FC = () => {
             <Save size={16} /> Simpan Profil
           </button>
         </div>
+          </>
+        )}
       </div>
 
       <ConfirmationModal
@@ -340,6 +373,6 @@ export const ProfilePage: React.FC = () => {
         onConfirm={() => setShowPhotoSuccessModal(false)}
         onCancel={() => setShowPhotoSuccessModal(false)}
       />
-    </DashboardLayout>
+    </>
   );
 };

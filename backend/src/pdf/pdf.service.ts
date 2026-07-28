@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 export interface GenerateApprovalLetterInput {
   studentName: string;
@@ -21,6 +22,19 @@ export interface PdfGenerationResult {
 @Injectable()
 export class PdfService {
   private readonly logger = new Logger(PdfService.name);
+  private supabase: SupabaseClient | null = null;
+
+  constructor() {
+    const supabaseUrl = process.env.SUPABASE_URL || '';
+    const supabaseKey = process.env.SUPABASE_KEY || '';
+    
+    if (supabaseUrl && supabaseKey) {
+      this.supabase = createClient(supabaseUrl, supabaseKey);
+      this.logger.log('Supabase client initialized');
+    } else {
+      this.logger.warn('SUPABASE_URL or SUPABASE_KEY not found in env. Supabase upload will be skipped.');
+    }
+  }
 
   /**
    * Accepts either positional parameters or an options object.
@@ -105,8 +119,33 @@ export class PdfService {
 
     fs.writeFileSync(filePath, pdfBuffer);
 
-    const pdfUrl = `/uploads/letters/${fileName}`;
+    let pdfUrl = `/uploads/letters/${fileName}`;
     const pdfS3Key = `letters/${fileName}`;
+    const bucketName = process.env.SUPABASE_BUCKET || 'letters';
+
+    if (this.supabase) {
+      try {
+        const { data, error } = await this.supabase
+          .storage
+          .from(bucketName)
+          .upload(pdfS3Key, pdfBuffer, {
+            contentType: 'application/pdf',
+            upsert: true,
+          });
+
+        if (error) throw error;
+
+        const { data: publicUrlData } = this.supabase
+          .storage
+          .from(bucketName)
+          .getPublicUrl(pdfS3Key);
+        
+        pdfUrl = publicUrlData.publicUrl;
+        this.logger.log(`Successfully uploaded PDF to Supabase: ${pdfUrl}`);
+      } catch (uploadError) {
+        this.logger.error(`Failed to upload to Supabase: ${(uploadError as Error).message}`);
+      }
+    }
 
     return {
       pdfUrl,

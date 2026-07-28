@@ -57,7 +57,7 @@ export const LoginPage: React.FC = () => {
       {/* Left Form Side */}
       <div className="flex-1 flex flex-col justify-center px-6 sm:px-10 lg:px-16 xl:px-24 relative z-10 bg-white shadow-[20px_0_40px_rgba(0,0,0,0.02)]">
         <div className="w-full max-w-sm mx-auto">
-          <div className="mb-10 animate-in slide-in-from-bottom-4 fade-in duration-500">
+          <div className="mb-6 animate-in slide-in-from-bottom-4 fade-in duration-500">
             <div className="inline-flex items-center justify-center p-3.5 bg-orange-600 rounded text-white mb-6">
               <GraduationCap size={32} strokeWidth={2.5} />
             </div>
@@ -77,7 +77,7 @@ export const LoginPage: React.FC = () => {
               </div>
             )}
 
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm font-bold text-zinc-900 mb-2">
                   Email Address
@@ -91,7 +91,7 @@ export const LoginPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="student@university.edu"
-                    className="block w-full pl-11 pr-4 py-3 bg-zinc-50 border-2 border-transparent focus:bg-white rounded text-zinc-900 font-medium text-sm placeholder-zinc-400 focus:outline-none focus:ring-0 focus:border-orange-500 transition-all shadow-sm"
+                    className="block w-full pl-11 pr-4 py-2.5 bg-zinc-50 border-2 border-transparent focus:bg-white rounded text-zinc-900 font-medium text-sm placeholder-zinc-400 focus:outline-none focus:ring-0 focus:border-orange-500 transition-all shadow-sm"
                   />
                 </div>
               </div>
@@ -111,7 +111,7 @@ export const LoginPage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="block w-full pl-11 pr-4 py-3 bg-zinc-50 border-2 border-transparent focus:bg-white rounded text-zinc-900 font-medium text-sm placeholder-zinc-400 focus:outline-none focus:ring-0 focus:border-orange-500 transition-all shadow-sm"
+                    className="block w-full pl-11 pr-4 py-2.5 bg-zinc-50 border-2 border-transparent focus:bg-white rounded text-zinc-900 font-medium text-sm placeholder-zinc-400 focus:outline-none focus:ring-0 focus:border-orange-500 transition-all shadow-sm"
                   />
                 </div>
               </div>
@@ -119,7 +119,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 hover:shadow-xl hover:shadow-orange-600/20 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 transition-all disabled:opacity-50"
+                className="w-full flex justify-center py-2.5 px-4 mt-2 border border-transparent rounded text-sm font-bold text-white bg-orange-600 hover:bg-orange-700 hover:shadow-xl hover:shadow-orange-600/20 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-600 transition-all disabled:opacity-50"
               >
                 {loading ? 'Authenticating...' : 'Sign In'}
               </button>
@@ -129,8 +129,8 @@ export const LoginPage: React.FC = () => {
               <DemoSection onDemoLogin={handleDemoLogin} />
             )}
 
-            <div className="pt-6">
-              <div className="mt-8 text-center text-sm font-medium text-zinc-600">
+            <div>
+              <div className="mt-6 text-center text-sm font-medium text-zinc-600">
                 Belum punya akun?{' '}
                 <Link to="/register" className="text-orange-600 hover:text-orange-700 font-bold hover:underline transition-all">
                   Daftar Sekarang

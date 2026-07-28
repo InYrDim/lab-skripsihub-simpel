@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import type { Submission, SubmissionStatus, Topic } from '../types';
 import { Select } from '../components/ui/select';
@@ -257,7 +256,7 @@ export const StudentDashboard: React.FC = () => {
   };
 
   return (
-    <DashboardLayout>
+    <>
       <div className="mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -906,6 +905,6 @@ export const StudentDashboard: React.FC = () => {
           statusBadge={getStatusBadge(previewingSubmission.status)}
         />
       )}
-    </DashboardLayout>
+    </>
   );
 };

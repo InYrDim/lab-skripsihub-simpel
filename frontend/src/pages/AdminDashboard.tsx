@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole, Topic } from '../types';
@@ -366,7 +365,7 @@ export const AdminDashboard: React.FC = () => {
   const pendingUsersCount = users.filter(u => u.status === 'MENUNGGU_APPROVE').length;
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-4">
         {/* Top Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1264,6 +1263,6 @@ export const AdminDashboard: React.FC = () => {
         onConfirm={confirmDeleteSubmission}
         isDestructive={true}
       />
-    </DashboardLayout>
+    </>
   );
 };

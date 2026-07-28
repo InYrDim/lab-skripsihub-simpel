@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return localStorage.getItem('auth_token') || null;
   });
 
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (token) {
@@ -56,6 +56,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('auth_user');
     }
   }, [user]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const initAuth = async () => {
+      if (!token) {
+        if (isMounted) setLoading(false);
+        return;
+      }
+      try {
+        const res = await api.getProfile();
+        if (res.success && isMounted) {
+          setUser(normalizeStoredUser(res.data));
+        } else if (!res.success && isMounted) {
+          // don't aggressively logout on network error, but if unauthorized, maybe.
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile on load', err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    initAuth();
+    return () => { isMounted = false; };
+  }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);

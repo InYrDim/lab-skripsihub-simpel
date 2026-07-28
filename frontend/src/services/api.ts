@@ -94,6 +94,14 @@ class ApiClient {
     return this.request('/auth/logout', { method: 'POST' });
   }
 
+  getProfile(): Promise<ApiResponse<User>> {
+    return this.request<ApiUser>('/users/me', { method: 'GET' })
+      .then(response => ({
+        ...response,
+        data: toUser(response.data)
+      }));
+  }
+
   // Student Methods
   getStudentSubmissions(): Promise<ApiResponse<Submission[]>> {
     return this.request<Submission[]>('/submissions/me');

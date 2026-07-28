@@ -12,12 +12,15 @@ import { SubmissionListPage } from './pages/SubmissionListPage';
 import { UnauthorizedPage } from './pages/UnauthorizedPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ToastProvider } from './context/ToastContext';
+import { DashboardLayout } from './components/layout/DashboardLayout';
+import { GlobalLoader } from './components/ui/GlobalLoader';
 
 function App() {
   return (
     <ToastProvider>
       <AuthProvider>
       <BrowserRouter>
+        <GlobalLoader />
         <Routes>
           {/* Public Login Route */}
           <Route path="/login" element={<LoginPage />} />
@@ -26,67 +29,72 @@ function App() {
           {/* Root Redirect based on user role */}
           <Route path="/" element={<RoleBasedRedirect />} />
 
-          {/* Submission List - Public page, only shows approved */}
-          <Route path="/submissions" element={<SubmissionListPage />} />
-
-          {/* Student Dashboard */}
-          <Route
-            path="/student"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT', 'student']}>
-                <StudentDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/student/history"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT', 'student']}>
-                <StudentHistoryPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Admin Dashboard */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN', 'admin']}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/management"
-            element={
-              <ProtectedRoute allowedRoles={['ADMIN', 'admin']}>
-                <AdminManagement />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Validator Dashboard */}
-          <Route
-            path="/validator"
-            element={
-              <ProtectedRoute allowedRoles={['VALIDATOR', 'validator']}>
-                <ValidatorDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Profile Page */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute allowedRoles={['STUDENT', 'student', 'ADMIN', 'admin', 'VALIDATOR', 'validator']}>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-
           {/* 403 Access Denied */}
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+          {/* Layout Wrapper for Dashboard Pages */}
+          <Route element={<DashboardLayout />}>
+            {/* Submission List - Public page, only shows approved */}
+            <Route path="/submissions" element={<SubmissionListPage />} />
+
+            {/* Student Dashboard */}
+            <Route
+              path="/student"
+              element={
+                <ProtectedRoute allowedRoles={['STUDENT', 'student']}>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/history"
+              element={
+                <ProtectedRoute allowedRoles={['STUDENT', 'student']}>
+                  <StudentHistoryPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Admin Dashboard */}
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/management"
+              element={
+                <ProtectedRoute allowedRoles={['ADMIN', 'admin']}>
+                  <AdminManagement />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Validator Dashboard */}
+            <Route
+              path="/validator"
+              element={
+                <ProtectedRoute allowedRoles={['VALIDATOR', 'validator']}>
+                  <ValidatorDashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Profile Page */}
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute allowedRoles={['STUDENT', 'student', 'ADMIN', 'admin', 'VALIDATOR', 'validator']}>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+
+
 
           {/* Catch-all fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

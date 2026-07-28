@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+export function DashboardLayout() {
   // Auto-collapse sidebar on smaller screens
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -35,7 +36,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         <main className="flex-1 p-4 sm:p-5 lg:p-6">
           <div className="mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out">
-            {children}
+            <Outlet />
           </div>
         </main>
       </div>

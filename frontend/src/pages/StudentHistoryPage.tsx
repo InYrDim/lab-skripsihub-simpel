@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { api } from '../services/api';
 import type { Submission, SubmissionStatus } from '../types';
 import { ModalDetailProposal } from '../components/ui/ModalDetailProposal';
@@ -33,7 +32,7 @@ export const StudentHistoryPage: React.FC = () => {
 
 
   return (
-    <DashboardLayout>
+    <>
       <div className="space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -125,6 +124,6 @@ export const StudentHistoryPage: React.FC = () => {
           statusBadge={getStatusBadge(previewingSubmission.status)}
         />
       )}
-    </DashboardLayout>
+    </>
   );
 };

@@ -11,7 +11,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const navigate = useNavigate();
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -70,26 +70,38 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
         <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden sm:flex flex-col items-end">
-            <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
-              {user?.name || 'Pengguna'}
-            </span>
-            <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
-              {user?.role === 'STUDENT' ? 'MAHASISWA' : user?.role || 'MAHASISWA'}
-            </span>
-          </div>
+          {loading ? (
+            <>
+              <div className="hidden sm:flex flex-col items-end gap-1.5 animate-pulse">
+                <div className="h-3.5 w-24 bg-zinc-200 dark:bg-zinc-800 rounded"></div>
+                <div className="h-4 w-20 bg-orange-100 dark:bg-orange-900/30 rounded"></div>
+              </div>
+              <div className="h-9 w-9 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse shrink-0"></div>
+            </>
+          ) : (
+            <>
+              <div className="hidden sm:flex flex-col items-end">
+                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                  {user?.name || 'Pengguna'}
+                </span>
+                <span className="text-[10px] font-semibold tracking-wide uppercase px-2 py-0.5 rounded bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20">
+                  {user?.role === 'STUDENT' ? 'MAHASISWA' : user?.role || 'MAHASISWA'}
+                </span>
+              </div>
 
-          <div 
-            onClick={() => navigate('/profile')}
-            className={`h-9 w-9 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-800 transition-colors overflow-hidden shrink-0`}
-            title="Profil Saya"
-          >
-            {user?.photoUrl ? (
-              <AuthenticatedImage src={user.photoUrl} alt="Foto Profil" className="h-full w-full object-cover" />
-            ) : (
-              <UserIcon size={18} />
-            )}
-          </div>
+              <div 
+                onClick={() => navigate('/profile')}
+                className={`h-9 w-9 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-800 cursor-pointer hover:bg-orange-200 dark:hover:bg-orange-800 transition-colors overflow-hidden shrink-0`}
+                title="Profil Saya"
+              >
+                {user?.photoUrl ? (
+                  <AuthenticatedImage src={user.photoUrl} alt="Foto Profil" className="h-full w-full object-cover" />
+                ) : (
+                  <UserIcon size={18} />
+                )}
+              </div>
+            </>
+          )}
 
           <button
             onClick={() => setShowLogoutModal(true)}
