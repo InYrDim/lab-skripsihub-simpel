@@ -30,9 +30,9 @@ export function Dialog({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 animate-in fade-in duration-200">
       <div 
-        className="bg-white dark:bg-zinc-950 rounded-lg max-w-md w-full shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden"
+        className="relative bg-white dark:bg-zinc-950 rounded-lg max-w-md w-full shadow-2xl border border-zinc-200 dark:border-zinc-800 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">

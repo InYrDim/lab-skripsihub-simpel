@@ -15,7 +15,7 @@ export function DashboardLayout() {
     if (pageRef.current) {
       gsap.fromTo(pageRef.current, 
         { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }
+        { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out', clearProps: 'transform' }
       );
     }
   }, { dependencies: [location.pathname], revertOnUpdate: true });

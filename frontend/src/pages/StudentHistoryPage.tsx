@@ -75,8 +75,8 @@ export const StudentHistoryPage: React.FC = () => {
 
       {/* VIEW REJECTION FEEDBACK MODAL */}
       {showFeedbackModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
-          <div className="bg-white dark:bg-zinc-950 rounded max-w-lg w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="relative bg-white dark:bg-zinc-950 rounded max-w-lg w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
                 <XCircle size={20} />

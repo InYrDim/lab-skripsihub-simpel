@@ -178,8 +178,8 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 animate-in fade-in m-0">
-      <div className="bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800 shadow-2xl max-w-md w-full p-6 space-y-4">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/70 animate-in fade-in m-0">
+      <div className="relative bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800 shadow-2xl max-w-md w-full p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-zinc-900 dark:text-white">Atur Foto Profil</h3>
           <Button

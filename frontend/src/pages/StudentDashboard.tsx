@@ -513,7 +513,7 @@ export const StudentDashboard: React.FC = () => {
 
       {/* CREATE SUBMISSION MODAL */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
           <div className="flex h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950">
             <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
               <div>
@@ -852,8 +852,8 @@ export const StudentDashboard: React.FC = () => {
 
       {/* VIEW REJECTION FEEDBACK MODAL */}
       {showFeedbackModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
-          <div className="bg-white dark:bg-zinc-950 rounded max-w-lg w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="relative bg-white dark:bg-zinc-950 rounded max-w-lg w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <h2 className="text-lg font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
                 <XCircle size={20} />

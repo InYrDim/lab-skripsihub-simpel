@@ -169,8 +169,8 @@ export const ValidatorDashboard: React.FC = () => {
 
       {/* REVIEW SUBMISSION MODAL */}
       {selectedSubmission && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
-          <div className="bg-white dark:bg-zinc-950 rounded max-w-2xl w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
+          <div className="relative bg-white dark:bg-zinc-950 rounded max-w-2xl w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
               <div>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-white flex items-center gap-2">

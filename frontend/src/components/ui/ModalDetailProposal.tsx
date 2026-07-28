@@ -14,8 +14,8 @@ interface ModalDetailProposalProps {
 
 export function ModalDetailProposal({ submission, onClose, statusBadge }: ModalDetailProposalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
-      <div className="flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950">
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 p-4 animate-in fade-in">
+      <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded border border-zinc-200 bg-white shadow-2xl dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex shrink-0 items-start justify-between border-b border-zinc-200 p-5 dark:border-zinc-800">
           <div>
             <h2 className="flex items-center gap-2 text-lg font-bold text-zinc-900 dark:text-white">

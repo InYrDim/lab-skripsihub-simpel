@@ -68,7 +68,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 animate-in fade-in">
-      <div className="bg-white dark:bg-zinc-950 rounded-lg max-w-sm w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-zinc-950 rounded-lg max-w-sm w-full p-6 shadow-2xl border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-200">
         <div className="flex flex-col items-center text-center space-y-4">
           <div className={`h-12 w-12 rounded-full flex items-center justify-center ${getIconBg()}`}>
             {getIcon()}
