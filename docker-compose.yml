@@ -8,7 +8,7 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: skripsihub
     ports:
-      - "3306:3306"
+      - "3336:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
