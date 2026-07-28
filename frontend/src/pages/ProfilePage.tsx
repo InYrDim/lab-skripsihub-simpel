@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { useToast } from '../context/ToastContext';
+import { Button } from '../components/ui/button';
 
 export const ProfilePage: React.FC = () => {
   const { user, updateUser, loading } = useAuth();
@@ -175,13 +176,13 @@ export const ProfilePage: React.FC = () => {
                   <UserIcon size={48} className="text-zinc-400" />
                 )}
               </div>
-              <button
+              <Button
                 onClick={() => fileInputRef.current?.click()}
                 className="absolute bottom-0 right-0 h-9 w-9 rounded-full bg-orange-600 text-white flex items-center justify-center shadow-lg hover:bg-orange-700 transition-colors border-2 border-white dark:border-zinc-950"
                 title="Ganti foto"
               >
                 <Camera size={16} />
-              </button>
+              </Button>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -342,12 +343,12 @@ export const ProfilePage: React.FC = () => {
 
         {/* Save Button */}
         <div className="flex justify-end">
-          <button
+          <Button
             onClick={() => setShowSaveModal(true)}
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white rounded text-sm font-semibold transition-colors shadow-sm"
           >
             <Save size={16} /> Simpan Profil
-          </button>
+          </Button>
         </div>
           </>
         )}

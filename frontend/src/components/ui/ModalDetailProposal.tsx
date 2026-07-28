@@ -4,6 +4,7 @@ import type { Submission } from '../../types';
 import { StudentIdentityCard } from './StudentIdentityCard';
 import { BerkasPengajuan } from './BerkasPengajuan';
 import { ProposedTitlesList } from './ProposedTitlesList';
+import { Button } from './button';
 
 interface ModalDetailProposalProps {
   submission: Submission;
@@ -25,14 +26,14 @@ export function ModalDetailProposal({ submission, onClose, statusBadge }: ModalD
               ID {submission.submissionId}
             </p>
           </div>
-          <button
+          <Button
             type="button"
             onClick={onClose}
             className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
             aria-label="Tutup preview"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
         <div className="space-y-4 overflow-y-auto p-5">

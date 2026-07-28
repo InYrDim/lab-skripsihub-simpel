@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Button } from '../components/ui/button';
 
 export const UnauthorizedPage: React.FC = () => {
   const navigate = useNavigate();
@@ -28,13 +29,13 @@ export const UnauthorizedPage: React.FC = () => {
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           You do not have permission to access this page. Please return to your authorized portal.
         </p>
-        <button
+        <Button
           onClick={handleHomeClick}
           className="inline-flex items-center gap-2 px-4 py-2 rounded bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium transition-colors"
         >
           <ArrowLeft size={16} />
           Go to Dashboard
-        </button>
+        </Button>
       </div>
     </div>
   );

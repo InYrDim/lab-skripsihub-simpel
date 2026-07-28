@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, Info, X } from 'lucide-react';
+import { Button } from '../components/ui/button';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -68,12 +69,12 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           >
             {getIcon(toast.type)}
             <p className="flex-1 text-sm font-medium pt-0.5">{toast.message}</p>
-            <button
+            <Button
               onClick={() => removeToast(toast.id)}
               className="opacity-50 hover:opacity-100 transition-opacity"
             >
               <X size={18} />
-            </button>
+            </Button>
           </div>
         ))}
       </div>

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '../components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { api } from '../services/api';
 import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole, Topic } from '../types';
 import { Select } from '../components/ui/select';
@@ -408,7 +410,8 @@ export const AdminManagement: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-6">
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)}>
+        <div className="space-y-6">
         {/* Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -420,44 +423,21 @@ export const AdminManagement: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            
-            <button
-              onClick={() => setActiveTab('users')}
-              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
-                activeTab === 'users'
-                  ? 'bg-orange-600 text-white shadow-md'
-                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
-              }`}
-            >
+          <TabsList className="gap-2 border-none">
+            <TabsTrigger value="users" className="px-4 py-2 text-xs">
               User Management
-            </button>
-            <button
-              onClick={() => setActiveTab('topics')}
-              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
-                activeTab === 'topics'
-                  ? 'bg-orange-600 text-white shadow-md'
-                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
-              }`}
-            >
+            </TabsTrigger>
+            <TabsTrigger value="topics" className="px-4 py-2 text-xs">
               Topic Management
-            </button>
-            
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
-                activeTab === 'settings'
-                  ? 'bg-orange-600 text-white shadow-md'
-                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
-              }`}
-            >
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="px-4 py-2 text-xs">
               Settings
-            </button>
-          </div>
+            </TabsTrigger>
+          </TabsList>
         </div>
 
         {/* TAB 2: USER MANAGEMENT */}
-        {activeTab === 'users' && (
+        <TabsContent value="users" className="mt-0">
           <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden space-y-4">
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -488,58 +468,53 @@ export const AdminManagement: React.FC = () => {
                   ]}
                   className="w-36"
                 />
-                <button
+                <Button
                   onClick={() => setShowAddUserModal(true)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 text-white font-semibold text-xs shadow-sm hover:bg-orange-700 transition-colors"
                 >
                   <UserPlus size={14} /> Add User
-                </button>
+                </Button>
               </div>
             </div>
 
             <div className="px-5 border-b border-zinc-200 dark:border-zinc-800">
-              <div className="flex gap-1 overflow-x-auto" role="tablist" aria-label="Filter users by role">
-                {[
-                  { value: 'ALL', label: 'Semua' },
-                  { value: 'STUDENT', label: 'Mahasiswa' },
-                  { value: 'ADMIN', label: 'Admin' },
-                  { value: 'VALIDATOR', label: 'Validator' },
-                ].map((tab) => {
-                  const usersInProdiAndStatus = users.filter(
-                    (user) => (prodiFilter === 'ALL' || user.prodi === prodiFilter) &&
-                              (userStatusFilter === 'ALL' || user.status === userStatusFilter)
-                  );
-                  const count = tab.value === 'ALL'
-                    ? usersInProdiAndStatus.length
-                    : usersInProdiAndStatus.filter(
-                        (user) => user.role.toUpperCase() === tab.value,
-                      ).length;
+              <Tabs value={roleFilter} onValueChange={setRoleFilter}>
+                <TabsList className="flex gap-1 overflow-x-auto border-none">
+                  {[
+                    { value: 'ALL', label: 'Semua' },
+                    { value: 'STUDENT', label: 'Mahasiswa' },
+                    { value: 'ADMIN', label: 'Admin' },
+                    { value: 'VALIDATOR', label: 'Validator' },
+                  ].map((tab) => {
+                    const usersInProdiAndStatus = users.filter(
+                      (user) => (prodiFilter === 'ALL' || user.prodi === prodiFilter) &&
+                                (userStatusFilter === 'ALL' || user.status === userStatusFilter)
+                    );
+                    const count = tab.value === 'ALL'
+                      ? usersInProdiAndStatus.length
+                      : usersInProdiAndStatus.filter(
+                          (user) => user.role.toUpperCase() === tab.value,
+                        ).length;
 
-                  return (
-                    <button
-                      key={tab.value}
-                      type="button"
-                      role="tab"
-                      aria-selected={roleFilter === tab.value}
-                      onClick={() => setRoleFilter(tab.value)}
-                      className={`flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition-colors ${
-                        roleFilter === tab.value
-                          ? 'border-orange-600 text-orange-600 dark:text-orange-400'
-                          : 'border-transparent text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:hover:border-zinc-700 dark:hover:text-zinc-100'
-                      }`}
-                    >
-                      {tab.label}
-                      <span className={`rounded-full px-2 py-0.5 text-[10px] ${
-                        roleFilter === tab.value
-                          ? 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300'
-                          : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
-                      }`}>
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+                    return (
+                      <TabsTrigger
+                        key={tab.value}
+                        value={tab.value}
+                        className="flex shrink-0 items-center gap-2 px-4 py-3 text-xs"
+                      >
+                        {tab.label}
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] ${
+                          roleFilter === tab.value
+                            ? 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-300'
+                            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400'
+                        }`}>
+                          {count}
+                        </span>
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
+              </Tabs>
             </div>
 
             <div className="overflow-x-auto">
@@ -601,23 +576,23 @@ export const AdminManagement: React.FC = () => {
                       <td className="px-6 py-4 text-right whitespace-nowrap">
                         {u.status === 'MENUNGGU_APPROVE' && (
                           <>
-                            <button
+                            <Button
                               onClick={() => handleRejectUser(u)}
                               className="mr-2 inline-flex items-center gap-1.5 rounded border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
                             >
                               <XCircle size={13} />
                               Tolak
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               onClick={() => handleApproveUser(u)}
                               className="mr-2 inline-flex items-center gap-1.5 rounded border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
                             >
                               <CheckCircle size={13} />
                               Approve
-                            </button>
+                            </Button>
                           </>
                         )}
-                        <button
+                        <Button
                           onClick={() => {
                             setEditingUser(u);
                             setShowEditUserModal(true);
@@ -626,14 +601,14 @@ export const AdminManagement: React.FC = () => {
                         >
                           <Pencil size={13} aria-hidden="true" />
                           Edit
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={() => setUserToDelete(u)}
                           className="inline-flex items-center gap-1.5 rounded border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700 dark:border-rose-500/30 dark:hover:bg-rose-500/10"
                         >
                           <Trash2 size={13} aria-hidden="true" />
                           Delete
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -641,22 +616,22 @@ export const AdminManagement: React.FC = () => {
               </table>
             </div>
           </div>
-        )}
+        </TabsContent>
 
         {/* TAB 3: TOPICS MANAGEMENT */}
-        {activeTab === 'topics' && (
+        <TabsContent value="topics" className="mt-0">
           <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 overflow-hidden space-y-4">
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
                 <Tag size={18} className="text-orange-600" />
                 Direktori Topik
               </h3>
-              <button
+              <Button
                 onClick={() => setShowAddTopicModal(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 text-white font-semibold text-xs shadow-sm hover:bg-orange-700 transition-colors"
               >
                 <Plus size={14} /> Add Topic
-              </button>
+              </Button>
             </div>
             <div className="overflow-x-auto p-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -674,13 +649,13 @@ export const AdminManagement: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-2 shrink-0">
-                      <button
+                      <Button
                         onClick={() => handleToggleTopic(topic.id)}
                         className={`text-xs px-2 py-1 rounded border font-medium ${topic.isActive ? 'border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-900 dark:text-rose-400 dark:hover:bg-rose-900/30' : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-900/30'}`}
                       >
                         {topic.isActive ? 'Disable' : 'Enable'}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => {
                           setEditingTopic(topic);
                           setEditTopicName(topic.name);
@@ -689,20 +664,20 @@ export const AdminManagement: React.FC = () => {
                         className="text-xs px-2 py-1 rounded border border-orange-200 text-orange-600 hover:bg-orange-50 dark:border-orange-900 dark:text-orange-400 dark:hover:bg-orange-900/30 font-medium"
                       >
                         Edit
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => setTopicToDelete(topic)}
                         className="text-xs px-2 py-1 rounded border border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 font-medium"
                       >
                         Delete
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           </div>
-        )}
+        </TabsContent>
         {/* TAB 4: ALL TITLES */}
         {false && (
           <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
@@ -789,7 +764,7 @@ export const AdminManagement: React.FC = () => {
         )}
       </div>
 
-        {activeTab === 'settings' && (
+        <TabsContent value="settings" className="mt-0">
           <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -816,20 +791,20 @@ export const AdminManagement: React.FC = () => {
                   placeholder="Teknik Informatika dan Komputer"
                 />
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
                     onClick={handleSaveDefaultDepartment}
                     disabled={savingDepartment || editingDepartment.trim() === defaultDepartment}
                     className="px-4 py-1.5 bg-orange-600 hover:bg-orange-700 disabled:bg-zinc-300 dark:disabled:bg-zinc-700 text-white text-xs font-semibold rounded transition-all"
                   >
                     {savingDepartment ? 'Menyimpan...' : 'Simpan'}
-                  </button>
+                  </Button>
                   {editingDepartment.trim() !== defaultDepartment && (
-                    <button
+                    <Button
                       onClick={() => setEditingDepartment(defaultDepartment)}
                       className="px-4 py-1.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-xs font-semibold rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
                     >
                       Batal
-                    </button>
+                    </Button>
                   )}
                 </div>
                 <div className="p-3 bg-zinc-50 dark:bg-zinc-900 rounded border border-zinc-200 dark:border-zinc-800">
@@ -839,7 +814,8 @@ export const AdminManagement: React.FC = () => {
               </div>
             </div>
           </div>
-        )}
+        </TabsContent>
+    </Tabs>
 
       {/* ADD USER MODAL */}
       {showAddUserModal && (
@@ -850,12 +826,12 @@ export const AdminManagement: React.FC = () => {
                 <UserPlus size={20} className="text-orange-600" />
                 Create New User Account
               </h2>
-              <button
+              <Button
                 onClick={() => setShowAddUserModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             {addUserError && (
@@ -959,20 +935,20 @@ export const AdminManagement: React.FC = () => {
               )}
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowAddUserModal(false)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={addingUser}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {addingUser ? 'Creating...' : 'Create Account'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -988,12 +964,12 @@ export const AdminManagement: React.FC = () => {
                 <UserCheck size={20} className="text-orange-600" />
                 Edit User Account
               </h2>
-              <button
+              <Button
                 onClick={() => setShowEditUserModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             {editUserError && (
@@ -1113,20 +1089,20 @@ export const AdminManagement: React.FC = () => {
               )}
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowEditUserModal(false)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={updatingUser}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {updatingUser ? 'Updating...' : 'Save Changes'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -1142,12 +1118,12 @@ export const AdminManagement: React.FC = () => {
                 <Tag size={20} className="text-orange-600" />
                 Add New Topic
               </h2>
-              <button
+              <Button
                 onClick={() => setShowAddTopicModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={handleCreateTopic} className="space-y-4">
@@ -1164,20 +1140,20 @@ export const AdminManagement: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowAddTopicModal(false)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={addingTopic || !newTopicName.trim()}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {addingTopic ? 'Adding...' : 'Add Topic'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -1210,12 +1186,12 @@ export const AdminManagement: React.FC = () => {
                 <Tag size={20} className="text-orange-600" />
                 Edit Topik
               </h2>
-              <button
+              <Button
                 onClick={() => setShowEditTopicModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
             <form onSubmit={handleUpdateTopic} className="space-y-4">
               <div>
@@ -1230,20 +1206,20 @@ export const AdminManagement: React.FC = () => {
                 />
               </div>
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowEditTopicModal(false)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Batal
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={updatingTopic || !editTopicName.trim()}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {updatingTopic ? 'Menyimpan...' : 'Simpan Perubahan'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

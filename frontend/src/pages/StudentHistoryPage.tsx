@@ -5,6 +5,7 @@ import { ModalDetailProposal } from '../components/ui/ModalDetailProposal';
 import { SubmissionsTable, getStatusBadge } from '../components/ui/SubmissionsTable';
 import { Clock, CheckCircle, XCircle, Download, Eye, History, X } from 'lucide-react';
 import { StudentIdentityCard } from '../components/ui/StudentIdentityCard';
+import { Button } from '../components/ui/button';
 
 export const StudentHistoryPage: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -52,20 +53,20 @@ export const StudentHistoryPage: React.FC = () => {
             renderActions={(sub) => (
               <>
                 {sub.status.toUpperCase() === 'APPROVED' && (
-                  <button
+                  <Button
                     onClick={() => api.downloadLetter(sub.submissionId)}
                     className="inline-flex items-center gap-1.5 text-xs font-bold px-2 py-1.5 rounded text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors"
                   >
                     <Download size={14} /> Surat
-                  </button>
+                  </Button>
                 )}
                 {sub.status.toUpperCase() === 'REJECTED' && (
-                  <button
+                  <Button
                     onClick={() => setShowFeedbackModal(sub)}
                     className="inline-flex items-center gap-1.5 text-xs font-bold px-2 py-1.5 rounded text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
                   >
                     <Eye size={14} /> Feedback
-                  </button>
+                  </Button>
                 )}
               </>
             )}
@@ -81,12 +82,12 @@ export const StudentHistoryPage: React.FC = () => {
                 <XCircle size={20} />
                 Validator Rejection Feedback
               </h2>
-              <button
+              <Button
                 onClick={() => setShowFeedbackModal(null)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <XCircle size={20} />
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-3">
@@ -105,12 +106,12 @@ export const StudentHistoryPage: React.FC = () => {
             </div>
 
             <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
-              <button
+              <Button
                 onClick={() => setShowFeedbackModal(null)}
                 className="px-4 py-2 rounded text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </div>

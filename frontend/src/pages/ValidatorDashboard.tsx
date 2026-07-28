@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '../components/ui/button';
+
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { BerkasPengajuan } from '../components/ui/BerkasPengajuan';
@@ -125,6 +127,7 @@ export const ValidatorDashboard: React.FC = () => {
             Antrean Penilaian Validator
           </h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+
             Tinjau proposal judul skripsi yang ditugaskan, setujui satu judul, atau tolak dengan catatan.
           </p>
         </div>
@@ -144,19 +147,19 @@ export const ValidatorDashboard: React.FC = () => {
             renderActions={(sub) => (
               <>
                 {sub.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW' ? (
-                  <button
+                  <Button
                     onClick={() => openReviewModal(sub)}
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
                   >
                     <FileText size={14} /> Tinjau Pengajuan
-                  </button>
+                  </Button>
                 ) : (
-                  <button
+                  <Button
                     onClick={() => openReviewModal(sub)}
                     className="text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 underline font-medium"
                   >
                     Lihat Keputusan
-                  </button>
+                  </Button>
                 )}
               </>
             )}
@@ -176,12 +179,12 @@ export const ValidatorDashboard: React.FC = () => {
                 </h2>
                 <p className="text-xs text-zinc-400 font-mono">ID: {selectedSubmission.submissionId}</p>
               </div>
-              <button
+              <Button
                 onClick={() => setSelectedSubmission(null)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             {/* Student Info */}
@@ -255,12 +258,12 @@ export const ValidatorDashboard: React.FC = () => {
                   </div>
                 )}
                 <div className="flex justify-end">
-                  <button
+                  <Button
                     onClick={() => setSelectedSubmission(null)}
                     className="px-4 py-2 rounded text-xs font-semibold bg-zinc-800 text-white"
                   >
                     Close
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
@@ -268,7 +271,7 @@ export const ValidatorDashboard: React.FC = () => {
               <form onSubmit={handleReviewSubmit} className="space-y-4">
                 {/* Decision Toggle */}
                 <div className="flex items-center gap-2 p-1 bg-zinc-100 dark:bg-zinc-950 rounded">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setActionType('APPROVE')}
                     className={`flex-1 py-2 rounded text-xs font-bold transition-all ${
@@ -278,8 +281,8 @@ export const ValidatorDashboard: React.FC = () => {
                     }`}
                   >
                     ✓ Approve Submission
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setActionType('REJECT')}
                     className={`flex-1 py-2 rounded text-xs font-bold transition-all ${
@@ -289,7 +292,7 @@ export const ValidatorDashboard: React.FC = () => {
                     }`}
                   >
                     ✕ Reject Submission
-                  </button>
+                  </Button>
                 </div>
 
                 {/* APPROVE MODE: Radio button selection for EXACTLY ONE title */}
@@ -403,14 +406,14 @@ export const ValidatorDashboard: React.FC = () => {
 
                 {/* Modal Footer Actions */}
                 <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setSelectedSubmission(null)}
                     className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
                     disabled={submitting}
                     className={`px-4 py-2 rounded text-xs font-semibold text-white transition-colors disabled:opacity-50 ${
@@ -422,7 +425,7 @@ export const ValidatorDashboard: React.FC = () => {
                       : actionType === 'APPROVE'
                       ? 'Confirm Approval & Generate Letter'
                       : 'Confirm Rejection'}
-                  </button>
+                  </Button>
                 </div>
               </form>
             )}

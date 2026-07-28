@@ -2,6 +2,7 @@ import React from 'react';
 import { Eye, Clock, CheckCircle, XCircle } from 'lucide-react';
 import type { Submission, ValidatorInfo, SubmissionStatus } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { Button } from './button';
 
 interface SubmissionsTableProps {
   submissions: Submission[];
@@ -198,13 +199,13 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
                   <td className="whitespace-nowrap px-4 py-3 align-top">{getStatusBadge(sub.status)}</td>
                   <td className="px-4 py-3 text-right align-top">
                     <div className="flex items-center justify-end gap-2">
-                      <button
+                      <Button
                         onClick={() => onPreview(sub)}
                         title="Preview Pengajuan"
                         className="inline-flex items-center gap-1 text-xs font-bold px-2 py-1.5 rounded text-zinc-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
                       >
                         <Eye size={14} /> {normalizedRole === 'STUDENT' ? 'Preview' : ''}
-                      </button>
+                      </Button>
                       {renderActions && renderActions(sub)}
                     </div>
                   </td>

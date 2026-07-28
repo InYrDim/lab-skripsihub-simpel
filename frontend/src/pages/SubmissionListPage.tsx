@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '../components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { api } from '../services/api';
 import type { Submission } from '../types';
 import { Select } from '../components/ui/select';
@@ -197,28 +199,15 @@ export const SubmissionListPage: React.FC = () => {
           </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800">
-          <button
-            onClick={() => setActiveTab('list')}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-colors ${
-              activeTab === 'list'
-                ? 'border-orange-500 text-orange-600 dark:text-orange-400'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            <ListIcon size={16} /> Daftar Judul
-          </button>
-          <button
-            onClick={() => setActiveTab('analytics')}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-colors ${
-              activeTab === 'analytics'
-                ? 'border-orange-500 text-orange-600 dark:text-orange-400'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'
-            }`}
-          >
-            <PieChart size={16} /> Analitik
-          </button>
-        </div>
+        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)}>
+          <TabsList className="gap-2">
+            <TabsTrigger value="list" className="flex items-center gap-2">
+              <ListIcon size={16} /> Daftar Judul
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <PieChart size={16} /> Analitik
+            </TabsTrigger>
+          </TabsList>
 
         {/* Content */}
         {loading || isFiltering ? (
@@ -240,8 +229,8 @@ export const SubmissionListPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <>
-            {activeTab === 'list' ? (
+          <div className="relative">
+            <TabsContent value="list">
               <>
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
@@ -305,7 +294,8 @@ export const SubmissionListPage: React.FC = () => {
               ))}
             </div>
             </>
-            ) : (
+            </TabsContent>
+            <TabsContent value="analytics">
               <div className="space-y-6">
                 <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded p-6 shadow-sm">
                   <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mb-6 flex items-center gap-2">
@@ -390,9 +380,10 @@ export const SubmissionListPage: React.FC = () => {
                   )}
                 </div>
               </div>
-            )}
-          </>
+            </TabsContent>
+          </div>
         )}
+        </Tabs>
       </div>
 
 
@@ -406,12 +397,12 @@ export const SubmissionListPage: React.FC = () => {
               <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
                 Detail Skripsi
               </h3>
-              <button
+              <Button
                 onClick={() => setSelectedSubmission(null)}
                 className="p-1.5 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 <XCircle size={18} />
-              </button>
+              </Button>
             </div>
 
             {/* Modal Body */}
@@ -536,12 +527,12 @@ export const SubmissionListPage: React.FC = () => {
 
             {/* Modal Footer */}
             <div className="px-6 py-4 border-t border-zinc-200 dark:border-zinc-800">
-              <button
+              <Button
                 onClick={() => setSelectedSubmission(null)}
                 className="w-full py-2.5 text-sm font-semibold text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded transition-colors"
               >
                 Tutup
-              </button>
+              </Button>
             </div>
           </div>
         </div>

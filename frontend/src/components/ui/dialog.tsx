@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, AlertTriangle } from 'lucide-react';
+import { Button } from './button';
 
 interface DialogProps {
   isOpen: boolean;
@@ -49,12 +50,12 @@ export function Dialog({
                 )}
               </div>
             </div>
-            <button
+            <Button
               onClick={onClose}
               className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
             >
               <X size={20} />
-            </button>
+            </Button>
           </div>
           
           {children && (
@@ -65,14 +66,14 @@ export function Dialog({
         </div>
 
         <div className="px-6 py-4 bg-zinc-50 dark:bg-zinc-900/50 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-3">
-          <button
+          <Button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium rounded text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-colors"
           >
             {cancelLabel}
-          </button>
+          </Button>
           {onConfirm && (
-            <button
+            <Button
               onClick={onConfirm}
               className={`px-4 py-2 text-sm font-medium rounded text-white transition-colors ${
                 isDestructive 
@@ -81,7 +82,7 @@ export function Dialog({
               }`}
             >
               {confirmLabel}
-            </button>
+            </Button>
           )}
         </div>
       </div>

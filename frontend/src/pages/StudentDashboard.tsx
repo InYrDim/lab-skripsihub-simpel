@@ -23,6 +23,7 @@ import {
   Eye
 } from 'lucide-react';
 import { StudentIdentityCard } from '../components/ui/StudentIdentityCard';
+import { Button } from '../components/ui/button';
 
 const MAX_PROPOSAL_FILE_SIZE = 5 * 1024 * 1024;
 
@@ -269,7 +270,7 @@ export const StudentDashboard: React.FC = () => {
             </p>
           </div>
 
-          <button
+          <Button
             onClick={openSubmissionModal}
             disabled={loading || hasActiveSubmission || !user?.dosenPA || !user?.dosenPANip}
             title={loading ? 'Memuat status...' : hasActiveSubmission ? 'Pengajuan aktif sedang ditinjau' : (!user?.dosenPA || !user?.dosenPANip) ? 'Mohon atur Dosen PA Anda terlebih dahulu' : 'Ajukan Judul Skripsi Baru'}
@@ -281,7 +282,7 @@ export const StudentDashboard: React.FC = () => {
           >
             <FilePlus size={18} />
             Buat Pengajuan Baru
-          </button>
+          </Button>
         </div>
 
         {/* Missing Dosen PA Warning */}
@@ -327,13 +328,13 @@ export const StudentDashboard: React.FC = () => {
             {lastSubmission && (
               <div className="flex items-center gap-2">
                 {getStatusBadge(lastSubmission.status)}
-                <button
+                <Button
                   onClick={() => setPreviewingSubmission(lastSubmission)}
                   title="Preview Pengajuan"
                   className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
                 >
                   <Eye size={15} />
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -396,13 +397,13 @@ export const StudentDashboard: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 {getStatusBadge(currentSubmission.status)}
-                <button
+                <Button
                   onClick={() => setPreviewingSubmission(currentSubmission)}
                   title="Preview Pengajuan"
                   className="inline-flex items-center justify-center w-7 h-7 rounded text-zinc-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors"
                 >
                   <Eye size={15} />
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -446,12 +447,12 @@ export const StudentDashboard: React.FC = () => {
                 <div className="text-xs text-zinc-500">
                   Disetujui oleh <span className="font-medium text-zinc-700 dark:text-zinc-300">{currentSubmission.approvedByName || 'Validator'}</span>
                 </div>
-                <button
+                <Button
                   onClick={() => api.downloadLetter(currentSubmission.submissionId)}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors shadow-sm"
                 >
                   <Download size={16} /> Unduh Surat Persetujuan (PDF)
-                </button>
+                </Button>
               </div>
             )}
 
@@ -461,12 +462,12 @@ export const StudentDashboard: React.FC = () => {
                   <div className="text-xs text-rose-600 dark:text-rose-400 font-medium">
                     Proposal Ditolak oleh {currentSubmission.rejectedByName || 'Admin/Validator'}
                   </div>
-                  <button
+                  <Button
                     onClick={openSubmissionModal}
                     className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition-colors shadow-sm"
                   >
                     <FilePlus size={14} /> Buat Pengajuan Baru
-                  </button>
+                  </Button>
                 </div>
 
                 {currentSubmission.rejectionReason ? (
@@ -495,7 +496,7 @@ export const StudentDashboard: React.FC = () => {
             <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-md mx-auto">
               Anda tidak memiliki usulan skripsi yang sedang ditinjau. Klik di bawah untuk mengajukan hingga 3 usulan judul skripsi.
             </p>
-            <button
+            <Button
               onClick={openSubmissionModal}
               disabled={!user?.dosenPA || !user?.dosenPANip}
               className={`inline-flex items-center gap-2 px-4 py-2 rounded text-xs font-semibold transition-colors ${
@@ -505,7 +506,7 @@ export const StudentDashboard: React.FC = () => {
               }`}
             >
               <Plus size={16} /> Ajukan Proposal
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -524,12 +525,12 @@ export const StudentDashboard: React.FC = () => {
                   Lengkapi setiap tahap untuk mengirim pengajuan.
                 </p>
               </div>
-              <button
+              <Button
                 onClick={() => setShowCreateModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             <div className="mt-4 grid min-h-0 flex-1 grid-rows-[auto_minmax(0,1fr)] gap-5 overflow-hidden sm:grid-cols-[11rem_minmax(0,1fr)] sm:grid-rows-1">
@@ -801,7 +802,7 @@ export const StudentDashboard: React.FC = () => {
                         <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Pratinjau Berkas Pengajuan</h3>
                         <p className="mt-0.5 text-[11px] text-zinc-500">{proposalFile?.name} · {proposalFile ? `${(proposalFile.size / 1024 / 1024).toFixed(2)} MB` : '-'}</p>
                       </div>
-                      <button type="button" onClick={() => setStep(2)} className="text-xs font-semibold text-orange-600 hover:text-orange-700">Ganti Berkas</button>
+                      <Button type="button" onClick={() => setStep(2)} className="text-xs font-semibold text-orange-600 hover:text-orange-700">Ganti Berkas</Button>
                     </div>
                     {proposalPreviewUrl && (
                       <iframe
@@ -817,28 +818,28 @@ export const StudentDashboard: React.FC = () => {
                 </div>
 
               <div className="mt-3 flex shrink-0 flex-col gap-2 border-t border-zinc-200 bg-white pt-3 dark:border-zinc-800 dark:bg-zinc-950 sm:flex-row sm:items-center sm:justify-between">
-                <button
+                <Button
                   type="button"
                   onClick={handleSaveDraft}
                   className="px-4 py-2 text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
                 >
                   Simpan sebagai Draf
-                </button>
+                </Button>
                 <div className="flex justify-end gap-2">
                   {step === 1 ? (
                     <>
-                      <button type="button" onClick={() => setShowCreateModal(false)} className="rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">Batal</button>
-                      <button type="submit" className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700">Selanjutnya <ArrowRight size={14} /></button>
+                      <Button type="button" onClick={() => setShowCreateModal(false)} className="rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800">Batal</Button>
+                      <Button type="submit" className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700">Selanjutnya <ArrowRight size={14} /></Button>
                     </>
                   ) : step === 2 ? (
                     <>
-                      <button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"><ArrowLeft size={14} /> Kembali</button>
-                      <button type="submit" className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700">Verifikasi Data <ArrowRight size={14} /></button>
+                      <Button type="button" onClick={() => setStep(1)} className="inline-flex items-center gap-1.5 rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"><ArrowLeft size={14} /> Kembali</Button>
+                      <Button type="submit" className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700">Verifikasi Data <ArrowRight size={14} /></Button>
                     </>
                   ) : (
                     <>
-                      <button type="button" onClick={() => setStep(2)} className="inline-flex items-center gap-1.5 rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"><ArrowLeft size={14} /> Kembali</button>
-                      <button type="submit" disabled={submitting} className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700 disabled:opacity-50">{submitting ? 'Mengirim...' : 'Ajukan Proposal'}</button>
+                      <Button type="button" onClick={() => setStep(2)} className="inline-flex items-center gap-1.5 rounded px-4 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"><ArrowLeft size={14} /> Kembali</Button>
+                      <Button type="submit" disabled={submitting} className="inline-flex items-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-orange-700 disabled:opacity-50">{submitting ? 'Mengirim...' : 'Ajukan Proposal'}</Button>
                     </>
                   )}
                 </div>
@@ -858,12 +859,12 @@ export const StudentDashboard: React.FC = () => {
                 <XCircle size={20} />
                 Umpan Balik Penolakan Validator
               </h2>
-              <button
+              <Button
                 onClick={() => setShowFeedbackModal(null)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-3">
@@ -886,12 +887,12 @@ export const StudentDashboard: React.FC = () => {
             </div>
 
             <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
-              <button
+              <Button
                 onClick={() => setShowFeedbackModal(null)}
                 className="px-4 py-2 rounded text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:opacity-90 transition-opacity"
               >
                 Tutup
-              </button>
+              </Button>
             </div>
           </div>
         </div>

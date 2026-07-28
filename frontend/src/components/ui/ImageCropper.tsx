@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { X, Check, ZoomIn, ZoomOut } from 'lucide-react';
+import { Button } from './button';
 
 interface ImageCropperProps {
   imageUrl: string;
@@ -181,12 +182,12 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
       <div className="bg-white dark:bg-zinc-950 rounded border border-zinc-200 dark:border-zinc-800 shadow-2xl max-w-md w-full p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-bold text-zinc-900 dark:text-white">Atur Foto Profil</h3>
-          <button
+          <Button
             onClick={onCancel}
             className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
           >
             <X size={20} />
-          </button>
+          </Button>
         </div>
 
         <p className="text-xs text-zinc-500">Geser dan zoom gambar untuk mengatur bagian yang diinginkan.</p>
@@ -217,40 +218,40 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
 
         {/* Zoom Controls */}
         <div className="flex items-center justify-center gap-4">
-          <button
+          <Button
             onClick={() => adjustScale(-0.1)}
             className="p-2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             <ZoomOut size={18} />
-          </button>
+          </Button>
           <div className="w-32 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full relative">
             <div
               className="absolute top-0 left-0 h-full bg-orange-500 rounded-full"
               style={{ width: `${Math.min(100, ((scale - 0.1) / 4.9) * 100)}%` }}
             />
           </div>
-          <button
+          <Button
             onClick={() => adjustScale(0.1)}
             className="p-2 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
           >
             <ZoomIn size={18} />
-          </button>
+          </Button>
         </div>
 
         {/* Action Buttons */}
         <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-          <button
+          <Button
             onClick={onCancel}
             className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
             Batal
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleCrop}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 transition-colors"
           >
             <Check size={14} /> Gunakan Foto Ini
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertTriangle, Check, X } from 'lucide-react';
+import { Button } from './button';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -85,14 +86,14 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
         <div className="flex justify-center gap-3 mt-6">
           {!hideCancel && (
-            <button
+            <Button
               onClick={onCancel}
               className="flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2 rounded text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             >
               <X size={16} /> {cancelText}
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             onClick={() => {
               onConfirm();
               onCancel();
@@ -100,7 +101,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             className={`flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2 rounded text-sm font-semibold transition-colors ${getConfirmButtonClass()}`}
           >
             <Check size={16} /> {confirmText}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

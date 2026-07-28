@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '../components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole, Topic } from '../types';
@@ -366,7 +368,8 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <>
-      <div className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)}>
+        <div className="space-y-4">
         {/* Top Header */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -378,30 +381,14 @@ export const AdminDashboard: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActiveTab('submissions')}
-              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
-                activeTab === 'submissions'
-                  ? 'bg-orange-600 text-white shadow-md'
-                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
-              }`}
-            >
+          <TabsList className="gap-2 border-none">
+            <TabsTrigger value="submissions" className="px-4 py-2 text-xs">
               Submissions Queue
-            </button>
-
-
-            <button
-              onClick={() => setActiveTab('all_titles')}
-              className={`px-4 py-2 rounded text-xs font-semibold transition-all ${
-                activeTab === 'all_titles'
-                  ? 'bg-orange-600 text-white shadow-md'
-                  : 'bg-white dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800'
-              }`}
-            >
+            </TabsTrigger>
+            <TabsTrigger value="all_titles" className="px-4 py-2 text-xs">
               All Titles
-            </button>
-          </div>
+            </TabsTrigger>
+          </TabsList>
         </div>
 
         {/* Overview Stats */}
@@ -435,17 +422,17 @@ export const AdminDashboard: React.FC = () => {
                 {pendingUsersCount}
               </p>
             </div>
-            <button
+            <Button
               onClick={() => setShowPendingUsersModal(true)}
               className="mt-2 w-full px-2 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold rounded shadow-sm transition-colors"
             >
               Lihat Detail
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* TAB 1: SUBMISSIONS QUEUE */}
-        {activeTab === 'submissions' && (
+        <TabsContent value="submissions" className="mt-0">
           <div className="overflow-hidden rounded border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
             <div className="flex flex-col justify-between gap-3 border-b border-zinc-200 p-4 dark:border-zinc-800 sm:flex-row sm:items-center">
               <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
@@ -477,35 +464,22 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="border-b border-zinc-200 px-4 dark:border-zinc-800">
-              <div
-                className="flex gap-1 overflow-x-auto"
-                role="tablist"
-                aria-label="Filter proposal berdasarkan status"
-              >
-                {[
-                  { value: 'ALL', label: 'Semua' },
-                  { value: 'PENDING_ADMIN_REVIEW', label: 'Menunggu Admin' },
-                  { value: 'PENDING_VALIDATOR_REVIEW', label: 'Dalam Validasi' },
-                  { value: 'APPROVED', label: 'Disetujui' },
-                  { value: 'REJECTED_BY_ADMIN', label: 'Ditolak Admin' },
-                  { value: 'REJECTED_BY_VALIDATOR', label: 'Ditolak Validator' },
-                ].map((tab) => (
-                  <button
-                    key={tab.value}
-                    type="button"
-                    role="tab"
-                    aria-selected={statusFilter === tab.value}
-                    onClick={() => handleFilterChange(setStatusFilter, tab.value)}
-                    className={`shrink-0 border-b-2 px-3 py-2.5 text-xs font-semibold transition-colors ${
-                      statusFilter === tab.value
-                        ? 'border-orange-600 text-orange-600 dark:text-orange-400'
-                        : 'border-transparent text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:hover:border-zinc-700 dark:hover:text-zinc-100'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              <Tabs value={statusFilter} onValueChange={(val) => handleFilterChange(setStatusFilter, val)}>
+                <TabsList className="flex gap-1 overflow-x-auto border-none">
+                  {[
+                    { value: 'ALL', label: 'Semua' },
+                    { value: 'PENDING_ADMIN_REVIEW', label: 'Menunggu Admin' },
+                    { value: 'PENDING_VALIDATOR_REVIEW', label: 'Dalam Validasi' },
+                    { value: 'APPROVED', label: 'Disetujui' },
+                    { value: 'REJECTED_BY_ADMIN', label: 'Ditolak Admin' },
+                    { value: 'REJECTED_BY_VALIDATOR', label: 'Ditolak Validator' },
+                  ].map((tab) => (
+                    <TabsTrigger key={tab.value} value={tab.value} className="px-3 py-2.5 text-xs">
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
             </div>
 
             <SubmissionsTable
@@ -516,7 +490,7 @@ export const AdminDashboard: React.FC = () => {
               renderActions={(sub) => (
                 <>
                   {sub.status.toUpperCase() === 'PENDING_ADMIN_REVIEW' ? (
-                    <button
+                    <Button
                       onClick={() => {
                         setReviewingSubmission(sub);
                         setAdminRejectionReason('');
@@ -525,9 +499,9 @@ export const AdminDashboard: React.FC = () => {
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs shadow-sm transition-colors"
                     >
                       <FileText size={14} /> Tinjau Batch
-                    </button>
+                    </Button>
                   ) : sub.status.toUpperCase() === 'PENDING_VALIDATOR_REVIEW' ? (
-                    <button
+                    <Button
                       onClick={() => {
                         setAssigningSubmission(sub);
                         setSelectedValidatorId('');
@@ -535,17 +509,17 @@ export const AdminDashboard: React.FC = () => {
                       className="inline-flex items-center gap-1 text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                     >
                       Ganti Validator
-                    </button>
+                    </Button>
                   ) : (
                     <span className="text-xs text-zinc-300 dark:text-zinc-700">-</span>
                   )}
-                  <button
+                  <Button
                     onClick={() => setSubmissionToDelete(sub.submissionId)}
                     title="Hapus Pengajuan"
                     className="inline-flex items-center justify-center p-1.5 rounded text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors ml-2"
                   >
                     <Trash2 size={14} />
-                  </button>
+                  </Button>
                 </>
               )}
             />
@@ -557,28 +531,28 @@ export const AdminDashboard: React.FC = () => {
                   Showing page <span className="font-semibold text-zinc-900 dark:text-zinc-100">{page}</span> of <span className="font-semibold text-zinc-900 dark:text-zinc-100">{totalPages}</span> ({totalSubmissions} total items)
                 </span>
                 <div className="flex gap-1">
-                  <button
+                  <Button
                     onClick={() => setPage(Math.max(1, page - 1))}
                     disabled={page === 1}
                     className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Previous
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => setPage(Math.min(totalPages, page + 1))}
                     disabled={page === totalPages}
                     className="px-3 py-1.5 rounded border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Next
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
           </div>
-        )}
+        </TabsContent>
 
         {/* TAB 4: ALL TITLES */}
-        {activeTab === 'all_titles' && (
+        <TabsContent value="all_titles" className="mt-0">
           <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
             <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <h3 className="font-semibold text-base text-zinc-900 dark:white flex items-center gap-2">
@@ -660,8 +634,9 @@ export const AdminDashboard: React.FC = () => {
               </table>
             </div>
           </div>
-        )}
+        </TabsContent>
       </div>
+    </Tabs>
 
       {/* ADMIN BATCH REVIEW MODAL */}
       {reviewingSubmission && (
@@ -677,22 +652,22 @@ export const AdminDashboard: React.FC = () => {
                   ID {reviewingSubmission.submissionId}
                 </p>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => setReviewingSubmission(null)}
                 className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                 aria-label="Tutup modal"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-4 overflow-y-auto p-5">
               <StudentIdentityCard submission={reviewingSubmission} />
 
-              <ProposedTitlesList 
-                titles={reviewingSubmission.titles} 
-                sectionTitle="Judul dalam Batch" 
+              <ProposedTitlesList
+                titles={reviewingSubmission.titles}
+                sectionTitle="Judul dalam Batch"
               />
 
               <BerkasPengajuan
@@ -726,15 +701,15 @@ export const AdminDashboard: React.FC = () => {
             </div>
 
             <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-zinc-200 p-4 dark:border-zinc-800 sm:flex-row sm:justify-end">
-              <button
+              <Button
                 type="button"
                 disabled={rejectingByAdmin}
                 onClick={handleRejectByAdmin}
                 className="rounded border border-rose-300 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 disabled:opacity-50 dark:border-rose-500/40 dark:hover:bg-rose-500/10"
               >
                 {rejectingByAdmin ? 'Menolak...' : 'Tolak Seluruh Batch'}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => {
                   setAssigningSubmission(reviewingSubmission);
@@ -744,7 +719,7 @@ export const AdminDashboard: React.FC = () => {
                 className="inline-flex items-center justify-center gap-1.5 rounded bg-orange-600 px-4 py-2 text-xs font-semibold text-white hover:bg-orange-700"
               >
                 <UserCheck size={14} /> Teruskan ke Validator
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -768,12 +743,12 @@ export const AdminDashboard: React.FC = () => {
                 <UserCheck size={20} className="text-orange-600" />
                 Tugaskan Pengajuan kepada Validator
               </h2>
-              <button
+              <Button
                 onClick={() => setAssigningSubmission(null)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             {assignError && (
@@ -806,20 +781,20 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setAssigningSubmission(null)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Batal
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={assigning}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {assigning ? 'Menugaskan...' : 'Konfirmasi Penugasan'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -835,12 +810,12 @@ export const AdminDashboard: React.FC = () => {
                 <UserPlus size={20} className="text-orange-600" />
                 Create New User Account
               </h2>
-              <button
+              <Button
                 onClick={() => setShowAddUserModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             {addUserError && (
@@ -944,20 +919,20 @@ export const AdminDashboard: React.FC = () => {
               )}
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowAddUserModal(false)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={addingUser}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {addingUser ? 'Creating...' : 'Create Account'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -973,12 +948,12 @@ export const AdminDashboard: React.FC = () => {
                 <UserCheck size={20} className="text-orange-600" />
                 Edit User Account
               </h2>
-              <button
+              <Button
                 onClick={() => setShowEditUserModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             {editUserError && (
@@ -1083,20 +1058,20 @@ export const AdminDashboard: React.FC = () => {
               )}
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowEditUserModal(false)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={updatingUser}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {updatingUser ? 'Updating...' : 'Save Changes'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -1112,12 +1087,12 @@ export const AdminDashboard: React.FC = () => {
                 <Tag size={20} className="text-orange-600" />
                 Add New Topic
               </h2>
-              <button
+              <Button
                 onClick={() => setShowAddTopicModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={handleCreateTopic} className="space-y-4">
@@ -1134,20 +1109,20 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800 flex justify-end gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setShowAddTopicModal(false)}
                   className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
                   disabled={addingTopic || !newTopicName.trim()}
                   className="px-4 py-2 rounded text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
                 >
                   {addingTopic ? 'Adding...' : 'Add Topic'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>
@@ -1163,14 +1138,14 @@ export const AdminDashboard: React.FC = () => {
                 <Users size={20} className="text-rose-600" />
                 Mahasiswa Menunggu Persetujuan
               </h2>
-              <button
+              <Button
                 onClick={() => setShowPendingUsersModal(false)}
                 className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
               >
                 <X size={20} />
-              </button>
+              </Button>
             </div>
-            
+
             <div className="overflow-y-auto flex-1 border border-zinc-200 dark:border-zinc-800 rounded">
               <table className="w-full text-sm text-left">
                 <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800 sticky top-0">
@@ -1202,18 +1177,18 @@ export const AdminDashboard: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex justify-end gap-2">
-                            <button
+                            <Button
                               onClick={() => handleRejectUser(u)}
                               className="inline-flex items-center gap-1.5 rounded border border-rose-200 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
                             >
                               <XCircle size={13} /> Tolak
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               onClick={() => handleApproveUser(u)}
                               className="inline-flex items-center gap-1.5 rounded border border-emerald-200 px-2.5 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
                             >
                               <CheckCircle size={13} /> Approve
-                            </button>
+                            </Button>
                           </div>
                         </td>
                       </tr>
@@ -1222,14 +1197,14 @@ export const AdminDashboard: React.FC = () => {
                 </tbody>
               </table>
             </div>
-            
+
             <div className="shrink-0 flex justify-end pt-3 border-t border-zinc-200 dark:border-zinc-800">
-              <button
+              <Button
                 onClick={() => setShowPendingUsersModal(false)}
                 className="px-4 py-2 rounded text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 Tutup
-              </button>
+              </Button>
             </div>
           </div>
         </div>

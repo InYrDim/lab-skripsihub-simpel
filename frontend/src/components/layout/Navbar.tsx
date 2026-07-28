@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { AuthenticatedImage } from '../ui/AuthenticatedImage';
+import { Button } from '../ui/button';
 
 interface NavbarProps {
   sidebarOpen: boolean;
@@ -43,29 +44,29 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
       
       {/* Left side: Mobile menu toggle & Search */}
       <div className="flex items-center gap-4 flex-1">
-        <button 
+        <Button 
           onClick={() => setSidebarOpen(!sidebarOpen)}
           className="lg:hidden p-2 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
         >
           <Menu size={20} />
-        </button>
+        </Button>
 
       </div>
 
       {/* Right side: User profile & Logout */}
       <div className="flex items-center gap-2 sm:gap-3">
-        <button 
+        <Button 
           onClick={toggleTheme}
           className="p-2 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           title="Ganti Tema"
         >
           {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
-        </button>
+        </Button>
 
-        <button className="relative p-2 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
+        <Button className="relative p-2 rounded text-zinc-500 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <Bell size={18} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-orange-500 border-2 border-white dark:border-zinc-950"></span>
-        </button>
+        </Button>
         
         <div className="h-8 w-px bg-zinc-200 dark:bg-zinc-800 mx-1"></div>
 
@@ -103,13 +104,13 @@ export function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
             </>
           )}
 
-          <button
+          <Button
             onClick={() => setShowLogoutModal(true)}
             title="Keluar"
             className="p-2 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors"
           >
             <LogOut size={18} />
-          </button>
+          </Button>
         </div>
       </div>
 
