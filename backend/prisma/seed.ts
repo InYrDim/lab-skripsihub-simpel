@@ -1,4 +1,9 @@
-import { PrismaClient, ProgramStudi, UserRole } from '@prisma/client';
+import {
+  PrismaClient,
+  ProgramStudi,
+  UserRole,
+  UserStatus,
+} from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -100,14 +105,14 @@ async function main() {
         prodi: student.prodi,
         dosenPA: student.dosenPA,
         dosenPANip: student.dosenPANip,
-        isActive: true,
+        status: UserStatus.AKTIF,
       },
       create: {
         ...student,
         passwordHash,
         role: UserRole.STUDENT,
         department: DEFAULT_DEPARTMENT,
-        isActive: true,
+        status: UserStatus.AKTIF,
       },
     });
   }
@@ -119,13 +124,13 @@ async function main() {
         ...user,
         passwordHash,
         department: DEFAULT_DEPARTMENT,
-        isActive: true,
+        status: UserStatus.AKTIF,
       },
       create: {
         ...user,
         passwordHash,
         department: DEFAULT_DEPARTMENT,
-        isActive: true,
+        status: UserStatus.AKTIF,
       },
     });
   }
