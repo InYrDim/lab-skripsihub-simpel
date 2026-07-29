@@ -8,8 +8,7 @@ services:
       MYSQL_DATABASE: skripsihub
       MYSQL_USER: ${DB_USER:-skripsihub}
       MYSQL_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD}
-    ports:
-      - "4040:3306"
+
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -31,6 +30,12 @@ services:
     environment:
       DATABASE_URL: mysql://${DB_USER:-skripsihub}:${DB_PASSWORD:?Set DB_PASSWORD}@mysql:3306/skripsihub
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET}
+      CORS_ORIGINS: ${CORS_ORIGINS:?Set CORS_ORIGINS}
+      SUPABASE_URL: ${SUPABASE_URL:?Set SUPABASE_URL}
+      SUPABASE_KEY: ${SUPABASE_KEY:?Set SUPABASE_KEY}
+      SUPABASE_BUCKET: ${SUPABASE_BUCKET:-letters}
+      SUPABASE_BUCKET_AVATAR: ${SUPABASE_BUCKET_AVATAR:-avatars}
+      SUPABASE_BUCKET_PROPOSALS: ${SUPABASE_BUCKET_PROPOSALS:-proposals}
       NODE_ENV: production
       MODE: production
     depends_on:
