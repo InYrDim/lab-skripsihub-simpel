@@ -63,8 +63,11 @@ fi
 log "Memvalidasi konfigurasi production..."
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" config --quiet
 
-log "Membangun dan menjalankan container..."
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build --remove-orphans
+log "Mengunduh image production..."
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" pull
+
+log "Menjalankan container..."
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --remove-orphans
 
 log "Status container:"
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps

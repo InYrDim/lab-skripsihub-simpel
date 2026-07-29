@@ -23,8 +23,7 @@ services:
       - /var/run/mysqld:uid=999,gid=999,mode=0750
 
   backend:
-    build:
-      context: ./backend
+    image: ${DOCKERHUB_USERNAME:-labjtikunm}/skripsihub-backend:${IMAGE_TAG:-latest}
     container_name: skripsihub-backend
     restart: always
     environment:
@@ -50,10 +49,7 @@ services:
       - /tmp:uid=1000,gid=1000,mode=1777
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: ${VITE_API_URL:?Set VITE_API_URL}
+    image: ${DOCKERHUB_USERNAME:-labjtikunm}/skripsihub-frontend:${IMAGE_TAG:-latest}
     container_name: skripsihub-frontend
     restart: always
     depends_on:
