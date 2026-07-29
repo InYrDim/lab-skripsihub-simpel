@@ -69,11 +69,15 @@ export const StudentDashboard: React.FC = () => {
         api.getTopics()
       ]);
       
+      const activeSubmission = currentRes.success ? currentRes.data : null;
       if (currentRes.success) {
-        setCurrentSubmission(currentRes.data);
+        setCurrentSubmission(activeSubmission);
       }
       if (historyRes.success) {
-        setLastSubmission(historyRes.data?.[0] || null);
+        const previousSubmission = historyRes.data?.find(
+          (submission) => submission.submissionId !== activeSubmission?.submissionId,
+        );
+        setLastSubmission(previousSubmission || null);
       }
       if (topicsRes.success) {
         setAvailableTopics(topicsRes.data);
@@ -321,8 +325,14 @@ export const StudentDashboard: React.FC = () => {
                 <FileText size={16} />
               </span>
               <div>
-                <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Pengajuan Terakhir</h2>
-                <p className="text-[11px] text-zinc-500">Ringkasan pengajuan terbaru Anda</p>
+                <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                  {currentSubmission ? 'Pengajuan Sebelumnya' : 'Pengajuan Terakhir'}
+                </h2>
+                <p className="text-[11px] text-zinc-500">
+                  {currentSubmission
+                    ? 'Ringkasan pengajuan sebelum usulan yang sedang diproses'
+                    : 'Ringkasan pengajuan terbaru Anda'}
+                </p>
               </div>
             </div>
             {lastSubmission && (
@@ -340,7 +350,7 @@ export const StudentDashboard: React.FC = () => {
           </div>
 
           {loading ? (
-            <div className="px-4 py-5 text-xs text-zinc-500">Memuat pengajuan terakhir...</div>
+            <div className="px-4 py-5 text-xs text-zinc-500">Memuat riwayat pengajuan...</div>
           ) : lastSubmission ? (
             <div className="grid gap-4 px-4 py-4 sm:grid-cols-[10rem_minmax(0,1fr)]">
               <dl className="space-y-3 text-xs">
