@@ -30,49 +30,30 @@ const normalizeStoredUser = (user: StoredUser): User => ({
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem('auth_user');
-    return savedUser ? normalizeStoredUser(JSON.parse(savedUser)) : null;
-  });
-  
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('auth_token') || null;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
 
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (token) {
-      localStorage.setItem('auth_token', token);
-    } else {
-      localStorage.removeItem('auth_token');
-    }
-  }, [token]);
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('auth_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('auth_user');
-    }
-  }, [user]);
 
   useEffect(() => {
     let isMounted = true;
     const initAuth = async () => {
-      if (!token) {
-        if (isMounted) setLoading(false);
-        return;
-      }
       try {
+        const restoredToken = await api.restoreSession();
+        if (!restoredToken || !isMounted) return;
+        setToken(restoredToken);
         const res = await api.getProfile();
         if (res.success && isMounted) {
           setUser(normalizeStoredUser(res.data));
-        } else if (!res.success && isMounted) {
-          // don't aggressively logout on network error, but if unauthorized, maybe.
         }
-      } catch (err) {
-        console.error('Failed to fetch profile on load', err);
+      } catch {
+        api.setAccessToken(null);
+        if (isMounted) {
+          setToken(null);
+          setUser(null);
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -86,8 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await api.login(email, password);
       if (response.success && response.data) {
-        localStorage.setItem('auth_user', JSON.stringify(response.data.user));
-        localStorage.setItem('auth_token', response.data.accessToken);
+        api.setAccessToken(response.data.accessToken);
         setUser(response.data.user);
         setToken(response.data.accessToken);
       } else {
@@ -111,8 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     api.logout().catch(() => {});
     setUser(null);
     setToken(null);
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+
   };
 
   const hasRole = (role: UserRole): boolean => {

@@ -64,6 +64,7 @@ export const AdminDashboard: React.FC = () => {
   const [newUser, setNewUser] = useState<{
     name: string;
     email: string;
+    password: string;
     role: UserRole;
     department: string;
     userId?: string;
@@ -72,6 +73,7 @@ export const AdminDashboard: React.FC = () => {
   }>({
     name: '',
     email: '',
+    password: '',
     role: 'STUDENT',
     department: '',
     userId: '',
@@ -223,8 +225,8 @@ export const AdminDashboard: React.FC = () => {
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUser.name || !newUser.email) {
-      setAddUserError('Name and email are required.');
+    if (!newUser.name || !newUser.email || newUser.password.length < 8) {
+      setAddUserError('Name, email, and a password of at least 8 characters are required.');
       return;
     }
     setAddingUser(true);
@@ -234,7 +236,7 @@ export const AdminDashboard: React.FC = () => {
       const res = await api.createUser(newUser);
       if (res.success) {
         setShowAddUserModal(false);
-        setNewUser({ name: '', email: '', role: 'STUDENT', department: '', userId: '', prodi: 'PTIK', angkatan: '' });
+        setNewUser({ name: '', email: '', password: '', role: 'STUDENT', department: '', userId: '', prodi: 'PTIK', angkatan: '' });
         await fetchInitialData();
       } else {
         setAddUserError(res.message || 'User creation failed.');
@@ -830,6 +832,19 @@ export const AdminDashboard: React.FC = () => {
                   placeholder="john.smith@university.edu"
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                  className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-zinc-700 dark:text-zinc-300">Initial Password</label>
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                   className="mt-1 w-full px-3 py-2 bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded text-xs text-zinc-900 dark:text-zinc-100"
                 />
               </div>

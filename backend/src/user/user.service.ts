@@ -6,6 +6,8 @@ import {
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateSelfUserDto } from './dto/update-self-user.dto';
+import { UpdateAvatarDto } from './dto/update-avatar.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 
@@ -54,9 +56,6 @@ export class UserService {
         ...(createUserDto.status !== undefined && {
           status: createUserDto.status,
         }),
-        ...(createUserDto.photoUrl !== undefined && {
-          photoUrl: createUserDto.photoUrl,
-        }),
       },
     });
   }
@@ -70,12 +69,13 @@ export class UserService {
         },
       },
     });
-    
+
     return users.map((user) => {
       const { submissions, ...rest } = user;
       return {
         ...rest,
-        submissionStatus: submissions.length > 0 ? submissions[0].status : 'Belum Mengajukan',
+        submissionStatus:
+          submissions.length > 0 ? submissions[0].status : 'Belum Mengajukan',
       };
     });
   }
@@ -112,9 +112,6 @@ export class UserService {
       ...(updateUserDto.status !== undefined && {
         status: updateUserDto.status,
       }),
-      ...(updateUserDto.photoUrl !== undefined && {
-        photoUrl: updateUserDto.photoUrl,
-      }),
       ...(updateUserDto.password && {
         passwordHash: await bcrypt.hash(updateUserDto.password, 10),
       }),
@@ -122,6 +119,50 @@ export class UserService {
     return this.prisma.user.update({
       where: { id },
       data,
+    });
+  }
+
+  async updateSelf(
+    id: string,
+    updateUserDto: UpdateSelfUserDto,
+  ): Promise<User> {
+    await this.findOne(id);
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        ...(updateUserDto.email !== undefined && {
+          email: updateUserDto.email,
+        }),
+        ...(updateUserDto.fullName !== undefined && {
+          fullName: updateUserDto.fullName,
+        }),
+        ...(updateUserDto.universityId !== undefined && {
+          universityId: updateUserDto.universityId,
+        }),
+        ...(updateUserDto.department !== undefined && {
+          department: updateUserDto.department,
+        }),
+        ...(updateUserDto.prodi !== undefined && {
+          prodi: updateUserDto.prodi,
+        }),
+        ...(updateUserDto.dosenPA !== undefined && {
+          dosenPA: updateUserDto.dosenPA,
+        }),
+        ...(updateUserDto.dosenPANip !== undefined && {
+          dosenPANip: updateUserDto.dosenPANip,
+        }),
+        ...(updateUserDto.password && {
+          passwordHash: await bcrypt.hash(updateUserDto.password, 10),
+        }),
+      },
+    });
+  }
+
+  async updateAvatar(id: string, dto: UpdateAvatarDto): Promise<User> {
+    await this.findOne(id);
+    return this.prisma.user.update({
+      where: { id },
+      data: { photoUrl: dto.photoUrl },
     });
   }
 

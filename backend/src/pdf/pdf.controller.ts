@@ -8,6 +8,7 @@ import {
   ForbiddenException,
   GoneException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { PdfService } from './pdf.service';
@@ -28,6 +29,21 @@ export class PdfController {
     private readonly prisma: PrismaService,
   ) {}
 
+  private assertSafeSubmissionId(submissionId: string): void {
+    if (!/^[A-Za-z0-9_-]{1,128}$/.test(submissionId)) {
+      throw new BadRequestException('Invalid submission ID');
+    }
+  }
+
+  private resolveLetterPath(fileName: string): string {
+    const lettersDir = path.resolve(process.cwd(), 'uploads', 'letters');
+    const filePath = path.resolve(lettersDir, fileName);
+    if (!filePath.startsWith(`${lettersDir}${path.sep}`)) {
+      throw new BadRequestException('Invalid approval letter path');
+    }
+    return filePath;
+  }
+
   @Get([
     'submissions/me/:submissionId/letter',
     'pdf/letter/:submissionId',
@@ -39,6 +55,8 @@ export class PdfController {
     @CurrentUser() user: any,
     @Res() res: Response,
   ) {
+    this.assertSafeSubmissionId(submissionId);
+
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
       include: {
@@ -71,13 +89,7 @@ export class PdfController {
 
     let filePath: string;
     const fileName = `approval_letter_${submissionId}.pdf`;
-
-    if (submission.approvalLetter?.pdfUrl) {
-      const relativePath = submission.approvalLetter.pdfUrl.replace(/^\//, '');
-      filePath = path.join(process.cwd(), relativePath);
-    } else {
-      filePath = path.join(process.cwd(), 'uploads', 'letters', fileName);
-    }
+    filePath = this.resolveLetterPath(fileName);
 
     if (!fs.existsSync(filePath)) {
       const approvedTitleObj = submission.titles.find(
@@ -95,7 +107,11 @@ export class PdfController {
         submissionId: submission.id,
       });
 
-      filePath = result.filePath;
+      const expectedPath = this.resolveLetterPath(fileName);
+      if (path.resolve(result.filePath) !== expectedPath) {
+        throw new BadRequestException('Invalid generated approval letter path');
+      }
+      filePath = expectedPath;
     }
 
     const pdfBuffer = fs.readFileSync(filePath);
@@ -111,6 +127,8 @@ export class PdfController {
     @Param('submissionId') submissionId: string,
     @CurrentUser() user: any,
   ) {
+    this.assertSafeSubmissionId(submissionId);
+
     const submission = await this.prisma.submission.findUnique({
       where: { id: submissionId },
       include: {

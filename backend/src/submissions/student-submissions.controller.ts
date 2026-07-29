@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { extname } from 'node:path';
+
 import { randomUUID } from 'node:crypto';
 import { SubmissionsService } from './submissions.service';
 import { CreateSubmissionDto } from './dto/create-submission.dto';
@@ -63,34 +63,67 @@ export class StudentSubmissionsController {
     if (!document) {
       throw new BadRequestException('Berkas pengajuan PDF wajib diunggah');
     }
+    if (
+      document.mimetype !== 'application/pdf' ||
+      document.size > 5 * 1024 * 1024 ||
+      document.buffer.length < 5 ||
+      document.buffer.subarray(0, 5).toString('ascii') !== '%PDF-'
+    ) {
+      throw new BadRequestException('Berkas harus berupa PDF yang valid');
+    }
 
-    let titles: CreateSubmissionDto['titles'];
+    let parsedTitles: unknown;
     try {
-      titles = JSON.parse(body.titles) as CreateSubmissionDto['titles'];
+      parsedTitles = JSON.parse(body.titles);
     } catch {
       throw new BadRequestException('Data judul pengajuan tidak valid');
     }
+
+    if (
+      !Array.isArray(parsedTitles) ||
+      parsedTitles.length < 1 ||
+      parsedTitles.length > 3 ||
+      !parsedTitles.every(
+        (item: unknown) =>
+          typeof item === 'object' &&
+          item !== null &&
+          typeof (item as Record<string, unknown>).title === 'string' &&
+          (item as Record<string, string>).title.trim().length >= 10 &&
+          (item as Record<string, string>).title.trim().length <= 200,
+      )
+    ) {
+      throw new BadRequestException(
+        'Judul harus berjumlah 1 sampai 3 dan masing-masing terdiri dari 10 sampai 200 karakter',
+      );
+    }
+    const titles = parsedTitles as CreateSubmissionDto['titles'];
 
     const supabaseUrl = process.env.SUPABASE_URL || '';
     const supabaseKey = process.env.SUPABASE_KEY || '';
     const bucketName = process.env.SUPABASE_BUCKET_PROPOSALS || 'proposals';
 
     if (!supabaseUrl || !supabaseKey) {
-      throw new BadRequestException('Supabase credentials not configured in environment');
+      throw new BadRequestException(
+        'Supabase credentials not configured in environment',
+      );
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
-    const fileName = `${randomUUID()}${extname(document.originalname).toLowerCase()}`;
+    const fileName = `${randomUUID()}.pdf`;
 
-    const { error } = await supabase.storage
-      .from(bucketName)
-      .upload(fileName, document.buffer, {
-        contentType: document.mimetype,
-        upsert: true,
-      });
+    try {
+      const { error } = await supabase.storage
+        .from(bucketName)
+        .upload(fileName, document.buffer, {
+          contentType: 'application/pdf',
+          upsert: true,
+        });
 
-    if (error) {
-      throw new BadRequestException(`Failed to upload document to Supabase: ${error.message}`);
+      if (error) {
+        throw new Error('Storage upload failed');
+      }
+    } catch {
+      throw new BadRequestException('Gagal mengunggah berkas pengajuan');
     }
 
     const { data: publicUrlData } = supabase.storage

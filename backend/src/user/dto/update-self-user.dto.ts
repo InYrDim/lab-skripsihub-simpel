@@ -1,4 +1,4 @@
-import { ProgramStudi, UserRole, UserStatus } from '@prisma/client';
+import { ProgramStudi } from '@prisma/client';
 import {
   IsEmail,
   IsEnum,
@@ -9,28 +9,23 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class UpdateSelfUserDto {
+  @IsOptional()
   @IsEmail()
   @MaxLength(254)
-  email: string;
+  email?: string;
 
-  @IsString()
-  @MinLength(8)
-  @MaxLength(72)
-  password: string;
-
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(150)
-  fullName: string;
+  fullName?: string;
 
-  @IsEnum(UserRole)
-  role: UserRole;
-
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(50)
-  universityId: string;
+  universityId?: string;
 
   @IsOptional()
   @IsString()
@@ -52,6 +47,8 @@ export class CreateUserDto {
   dosenPANip?: string;
 
   @IsOptional()
-  @IsEnum(UserStatus)
-  status?: UserStatus;
+  @IsString()
+  @MinLength(8)
+  @MaxLength(72)
+  password?: string;
 }

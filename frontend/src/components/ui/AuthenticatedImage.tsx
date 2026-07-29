@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../../services/api';
 
 interface AuthenticatedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -11,24 +12,20 @@ export const AuthenticatedImage: React.FC<AuthenticatedImageProps> = ({ src, alt
   useEffect(() => {
     let objectUrl: string | null = null;
     
-    // If it's not our API, just use the src directly (or if it's already a blob)
-    if (!src.startsWith('http://localhost:3000/api/') && !src.startsWith(import.meta.env.VITE_API_URL || '')) {
+    // Fetch protected API images with the in-memory bearer token.
+    const configuredApiUrl = import.meta.env.VITE_API_URL as string | undefined;
+    const isApiImage =
+      src.startsWith('/api/') ||
+      src.startsWith('http://localhost:3000/api/') ||
+      Boolean(configuredApiUrl && src.startsWith(configuredApiUrl));
+    if (!isApiImage) {
       setImgSrc(src);
       return;
     }
 
     const fetchImage = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        const headers: HeadersInit = {};
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
-        
-        const response = await fetch(src, { headers });
-        if (!response.ok) throw new Error('Failed to fetch image');
-        
-        const blob = await response.blob();
+        const blob = await api.fetchAuthenticatedBlob(src);
         objectUrl = URL.createObjectURL(blob);
         setImgSrc(objectUrl);
       } catch (err) {

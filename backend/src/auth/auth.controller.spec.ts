@@ -1,16 +1,21 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
+import type { Request, Response } from 'express';
+import { AuthController, REFRESH_COOKIE_NAME } from './auth.controller';
 import { AuthService } from './auth.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let service: AuthService;
 
   const mockAuthService = {
     login: jest.fn(),
+    register: jest.fn(),
     refresh: jest.fn(),
     logout: jest.fn(),
   };
+  const response = {
+    cookie: jest.fn(),
+    clearCookie: jest.fn(),
+  } as unknown as Response;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -19,60 +24,73 @@ describe('AuthController', () => {
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
-    service = module.get<AuthService>(AuthService);
+    jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
-
-  describe('login', () => {
-    it('should call authService.login', async () => {
-      const loginDto = {
-        email: 'student@university.edu',
-        password: 'password123',
-      };
-      const expectedResult = {
-        success: true,
-        data: {
-          accessToken: 'token',
-          refreshToken: 'refToken',
-          user: {} as any,
-        },
-        message: 'Login successful',
-      };
-      mockAuthService.login.mockResolvedValue(expectedResult);
-
-      const result = await controller.login(loginDto);
-      expect(result).toEqual(expectedResult);
-      expect(mockAuthService.login).toHaveBeenCalledWith(loginDto);
+  it('sets the refresh token as an HttpOnly cookie on login', async () => {
+    const loginDto = {
+      email: 'student@university.edu',
+      password: 'password123',
+    };
+    const expectedResponse = {
+      success: true,
+      data: { accessToken: 'token', user: {} },
+      message: 'Login successful',
+    };
+    mockAuthService.login.mockResolvedValue({
+      refreshToken: 'refresh-token',
+      response: expectedResponse,
     });
+
+    const result = await controller.login(loginDto, response);
+
+    expect(result).toEqual(expectedResponse);
+    expect(response.cookie).toHaveBeenCalledWith(
+      REFRESH_COOKIE_NAME,
+      'refresh-token',
+      expect.objectContaining({ httpOnly: true, sameSite: 'strict' }),
+    );
   });
 
-  describe('refresh', () => {
-    it('should call authService.refresh', async () => {
-      const refreshDto = { refreshToken: 'refToken' };
-      const expectedResult = {
-        success: true,
-        data: { accessToken: 'newToken' },
-        message: 'Token refreshed successfully',
-      };
-      mockAuthService.refresh.mockResolvedValue(expectedResult);
+  it('prefers the refresh cookie over the legacy request body', async () => {
+    const request = {
+      cookies: { [REFRESH_COOKIE_NAME]: 'cookie-token' },
+    } as unknown as Request;
+    const expectedResult = {
+      success: true,
+      data: { accessToken: 'newToken' },
+      message: 'Token refreshed successfully',
+    };
+    mockAuthService.refresh.mockResolvedValue(expectedResult);
 
-      const result = await controller.refresh(refreshDto);
-      expect(result).toEqual(expectedResult);
-      expect(mockAuthService.refresh).toHaveBeenCalledWith(refreshDto);
-    });
+    const result = await controller.refresh(
+      { refreshToken: 'body-token' },
+      request,
+    );
+
+    expect(result).toEqual(expectedResult);
+    expect(mockAuthService.refresh).toHaveBeenCalledWith('cookie-token');
   });
 
-  describe('logout', () => {
-    it('should call authService.logout', async () => {
-      const expectedResult = { success: true, message: 'Logout successful' };
-      mockAuthService.logout.mockResolvedValue(expectedResult);
+  it('keeps body refresh tokens as a compatibility fallback', async () => {
+    const request = { cookies: {} } as unknown as Request;
+    mockAuthService.refresh.mockResolvedValue({ success: true });
 
-      const result = await controller.logout();
-      expect(result).toEqual(expectedResult);
-      expect(mockAuthService.logout).toHaveBeenCalled();
-    });
+    await controller.refresh({ refreshToken: 'body-token' }, request);
+
+    expect(mockAuthService.refresh).toHaveBeenCalledWith('body-token');
+  });
+
+  it('clears the refresh cookie on logout', () => {
+    const expectedResult = { success: true, message: 'Logout successful' };
+    mockAuthService.logout.mockReturnValue(expectedResult);
+
+    const result = controller.logout(response);
+
+    expect(result).toEqual(expectedResult);
+    expect(response.clearCookie).toHaveBeenCalledWith(
+      REFRESH_COOKIE_NAME,
+      expect.objectContaining({ httpOnly: true, path: '/api/auth' }),
+    );
   });
 });

@@ -69,7 +69,7 @@ describe('UserService', () => {
   });
 
   describe('update', () => {
-    it('only sends writable user fields to Prisma', async () => {
+    it('only sends admin-writable user fields to Prisma', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
       mockPrismaService.user.update.mockResolvedValue(mockUser);
 
@@ -92,6 +92,45 @@ describe('UserService', () => {
           role: UserRole.STUDENT,
           universityId: 'STD002',
           department: 'Teknik Informatika dan Komputer',
+        },
+      });
+    });
+  });
+
+  describe('updateSelf', () => {
+    it('never forwards role, status, or photoUrl', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockPrismaService.user.update.mockResolvedValue(mockUser);
+
+      await service.updateSelf('usr-1', {
+        fullName: 'Updated Student',
+        role: 'ADMIN',
+        status: 'AKTIF',
+        photoUrl: 'attacker-controlled-key',
+      } as any);
+
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith({
+        where: { id: 'usr-1' },
+        data: { fullName: 'Updated Student' },
+      });
+    });
+  });
+
+  describe('updateAvatar', () => {
+    it('updates photoUrl only through the dedicated method', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
+      mockPrismaService.user.update.mockResolvedValue(mockUser);
+
+      await service.updateAvatar('usr-1', {
+        photoUrl:
+          'http://localhost:3000/api/users/usr-1/avatar/view?f=avatar-1-2.jpg',
+      });
+
+      expect(mockPrismaService.user.update).toHaveBeenCalledWith({
+        where: { id: 'usr-1' },
+        data: {
+          photoUrl:
+            'http://localhost:3000/api/users/usr-1/avatar/view?f=avatar-1-2.jpg',
         },
       });
     });

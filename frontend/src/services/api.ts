@@ -25,12 +25,43 @@ const toUser = (user: ApiUser): User => ({
 });
 
 class ApiClient {
-  private getAuthHeader(): Record<string, string> {
-    const token = localStorage.getItem('auth_token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
+  private accessToken: string | null = null;
+  private refreshPromise: Promise<string | null> | null = null;
+
+  setAccessToken(token: string | null): void {
+    this.accessToken = token;
   }
 
-  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  private getAuthHeader(): Record<string, string> {
+    return this.accessToken ? { Authorization: `Bearer ${this.accessToken}` } : {};
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    if (!this.refreshPromise) {
+      this.refreshPromise = fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{}',
+      })
+        .then(async (response) => {
+          if (!response.ok) return null;
+          const result = await response.json() as ApiResponse<{ accessToken: string }>;
+          this.accessToken = result.data.accessToken;
+          return this.accessToken;
+        })
+        .finally(() => {
+          this.refreshPromise = null;
+        });
+    }
+    return this.refreshPromise;
+  }
+
+  async restoreSession(): Promise<string | null> {
+    return this.refreshAccessToken();
+  }
+
+  private async request<T>(endpoint: string, options: RequestInit = {}, allowRetry = true): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
     const isFormData = options.body instanceof FormData;
     const headers = {
@@ -41,10 +72,21 @@ class ApiClient {
 
     let response: Response;
     try {
-      response = await fetch(url, { ...options, headers });
+      response = await fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include',
+      });
     } catch (err: unknown) {
       console.error(`Fetch error for ${endpoint}:`, err);
       throw err;
+    }
+
+    if (response.status === 401 && allowRetry && !endpoint.startsWith('/auth/')) {
+      const refreshedToken = await this.refreshAccessToken();
+      if (refreshedToken) {
+        return this.request<T>(endpoint, options, false);
+      }
     }
 
     const data = await response.json();
@@ -80,7 +122,6 @@ class ApiClient {
         email: user.email,
         password: user.password,
         fullName: user.name,
-        role: user.role,
         universityId: user.userId,
         department: user.department,
         prodi: user.prodi,
@@ -90,8 +131,12 @@ class ApiClient {
     });
   }
 
-  logout(): Promise<ApiResponse<unknown>> {
-    return this.request('/auth/logout', { method: 'POST' });
+  async logout(): Promise<ApiResponse<unknown>> {
+    try {
+      return await this.request('/auth/logout', { method: 'POST' }, false);
+    } finally {
+      this.accessToken = null;
+    }
   }
 
   getProfile(): Promise<ApiResponse<User>> {
@@ -133,10 +178,21 @@ class ApiClient {
     return new URL(path, API_BASE_URL).toString();
   }
 
+  async fetchAuthenticatedBlob(url: string): Promise<Blob> {
+    const response = await fetch(url, {
+      headers: this.getAuthHeader(),
+      credentials: 'include',
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch protected asset');
+    }
+    return response.blob();
+  }
+
   async downloadLetter(submissionId: string): Promise<void> {
     const response = await fetch(
       `${API_BASE_URL}/documents/letter/${submissionId}`,
-      { headers: this.getAuthHeader() },
+      { headers: this.getAuthHeader(), credentials: 'include' },
     );
 
     if (!response.ok) {
@@ -209,11 +265,12 @@ class ApiClient {
     return { ...response, data: response.data.map(toUser) };
   }
 
-  createUser(user: Partial<User>): Promise<ApiResponse<User>> {
+  createUser(user: Partial<User> & { password?: string }): Promise<ApiResponse<User>> {
     return this.request<User>('/users', {
       method: 'POST',
       body: JSON.stringify({
         email: user.email,
+        password: user.password,
         fullName: user.name,
         role: user.role,
         universityId: user.userId,
@@ -238,7 +295,6 @@ class ApiClient {
         dosenPA: user.dosenPA,
         dosenPANip: user.dosenPANip,
         status: user.status,
-        photoUrl: user.photoUrl,
       }),
     });
   }
