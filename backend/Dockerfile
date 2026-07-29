@@ -1,4 +1,4 @@
-FROM node:20.19.5-alpine3.22 AS build
+FROM node:24-alpine3.22 AS build
 
 RUN apk add --no-cache openssl
 WORKDIR /app
@@ -11,7 +11,7 @@ RUN npx prisma generate
 COPY . .
 RUN npm run build && npm prune --omit=dev
 
-FROM node:20.19.5-alpine3.22 AS production
+FROM node:24-alpine3.22 AS production
 
 RUN apk add --no-cache openssl \
     && npm install --global prisma@5.22.0 \
