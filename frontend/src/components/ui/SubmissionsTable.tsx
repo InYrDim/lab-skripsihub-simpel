@@ -3,6 +3,7 @@ import { Eye, Clock, CheckCircle, XCircle } from 'lucide-react';
 import type { Submission, ValidatorInfo, SubmissionStatus } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from './button';
+import { TableSkeletonRows } from './TableSkeletonRows';
 
 interface SubmissionsTableProps {
   submissions: Submission[];
@@ -59,6 +60,8 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
 }) => {
   const { user } = useAuth();
   const normalizedRole = user?.role?.toUpperCase() || 'ADMIN';
+  const columnCount = normalizedRole === 'VALIDATOR' ? 7 : 6;
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm text-left">
@@ -90,14 +93,10 @@ export const SubmissionsTable: React.FC<SubmissionsTableProps> = ({
         </thead>
         <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
           {loading ? (
-            <tr>
-              <td colSpan={normalizedRole === 'VALIDATOR' ? 7 : 6} className="px-6 py-8 text-center text-zinc-400 text-xs">
-                Loading submissions...
-              </td>
-            </tr>
+            <TableSkeletonRows columns={columnCount} />
           ) : submissions.length === 0 ? (
             <tr>
-              <td colSpan={normalizedRole === 'VALIDATOR' ? 7 : 6} className="px-6 py-8 text-center text-zinc-400 text-xs">
+              <td colSpan={columnCount} className="px-6 py-8 text-center text-zinc-400 text-xs">
                 No submissions found.
               </td>
             </tr>

@@ -6,6 +6,7 @@ import type { User, UserRole, Topic } from '../types';
 import { Select } from '../components/ui/select';
 import { Dialog } from '../components/ui/dialog';
 import { AuthenticatedImage } from '../components/ui/AuthenticatedImage';
+import { TableSkeletonRows } from '../components/ui/TableSkeletonRows';
 import { 
   Users, 
   UserPlus, 
@@ -24,6 +25,7 @@ export const AdminManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'settings'>('users');
   const [users, setUsers] = useState<User[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
 
   // Filters
   const [userStatusFilter, setUserStatusFilter] = useState<string>('ALL');
@@ -90,6 +92,7 @@ export const AdminManagement: React.FC = () => {
   const [savingDepartment, setSavingDepartment] = useState(false);
 
   const fetchInitialData = async () => {
+    setUsersLoading(true);
     try {
       const [usrRes, topRes] = await Promise.all([
         api.getUsers(),
@@ -99,6 +102,8 @@ export const AdminManagement: React.FC = () => {
       if (topRes.success) setTopics(topRes.data || []);
     } catch (err) {
       console.error(err);
+    } finally {
+      setUsersLoading(false);
     }
   };
 
@@ -430,7 +435,9 @@ export const AdminManagement: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
-                  {filteredUsers.length === 0 ? (
+                  {usersLoading ? (
+                    <TableSkeletonRows columns={showStudentIdentityColumn ? 4 : 3} />
+                  ) : filteredUsers.length === 0 ? (
                     <tr>
                       <td colSpan={showStudentIdentityColumn ? 4 : 3} className="px-6 py-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
                         Tidak ada user pada role ini.

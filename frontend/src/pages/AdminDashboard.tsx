@@ -11,6 +11,7 @@ import { BerkasPengajuan } from '../components/ui/BerkasPengajuan';
 import { ProposedTitlesList } from '../components/ui/ProposedTitlesList';
 import { StudentIdentityCard } from '../components/ui/StudentIdentityCard';
 import { SubmissionsTable, getStatusBadge } from '../components/ui/SubmissionsTable';
+import { TableSkeletonRows } from '../components/ui/TableSkeletonRows';
 import {
   Users,
   FileText,
@@ -34,6 +35,7 @@ export const AdminDashboard: React.FC = () => {
   const [allTitles, setAllTitles] = useState<any[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialDataLoading, setInitialDataLoading] = useState(true);
 
 
   // Filters & Pagination
@@ -106,6 +108,7 @@ export const AdminDashboard: React.FC = () => {
   const [showPendingUsersModal, setShowPendingUsersModal] = useState(false);
 
   const fetchInitialData = async () => {
+    setInitialDataLoading(true);
     try {
       const [valRes, usrRes, statsRes, topRes, allTitlesRes] = await Promise.all([
         api.getValidators(),
@@ -121,6 +124,8 @@ export const AdminDashboard: React.FC = () => {
       if (allTitlesRes.success) setAllTitles(allTitlesRes.data || []);
     } catch (err) {
       console.error(err);
+    } finally {
+      setInitialDataLoading(false);
     }
   };
 
@@ -579,7 +584,9 @@ export const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
-                  {allTitles.filter(t =>
+                  {initialDataLoading ? (
+                    <TableSkeletonRows columns={4} />
+                  ) : allTitles.filter(t =>
                     (allTitlesTopicFilter === 'ALL' || t.topic === allTitlesTopicFilter) &&
                     (allTitlesProdiFilter === 'ALL' || t.studentProdi === allTitlesProdiFilter)
                   ).length === 0 ? (
@@ -1156,7 +1163,9 @@ export const AdminDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
-                  {users.filter(u => u.status === 'MENUNGGU_APPROVE').length === 0 ? (
+                  {initialDataLoading ? (
+                    <TableSkeletonRows columns={3} rows={4} />
+                  ) : users.filter(u => u.status === 'MENUNGGU_APPROVE').length === 0 ? (
                     <tr>
                       <td colSpan={3} className="px-6 py-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
                         Tidak ada mahasiswa yang menunggu persetujuan.

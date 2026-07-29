@@ -9,8 +9,12 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const { user, token } = useAuth();
+  const { user, token, loading } = useAuth();
   const location = useLocation();
+
+  if (loading) {
+    return null;
+  }
 
   if (!user || !token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -37,7 +41,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
 };
 
 export const RoleBasedRedirect: React.FC = () => {
-  const { user, token } = useAuth();
+  const { user, token, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
 
   if (!user || !token) {
     return <Navigate to="/login" replace />;
