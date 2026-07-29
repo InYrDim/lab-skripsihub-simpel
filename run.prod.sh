@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 COMPOSE_FILE="docker-compose.prod.yml"
 ENV_FILE=".env"
-PUBLIC_URL="https://simas.biz.id"
+PUBLIC_URL="https://skripsihub.simas.biz.id"
 
 log() {
   printf '[SkripsiHub] %s\n' "$1"
@@ -52,8 +52,8 @@ jwt_secret="$(env_value JWT_SECRET)"
 [ "${#db_root_password}" -ge 24 ] || fail "DB_ROOT_PASSWORD harus memiliki minimal 24 karakter."
 [ "${#jwt_secret}" -ge 32 ] || fail "JWT_SECRET harus memiliki minimal 32 karakter."
 
-if ! grep -Eq "^[[:space:]]*VITE_API_URL[[:space:]]*=[[:space:]]*['\"]?${PUBLIC_URL}/api['\"]?[[:space:]]*$" "$ENV_FILE"; then
-  fail "VITE_API_URL harus bernilai ${PUBLIC_URL}/api."
+if ! grep -Eq "^[[:space:]]*VITE_API_URL[[:space:]]*=[[:space:]]*['\"]?/api['\"]?[[:space:]]*$" "$ENV_FILE"; then
+  fail "VITE_API_URL harus bernilai /api agar request API tetap same-origin."
 fi
 
 if ! grep -Eq "^[[:space:]]*CORS_ORIGINS[[:space:]]*=[[:space:]]*['\"]?${PUBLIC_URL}['\"]?[[:space:]]*$" "$ENV_FILE"; then

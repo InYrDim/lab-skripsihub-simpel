@@ -29,7 +29,7 @@ jobs:
             context: ./frontend
             image: skripsihub-frontend
             build_args: |
-              VITE_API_URL=https://simas.biz.id/api
+              VITE_API_URL=/api
 
     steps:
       - name: Check out repository
