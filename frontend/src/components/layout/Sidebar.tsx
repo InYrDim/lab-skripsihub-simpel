@@ -8,7 +8,6 @@ import {
   Users, 
   LogOut, 
   ChevronLeft, 
-  GraduationCap,
   History,
   User as UserIcon
 } from 'lucide-react';

@@ -22,7 +22,7 @@ import {
   ArrowLeft,
   Eye
 } from 'lucide-react';
-import { StudentIdentityCard } from '../components/ui/StudentIdentityCard';
+
 import { Button } from '../components/ui/button';
 
 const MAX_PROPOSAL_FILE_SIZE = 5 * 1024 * 1024;

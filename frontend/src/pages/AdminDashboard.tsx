@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { api } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole, Topic } from '../types';
+
+import type { Submission, ValidatorInfo, User, AdminStats, UserRole, Topic } from '../types';
 import { Select } from '../components/ui/select';
 import { Dialog } from '../components/ui/dialog';
 import { ModalDetailProposal } from '../components/ui/ModalDetailProposal';
@@ -15,16 +15,13 @@ import {
   Users,
   FileText,
   UserPlus,
-  Clock,
   CheckCircle,
   XCircle,
   UserCheck,
   X,
   Filter,
   Tag,
-  Plus,
   BookOpen,
-  Eye,
   Trash2
 } from 'lucide-react';
 
@@ -37,11 +34,11 @@ export const AdminDashboard: React.FC = () => {
   const [allTitles, setAllTitles] = useState<any[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+
 
   // Filters & Pagination
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-  const [roleFilter, setRoleFilter] = useState<string>('ALL');
+
   const [prodiFilter, setProdiFilter] = useState<string>('ALL');
   const [topicFilter, setTopicFilter] = useState<string>('ALL');
   const [allTitlesTopicFilter, setAllTitlesTopicFilter] = useState<string>('ALL');
@@ -341,26 +338,14 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleToggleTopic = async (topicId: string) => {
-    try {
-      const res = await api.toggleTopicStatus(topicId);
-      if (res.success) {
-        setTopics(topics.map(t => t.id === topicId ? { ...t, isActive: !t.isActive } : t));
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
 
   const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
     setter(value);
     setPage(1); // Reset to page 1 on filter change
   };
 
-  const filteredUsers = users.filter((u) => {
-    if (roleFilter === 'ALL') return true;
-    return u.role.toUpperCase() === roleFilter.toUpperCase();
-  });
+
 
   const getStatusBadgeLocal = getStatusBadge;
 

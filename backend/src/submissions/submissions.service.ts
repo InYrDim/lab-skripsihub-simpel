@@ -530,7 +530,7 @@ export class SubmissionsService {
 
     const now = new Date();
     const updated = await this.prisma.$transaction(async (tx) => {
-      const sub = await tx.submission.update({
+      await tx.submission.update({
         where: { id: submissionId },
         data: {
           status: SubmissionStatus.PENDING_VALIDATOR_REVIEW,
@@ -987,7 +987,7 @@ export class SubmissionsService {
 
         pdfUrl = pdfResult.pdfUrl;
         pdfS3Key = pdfResult.pdfS3Key;
-      } catch (err) {
+      } catch {
         // Fallback to default path if error
       }
     }

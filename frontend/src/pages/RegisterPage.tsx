@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
-import { GraduationCap, Mail, Lock, User, Hash, AlertTriangle, CheckCircle, MapPin } from 'lucide-react';
+import { GraduationCap, Mail, Lock, User, Hash, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Select } from '../components/ui/select';
 import { Button } from '../components/ui/button';
 import gsap from 'gsap';

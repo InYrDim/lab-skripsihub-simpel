@@ -2,15 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 
 import { api } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+
 import { BerkasPengajuan } from '../components/ui/BerkasPengajuan';
 import { SubmissionsTable } from '../components/ui/SubmissionsTable';
 import type { Submission } from '../types';
 import {
   FileCheck,
-  CheckCircle,
-  XCircle,
-  Clock,
   FileText,
   X,
   AlertCircle
@@ -20,7 +17,7 @@ export const ValidatorDashboard: React.FC = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
-  const { user } = useAuth();
+
 
   // Review Modal Form State
   const [actionType, setActionType] = useState<'APPROVE' | 'REJECT'>('APPROVE');

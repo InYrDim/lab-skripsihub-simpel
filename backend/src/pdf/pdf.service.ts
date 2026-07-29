@@ -125,7 +125,7 @@ export class PdfService {
 
     if (this.supabase) {
       try {
-        const { data, error } = await this.supabase
+        const { error } = await this.supabase
           .storage
           .from(bucketName)
           .upload(pdfS3Key, pdfBuffer, {

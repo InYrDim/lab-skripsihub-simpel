@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import type { Submission, SubmissionStatus } from '../types';
+import type { Submission } from '../types';
 import { ModalDetailProposal } from '../components/ui/ModalDetailProposal';
 import { SubmissionsTable, getStatusBadge } from '../components/ui/SubmissionsTable';
-import { Clock, CheckCircle, XCircle, Download, Eye, History, X } from 'lucide-react';
-import { StudentIdentityCard } from '../components/ui/StudentIdentityCard';
+import { XCircle, Download, Eye, History } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
 export const StudentHistoryPage: React.FC = () => {

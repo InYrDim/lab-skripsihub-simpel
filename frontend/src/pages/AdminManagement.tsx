@@ -2,21 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 import { api } from '../services/api';
-import type { Submission, ValidatorInfo, User, AdminStats, SubmissionStatus, UserRole, Topic } from '../types';
+import type { User, UserRole, Topic } from '../types';
 import { Select } from '../components/ui/select';
 import { Dialog } from '../components/ui/dialog';
 import { 
   Users, 
-  FileText, 
   UserPlus, 
-  Clock, 
   CheckCircle, 
   XCircle, 
   UserCheck,
   X,
   Tag,
   Plus,
-  BookOpen,
   Pencil,
   Trash2,
   Eye
@@ -24,32 +21,14 @@ import {
 
 export const AdminManagement: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'topics' | 'settings'>('users');
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [validators, setValidators] = useState<ValidatorInfo[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [allTitles, setAllTitles] = useState<any[]>([]);
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  // Filters & Pagination
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  // Filters
   const [userStatusFilter, setUserStatusFilter] = useState<string>('ALL');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
   const [prodiFilter, setProdiFilter] = useState<string>('ALL');
-  const [topicFilter, setTopicFilter] = useState<string>('ALL');
-  const [allTitlesTopicFilter, setAllTitlesTopicFilter] = useState<string>('ALL');
-  const [allTitlesProdiFilter, setAllTitlesProdiFilter] = useState<string>('ALL');
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalSubmissions, setTotalSubmissions] = useState(0);
 
-  // Assignment Modal
-  const [assigningSubmission, setAssigningSubmission] = useState<Submission | null>(null);
-  const [selectedValidatorId, setSelectedValidatorId] = useState<string>('');
-  const [assigning, setAssigning] = useState(false);
-  const [assignError, setAssignError] = useState<string | null>(null);
 
   // Add User Modal
   const [showAddUserModal, setShowAddUserModal] = useState(false);
@@ -109,76 +88,24 @@ export const AdminManagement: React.FC = () => {
 
   const fetchInitialData = async () => {
     try {
-      const [valRes, usrRes, statsRes, topRes, allTitlesRes] = await Promise.all([
-        api.getValidators(),
+      const [usrRes, topRes] = await Promise.all([
         api.getUsers(),
-        api.getAdminStats(),
         api.getTopics(),
-        api.getAllTitles(),
       ]);
-      if (valRes.success) setValidators(valRes.data || []);
       if (usrRes.success) setUsers(usrRes.data || []);
-      if (statsRes.success) setStats(statsRes.data);
       if (topRes.success) setTopics(topRes.data || []);
-      if (allTitlesRes.success) setAllTitles(allTitlesRes.data || []);
     } catch (err) {
       console.error(err);
     }
   };
 
-  const fetchSubmissions = async () => {
-    setLoading(true);
-    try {
-      const subRes = await api.getAdminSubmissions({
-        page, limit, status: statusFilter, prodi: prodiFilter, topic: topicFilter
-      });
-      if (subRes.success) {
-        setSubmissions(subRes.data || []);
-        if (subRes.pagination) {
-          setTotalPages(subRes.pagination.totalPages);
-          setTotalSubmissions(subRes.pagination.total);
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load submissions:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   useEffect(() => {
     fetchInitialData();
   }, []);
 
-  useEffect(() => {
-    if (false) fetchSubmissions();
-  }, [page, limit, statusFilter, prodiFilter, topicFilter, activeTab]);
 
-  const handleAssignValidator = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!assigningSubmission || !selectedValidatorId) {
-      setAssignError('Please select a validator from the list.');
-      return;
-    }
-    setAssigning(true);
-    setAssignError(null);
-
-    try {
-      const res = await api.assignValidator(assigningSubmission.submissionId, selectedValidatorId);
-      if (res.success) {
-        setAssigningSubmission(null);
-        setSelectedValidatorId('');
-        await fetchSubmissions();
-      } else {
-        setAssignError(res.message || 'Validator assignment failed.');
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error) setAssignError(err.message);
-      else setAssignError('An error occurred during assignment.');
-    } finally {
-      setAssigning(false);
-    }
-  };
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -361,10 +288,7 @@ export const AdminManagement: React.FC = () => {
     }
   };
 
-  const handleFilterChange = (setter: React.Dispatch<React.SetStateAction<string>>, value: string) => {
-    setter(value);
-    setPage(1); // Reset to page 1 on filter change
-  };
+
 
   const filteredUsers = users.filter((u) => {
     const matchesRole =
@@ -379,39 +303,7 @@ export const AdminManagement: React.FC = () => {
   });
   const showStudentIdentityColumn = ['ALL', 'STUDENT'].includes(roleFilter);
 
-  const getStatusBadge = (status: SubmissionStatus) => {
-    const s = status.toUpperCase();
-    if (s === 'PENDING_ADMIN_REVIEW') {
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20">
-          <Clock size={12} /> Pending Admin
-        </span>
-      );
-    }
-    if (s === 'PENDING_VALIDATOR_REVIEW') {
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-500/20">
-          <Clock size={12} /> With Validator
-        </span>
-      );
-    }
-    if (s === 'APPROVED') {
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
-          <CheckCircle size={12} /> Approved
-        </span>
-      );
-    }
-    if (s === 'REJECTED' || s === 'REJECTED_BY_ADMIN' || s === 'REJECTED_BY_VALIDATOR') {
-      const label = s === 'REJECTED_BY_ADMIN' ? 'Rejected by Admin' : s === 'REJECTED_BY_VALIDATOR' ? 'Rejected by Validator' : 'Rejected';
-      return (
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20">
-          <XCircle size={12} /> {label}
-        </span>
-      );
-    }
-    return <span className="text-xs font-semibold">{status}</span>;
-  };
+
 
   return (
     <>
@@ -693,90 +585,7 @@ export const AdminManagement: React.FC = () => {
             </div>
           </div>
         </TabsContent>
-        {/* TAB 4: ALL TITLES */}
-        {false && (
-          <div className="bg-white dark:bg-zinc-950 rounded shadow-sm border border-zinc-200 dark:border-zinc-800 space-y-4">
-            <div className="p-5 border-b border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <h3 className="font-semibold text-base text-zinc-900 dark:text-white flex items-center gap-2">
-                <BookOpen size={18} className="text-orange-600" />
-                All Submitted Titles
-              </h3>
-              <div className="flex gap-2">
-                <Select
-                  value={allTitlesProdiFilter}
-                  onChange={(val) => setAllTitlesProdiFilter(val as string)}
-                  options={[
-                    { value: 'ALL', label: 'Semua Prodi' },
-                    { value: 'PTIK', label: 'PTIK' },
-                    { value: 'TEKOM', label: 'TEKOM' }
-                  ]}
-                  className="w-40"
-                />
-                <Select
-                  value={allTitlesTopicFilter}
-                  onChange={(val) => setAllTitlesTopicFilter(val as string)}
-                  options={[
-                    { value: 'ALL', label: 'Semua Topik' },
-                    ...topics.map(t => ({ value: t.name, label: t.name }))
-                  ]}
-                  className="w-48"
-                />
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="text-xs text-zinc-500 dark:text-zinc-400 uppercase bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-                  <tr>
-                    <th className="px-6 py-3.5 font-medium">Student</th>
-                    <th className="px-6 py-3.5 font-medium">Topic</th>
-                    <th className="px-6 py-3.5 font-medium">Title</th>
-                    <th className="px-6 py-3.5 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-zinc-700 dark:text-zinc-300">
-                  {allTitles.filter(t => 
-                    (allTitlesTopicFilter === 'ALL' || t.topic === allTitlesTopicFilter) &&
-                    (allTitlesProdiFilter === 'ALL' || t.studentProdi === allTitlesProdiFilter)
-                  ).length === 0 ? (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-zinc-400 text-xs">
-                        No titles available.
-                      </td>
-                    </tr>
-                  ) : (
-                    allTitles
-                      .filter(t => 
-                        (allTitlesTopicFilter === 'ALL' || t.topic === allTitlesTopicFilter) &&
-                        (allTitlesProdiFilter === 'ALL' || t.studentProdi === allTitlesProdiFilter)
-                      )
-                      .map((t, i) => (
-                      <tr key={i} className="hover:bg-white dark:hover:bg-zinc-900/50 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="font-medium text-xs text-zinc-900 dark:text-zinc-100">{t.studentName || 'Student'}</div>
-                          <div className="text-[11px] text-zinc-400 mt-0.5 space-x-2 flex items-center">
-                            <span>{t.studentNIM || 'N/A'}</span>
-                            {t.studentProdi && (
-                              <span className="px-1.5 py-0.5 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-400 rounded uppercase font-bold tracking-wider">{t.studentProdi}</span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-xs font-semibold text-orange-600 dark:text-orange-400">
-                          {t.topic || 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 text-xs">
-                          {t.title}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getStatusBadge(t.submissionStatus)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+
       </div>
 
         <TabsContent value="settings" className="mt-0">
